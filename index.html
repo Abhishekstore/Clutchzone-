@@ -79,12 +79,40 @@
     });
 
     function signUp() {
-      const email = document.getElementById('email').value;
-      const pass = document.getElementById('password').value;
-      auth.createUserWithEmailAndPassword(email, pass).then(cred => {
-        return db.collection('users').doc(cred.user.uid).set({ email: email, balance: 0 });
-      }).catch(err => alert(err.message));
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    
+    if (!email || !pass) {
+        alert("Pehle Email aur Password bharein!");
+        return;
     }
+
+    firebase.auth().createUserWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            alert("Account successfully ban gaya!");
+        })
+        .catch((error) => {
+            alert("Error: " + error.message);
+        });
+}
+
+function logIn() {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    
+    if (!email || !pass) {
+        alert("Pehle Email aur Password bharein!");
+        return;
+    }
+
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            alert("Login ho gaya!");
+        })
+        .catch((error) => {
+            alert("Error: " + error.message);
+        });
+}
 
     function logIn() {
       const email = document.getElementById('email').value;
