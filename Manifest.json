@@ -1,0 +1,15 @@
+{
+  "name": "FF Esports Hub",
+  "short_name": "FF Esports",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#ff9900",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1244/1244243.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
