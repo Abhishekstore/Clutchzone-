@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - FF Esports</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #0d1117; color: #fff; margin: 0; padding: 15px; }
+    .card { background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #30363d; }
+    h2 { color: #58a6ff; margin-top: 0; }
+    input, button { width: 100%; padding: 10px; margin: 6px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+    input { background: #21262d; color: #fff; border: 1px solid #30363d; }
+    button { background: #238636; color: #fff; font-weight: bold; cursor: pointer; }
+  </style>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <h1>👑 Admin Control Panel</h1>
+
+  <!-- Create Match -->
+  <div class="card">
+    <h2>1. Create New Match</h2>
+    <input type="text" id="match-title" placeholder="Match Title (e.g., Solo Battleground)">
+    <input type="number" id="entry-fee" placeholder="Entry Fee (₹)">
+    <input type="number" id="prize-pool" placeholder="Prize Pool (₹)">
+    <input type="text" id="room-id" placeholder="Room ID (Optional now)">
+    <input type="text" id="room-pass" placeholder="Room Password (Optional now)">
+    <button onclick="addMatch()">Publish Match</button>
+  </div>
+
+  <!-- Manage User Balance -->
+  <div class="card">
+    <h2>2. Update User Wallet</h2>
+    <input type="text" id="user-id" placeholder="User ID (UID)">
+    <input type="number" id="add-amount" placeholder="Amount to Add (₹)">
+    <button onclick="addBalance()" style="background:#8957e5;">Add Balance</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIjgyhtyv0fGNicgc1T-JjUunyv3zVLJ8",
+      authDomain: "ff-tournaments-af47a.firebaseapp.com",
+      projectId: "ff-tournaments-af47a",
+      storageBucket: "ff-tournaments-af47a.firebasestorage.app",
+      messagingSenderId: "238745686365",
+      appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
+      measurementId: "G-BMHDM9WFJB"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function addMatch() {
+      const title = document.getElementById('match-title').value;
+      const fee = Number(document.getElementById('entry-fee').value);
+      const prize = Number(document.getElementById('prize-pool').value);
+      const roomId = document.getElementById('room-id').value;
+      const roomPass = document.getElementById('room-pass').value;
+
+      if(!title || !fee) return alert('Match title aur Entry fee zaroori hai!');
+
+      db.collection('matches').add({
+        title: title,
+        entryFee: fee,
+        prize: prize,
+        roomId: roomId,
+        roomPass: roomPass,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert('Match Publish Ho Gaya!');
+        document.getElementById('match-title').value = '';
+        document.getElementById('entry-fee').value = '';
+        document.getElementById('prize-pool').value = '';
+      }).catch(err => alert(err.message));
+    }
+
+    function addBalance() {
+      const uid = document.getElementById('user-id').value;
+      const amount = Number(document.getElementById('add-amount').value);
+
+      if(!uid || !amount) return alert('User UID aur Amount dono daalein!');
+
+      const userRef = db.collection('users').doc(uid);
+      userRef.update({
+        balance: firebase.firestore.FieldValue.increment(amount)
+      }).then(() => {
+        alert('Wallet Balance Updated Successfully!');
+        document.getElementById('user-id').value = '';
+        document.getElementById('add-amount').value = '';
+      }).catch(err => alert('Error: ' + err.message));
+    }
+  </script>
+</body>
+</html>

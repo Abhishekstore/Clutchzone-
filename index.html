@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Fire Esports Tournament</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 15px; }
+    .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; }
+    h2 { color: #ff9900; margin-top: 0; }
+    input, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+    input { background: #2a2a2a; color: #fff; }
+    button { background: #ff9900; color: #000; font-weight: bold; cursor: pointer; }
+    .hidden { display: none; }
+    .match-btn { background: #28a745; color: #fff; }
+  </style>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <h1>🔥 FF Esports Hub</h1>
+
+  <!-- Login/Signup Section -->
+  <div id="auth-box" class="card">
+    <h2>Login / Register</h2>
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="signUp()">Register</button>
+    <button onclick="logIn()" style="background:#007bff; color:#fff;">Login</button>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div id="dashboard" class="card hidden">
+    <h2 id="user-email">Welcome Player</h2>
+    <p>Wallet Balance: <b>₹<span id="balance">0</span></b></p>
+    <button onclick="logOut()" style="background:#dc3545; color:#fff;">Logout</button>
+  </div>
+
+  <!-- Matches Section -->
+  <div id="matches-box" class="card hidden">
+    <h2>Upcoming Tournaments</h2>
+    <div id="match-list"><p>Loading matches...</p></div>
+  </div>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIjgyhtyv0fGNicgc1T-JjUunyv3zVLJ8",
+      authDomain: "ff-tournaments-af47a.firebaseapp.com",
+      projectId: "ff-tournaments-af47a",
+      storageBucket: "ff-tournaments-af47a.firebasestorage.app",
+      messagingSenderId: "238745686365",
+      appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
+      measurementId: "G-BMHDM9WFJB"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Auth Listener
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('auth-box').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('matches-box').classList.remove('hidden');
+        document.getElementById('user-email').innerText = "User: " + user.email;
+        loadUserData(user.uid);
+        loadMatches();
+      } else {
+        document.getElementById('auth-box').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('matches-box').classList.add('hidden');
+      }
+    });
+
+    function signUp() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+        return db.collection('users').doc(cred.user.uid).set({ email: email, balance: 0 });
+      }).catch(err => alert(err.message));
+    }
+
+    function logIn() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+    }
+
+    function logOut() { auth.signOut(); }
+
+    function loadUserData(uid) {
+      db.collection('users').doc(uid).onSnapshot(doc => {
+        if(doc.exists) document.getElementById('balance').innerText = doc.data().balance || 0;
+      });
+    }
+
+    function loadMatches() {
+      db.collection('matches').onSnapshot(snapshot => {
+        let html = '';
+        snapshot.forEach(doc => {
+          const match = doc.data();
+          html += `
+            <div style="border: 1px solid #444; padding: 10px; margin-top: 10px; border-radius: 5px;">
+              <h3>${match.title || 'Daily FF Match'}</h3>
+              <p>Entry Fee: ₹${match.entryFee || 10} | Prize Pool: ₹${match.prize || 100}</p>
+              <button class="match-btn" onclick="alert('Joined successfully!')">Join Match</button>
+            </div>
+          `;
+        });
+        document.getElementById('match-list').innerHTML = html || '<p>No matches active right now.</p>';
+      });
+    }
+  </script>
+</body>
+</html>
