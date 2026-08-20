@@ -3,296 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClutchZone Esports - Pro Gaming Hub</title>
+    <title>ClutchZone Pro - Ultimate Esports Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 0 0 70px 0; }
-        .app-header { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px 15px; border-bottom: 2px solid #ff9900; }
-        .wallet-badge { background: #ff9900; color: #000; padding: 6px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        .container { padding: 12px; }
-        .card { background: #1e1e1e; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
-        .banner { background: linear-gradient(45deg, #2a2a2a, #1a1a1a); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #ff9900; margin-bottom: 15px; }
-        .announcement-bar { background: #251f0f; border-left: 4px solid #ff9900; padding: 8px 12px; font-size: 12px; margin-bottom: 15px; border-radius: 6px; color: #ffcc00; }
-        .tournament-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .t-card { background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #333; text-align: center; padding-bottom: 10px; }
-        .t-card h4 { margin: 8px 0 4px 0; font-size: 14px; }
-        .t-card p { font-size: 11px; color: #aaa; margin: 0 0 8px 0; }
-        button { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; box-sizing: border-box; }
+        :root { --primary: #ff9900; --secondary: #007bff; --success: #2ecc71; --bg: #0a0b10; --card-bg: rgba(255, 255, 255, 0.05); }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #fff; margin: 0; padding: 0 0 80px 0; }
+        .glass { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(10, 11, 16, 0.85); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+        .wallet-pill { background: linear-gradient(90deg, #ff9900, #ffcc00); color: #000; padding: 5px 15px; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .container { padding: 15px; }
+        .stat-card { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; text-align: center; }
+        .stat-box small { color: #aaa; font-size: 11px; }
+        .stat-box div { font-size: 18px; font-weight: 700; }
+        .status-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 15px; }
+        .tab-btn { background: transparent; border: none; color: #aaa; padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: #000; }
+        .t-card { padding: 15px; margin-bottom: 15px; position: relative; }
+        .status-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; font-weight: 700; }
+        .badge-upcoming { background: var(--secondary); } .badge-live { background: var(--success); } .badge-finished { background: #555; }
+        button.btn-primary { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; }
+        input.input-glass { width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 13px; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
         .hidden { display: none; }
-        .match-btn { background: #28a745; color: #fff; width: 90%; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #444; z-index: 1000; }
-        .nav-item { text-align: center; color: #aaa; font-size: 11px; cursor: pointer; }
-        .nav-item div { font-size: 20px; }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <div>Welcome, <b id="header-username">Gamer</b></div>
-        <div class="wallet-badge" onclick="addMoney()">💰 <span id="balance">₹0</span> +</div>
+        <div class="logo">CLUTCHZONE PRO</div>
+        <div class="wallet-pill" onclick="addMoney()">₹<span id="balance">0</span> +</div>
     </div>
 
     <div class="container">
         <!-- Auth Box -->
-        <div id="auth-box" class="card">
-            <h2>🔥 Login / Register</h2>
-            <input type="email" id="email" placeholder="Email Address">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="signUp()">Register</button>
-            <button onclick="logIn()" style="background: #007bff; color: #fff; margin-top: 10px;">Login</button>
+        <div id="auth-box" class="glass" style="padding: 25px; text-align: center; margin-top: 40px;">
+            <h2 style="color:var(--primary);">Welcome Gamer</h2>
+            <p style="font-size:12px; color:#aaa;">Login or Register to start earning</p>
+            <input type="email" id="email" class="input-glass" placeholder="Email Address">
+            <input type="password" id="password" class="input-glass" placeholder="Password">
+            <button onclick="logIn()" class="btn-primary" style="margin-top: 10px;">Login</button>
+            <button onclick="signUp()" class="btn-primary" style="background:var(--secondary); color:#fff; margin-top: 8px;">Register</button>
         </div>
 
         <!-- Main Dashboard -->
         <div id="main-content" class="hidden">
-            <div class="announcement-bar">📢 <b>Notice:</b> Minimum withdrawal limit is now ₹80!</div>
-
-            <!-- Player Profile Stats Card -->
-            <div class="card" style="border: 1px solid #28a745; background: #15231c;">
-                <h3 style="color: #28a745; margin-top:0;">📊 My Gaming Stats</h3>
-                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 8px;">
-                    <span>⚔️ Total Kills: <b id="stat-kills" style="color: #ff9900;">0</b></span>
-                    <span>🏆 Total Winnings: <b id="stat-winnings" style="color: #28a745;">₹0</b></span>
-                </div>
+            
+            <!-- Stats -->
+            <div class="stat-card">
+                <div class="stat-box glass"><small>Winnings</small><div id="stat-winnings" style="color:var(--success);">₹0</div></div>
+                <div class="stat-box glass"><small>Total Kills</small><div id="stat-kills" style="color:var(--primary)">0</div></div>
             </div>
 
-            <!-- Loyalty / 10 Games Reward Card -->
-            <div class="card" style="border: 1px solid #007bff; background: #182232;">
-                <h3 style="color: #007bff; margin-top:0;">🎯 Play 10 Games = 1 FREE Entry</h3>
-                <div style="background: #0d1117; border-radius: 10px; height: 14px; width: 100%; margin: 8px 0; overflow: hidden; border: 1px solid #333;">
-                    <div id="loyalty-bar" style="background: linear-gradient(90deg, #007bff, #28a745); height: 100%; width: 0%; transition: width 0.4s;"></div>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                    <span>Matches Played: <b id="played-count">0</b>/10</span>
-                    <span>Free Passes: <b id="free-passes" style="color:#28a745;">0 🎟️</b></span>
-                </div>
+            <!-- Profile Setup -->
+            <div class="glass" style="padding: 15px; margin-bottom: 20px;">
+                <h5 style="margin:0 0 8px 0; font-size:14px; color:var(--secondary);">🎮 Game Profile (Required)</h5>
+                <input type="text" id="profile-ign" class="input-glass" placeholder="Free Fire In-Game Name">
+                <input type="text" id="profile-uid" class="input-glass" placeholder="Free Fire UID">
+                <button onclick="saveProfile()" class="btn-primary" style="padding: 8px; margin-top:5px; font-size:12px;">Save Profile</button>
             </div>
 
-            <h3>🔥 Live Tournaments</h3>
-            <div id="match-list" class="tournament-grid"></div>
+            <!-- Tournament 3 Columns/Tabs -->
+            <div class="status-tabs">
+                <button class="tab-btn active" onclick="switchTab('upcoming', this)">UPCOMING</button>
+                <button class="tab-btn" onclick="switchTab('live', this)">LIVE</button>
+                <button class="tab-btn" onclick="switchTab('finished', this)">FINISHED</button>
+            </div>
 
-            <!-- Organizer Subscription Gatekeeper -->
-            <div id="organizer-gatekeeper" class="card" style="border: 1px solid #ff9900; background: #251f0f;">
-                <h3 style="color: #ff9900;">🚀 Become an Organizer</h3>
-                <p style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Host tournaments and keep 40% profit! Select a plan:</p>
-                <button onclick="buyOrganizerPass(250, '1 Month')" style="background: #ff9900; color: #000; margin-bottom: 8px;">1 Month Pass - ₹250</button>
-                <button onclick="buyOrganizerPass(650, '3 Months')" style="background: #ff9900; color: #000; margin-bottom: 8px;">3 Months Pass - ₹650</button>
-                <button onclick="buyOrganizerPass(1200, '6 Months')" style="background: #ff9900; color: #000;">6 Months Pass - ₹1200</button>
+            <div id="match-list"></div>
+
+            <!-- Global Leaderboard -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; color:var(--primary); font-size:14px;">👑 Top Killers Leaderboard</h5>
+                <div id="leaderboard-list"><p style="font-size:11px; color:#666;">Loading ranking...</p></div>
+            </div>
+
+            <!-- Winners Feed -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; color:var(--success); font-size:14px;">🏆 Recent Winners Feed</h5>
+                <div id="winners-list"><p style="font-size:11px; color:#666;">No recent winners yet.</p></div>
+            </div>
+
+            <!-- Withdrawal Section (Min ₹80) -->
+            <div class="glass" style="padding: 15px; margin-top: 20px; border: 1px solid var(--secondary);">
+                <h5 style="margin:0 0 5px 0; color:var(--secondary); font-size:14px;">💸 Withdraw Funds</h5>
+                <p style="font-size: 10px; color: #aaa; margin-bottom: 8px;">Minimum withdrawal limit is ₹80.</p>
+                <input type="number" id="w-amount" class="input-glass" placeholder="Amount (Min 80)">
+                <input type="text" id="w-upi" class="input-glass" placeholder="Enter UPI ID">
+                <button onclick="requestWithdrawal()" class="btn-primary" style="background:var(--secondary);">SUBMIT WITHDRAWAL</button>
+            </div>
+
+            <!-- Wallet Statement -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; font-size:14px;">🧾 Wallet Transaction History</h5>
+                <div id="tx-history" style="max-height: 150px; overflow-y: auto;">
+                    <p style="font-size:11px; color:#666; text-align:center;">No transactions yet.</p>
+                </div>
             </div>
 
             <!-- Organizer Dashboard -->
-            <div id="organizer-dashboard" class="card hidden" style="border: 2px dashed #28a745;">
-                <h3 style="color: #28a745;">🧑‍💼 Host Tournament Dashboard</h3>
-                <p id="expiry-status" style="font-size: 12px; color: #28a745; margin-bottom: 10px;"></p>
+            <div id="organizer-panel" class="hidden glass" style="padding: 15px; border: 1px dashed var(--success); margin-top: 20px;">
+                <h4 style="color:var(--success); margin-top:0; font-size:15px;">🧑‍💼 Organizer Command Center</h4>
+                <div style="background: rgba(46, 204, 113, 0.1); border-left: 3px solid var(--success); padding: 8px; font-size: 11px; margin-bottom: 12px; border-radius: 4px; color: #2ecc71;">
+                    📅 <b>Weekly Payout Policy:</b> All earnings & profit shares are settled & transferred to your UPI **every Monday**.
+                </div>
                 
-                <input type="text" id="match-title" placeholder="Tournament Name">
-                <input type="text" id="room-id" placeholder="Room ID">
-                <input type="text" id="room-pass" placeholder="Room Password">
-                <input type="number" id="entry-fee" placeholder="Entry Fee">
-                <button onclick="createTournament()" style="background: #28a745; color: #fff;">Create Match</button>
+                <input type="text" id="match-title" class="input-glass" placeholder="Match Title (e.g. Solo Classic)">
+                <select id="match-status" class="input-glass" style="background: #1a1a1a;">
+                    <option value="upcoming">Status: Upcoming</option>
+                    <option value="live">Status: Live</option>
+                    <option value="finished">Status: Finished</option>
+                </select>
+                <input type="text" id="room-id" class="input-glass" placeholder="Room ID">
+                <input type="text" id="room-pass" class="input-glass" placeholder="Room Password">
+                <input type="number" id="entry-fee" class="input-glass" placeholder="Entry Fee">
+                <button onclick="createTournament()" class="btn-primary" style="background:var(--success); color:#fff; margin-bottom:15px;">Launch Tournament</button>
 
-                <hr style="border-color: #333; margin: 15px 0;">
-                
-                <h4 style="color: #ff9900; margin-bottom: 5px;">🏆 Distribute Prize & Kills</h4>
-                <input type="text" id="winner-uid" placeholder="Winner User UID">
-                <input type="number" id="prize-amount" placeholder="Prize Money to Add (₹)">
-                <input type="number" id="match-kills" placeholder="Kills Scored">
-                <button onclick="distributePrize()" style="background: #007bff; color: #fff;">Send Prize & Update Stats</button>
-            </div>
-
-            <!-- Refer & Earn Card -->
-            <div class="card" style="border: 1px solid #ff9900; background: #1a1a1a;">
-                <h3 style="color: #ff9900;">🎁 Refer & Earn ₹10</h3>
-                <input type="text" id="ref-link" readonly style="background: #111; color: #ff9900; text-align: center; font-weight: bold;">
-                <button onclick="copyRefLink()" style="background: #ff9900; color: #000; margin-top: 5px;">Copy Link</button>
-                <button onclick="shareOnWhatsApp()" style="background: #28a745; color: #fff; margin-top: 8px;">Share on WhatsApp</button>
-            </div>
-
-            <!-- Wallet & Support -->
-            <div class="card">
-                <h3>💸 Wallet & Support</h3>
-                <button onclick="requestWithdrawal()" style="background: #17a2b8; color: #fff;">Request Withdrawal</button>
-                <button onclick="showRules()" style="background: #6c757d; color: #fff; margin-top: 10px;">View Rules</button>
-                <button onclick="openSupport()" style="background: #007bff; color: #fff; margin-top: 10px;">🎧 Telegram Support</button>
+                <hr style="border-color:rgba(255,255,255,0.1); margin:10px 0;">
+                <h5 style="color:var(--primary); margin:5px 0; font-size:13px;">⚡ Instant Kill & Prize Payout</h5>
+                <p style="font-size:10px; color:#aaa; margin-bottom:8px;">Credits to player's wallet in 2-3 mins via FF UID.</p>
+                <input type="text" id="p-ffuid" class="input-glass" placeholder="Player Free Fire UID">
+                <input type="number" id="p-prize" class="input-glass" placeholder="Prize Amount (₹)">
+                <input type="number" id="p-kills" class="input-glass" placeholder="Kills Scored">
+                <button onclick="processInstantPayout()" class="btn-primary" style="background:var(--secondary);">⚡ Credit Instantly</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script>
-    const firebaseConfig = { apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8", authDomain: "ff-tournaments-af47a.firebaseapp.com", projectId: "ff-tournaments-af47a", storageBucket: "ff-tournaments-af47a.appspot.com", messagingSenderId: "238745686365", appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4" };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(); const db = firebase.firestore();
+        const firebaseConfig = { apiKey: "AIzaSyA1jgyhtyv0fGNicgcIT-JjUunyv3zVLJ8", authDomain: "ff-tournaments-af47a.firebaseapp.com", projectId: "ff-tournaments-af47a", storageBucket: "ff-tournaments-af47a.appspot.com", messagingSenderId: "238745686365", appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); const db = firebase.firestore();
 
-    let userReferralLink = "";
-    let userPlayedMatches = 0;
-    let userFreeTickets = 0;
+        let currentTab = 'upcoming';
 
-    function loadUserData(uid) { 
-        db.collection('users').doc(uid).onSnapshot(doc => { 
-            if(doc.exists) {
-                const data = doc.data();
-                document.getElementById('balance').innerText = "₹" + (data.balance || 0);
-                
-                document.getElementById('stat-kills').innerText = data.kills || 0;
-                document.getElementById('stat-winnings').innerText = "₹" + (data.totalWinnings || 0);
-
-                userPlayedMatches = data.matchesPlayed || 0;
-                userFreeTickets = data.freeTickets || 0;
-
-                const currentProgress = userPlayedMatches % 10;
-                document.getElementById('played-count').innerText = currentProgress;
-                document.getElementById('free-passes').innerText = userFreeTickets + " 🎟️";
-                document.getElementById('loyalty-bar').style.width = (currentProgress * 10) + "%";
-
-                if(data.role === 'organizer' && data.planExpiry) {
-                    const expiryDate = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
-                    const now = new Date();
-
-                    if(expiryDate > now) {
-                        document.getElementById('organizer-dashboard').classList.remove('hidden');
-                        document.getElementById('organizer-gatekeeper').classList.add('hidden');
-                        document.getElementById('expiry-status').innerText = `✅ Plan Active till: ${expiryDate.toLocaleDateString()}`;
-                    } else {
-                        document.getElementById('organizer-dashboard').classList.add('hidden');
-                        document.getElementById('organizer-gatekeeper').classList.remove('hidden');
-                    }
-                } else {
-                    document.getElementById('organizer-dashboard').classList.add('hidden');
-                    document.getElementById('organizer-gatekeeper').classList.remove('hidden');
-                }
-            }
-        }); 
-    }
-
-    function buyOrganizerPass(amount, planName) {
-        const myUpiID = "kinggkwrd@okicici";
-        window.location.href = `upi://pay?pa=${myUpiID}&pn=ClutchZoneOrganizer&am=${amount}&cu=INR`;
-        setTimeout(() => {
-            if(confirm(`Pay ₹${amount} for ${planName} Pass. Click OK to copy UPI ID: ` + myUpiID)) {
-                navigator.clipboard.writeText(myUpiID).then(() => alert("UPI ID Copied! Send screenshot on Telegram with your UID."));
-            }
-        }, 3000);
-        openSupport();
-    }
-
-    function distributePrize() {
-        const winnerUid = document.getElementById('winner-uid').value.trim();
-        const prize = parseFloat(document.getElementById('prize-amount').value) || 0;
-        const kills = parseInt(document.getElementById('match-kills').value) || 0;
-
-        if(!winnerUid) { alert("Please enter Winner User UID!"); return; }
-
-        db.collection('users').doc(winnerUid).get().then(doc => {
-            if(!doc.exists) { alert("User UID not found!"); return; }
-            
-            const currentData = doc.data();
-            db.collection('users').doc(winnerUid).set({
-                balance: (currentData.balance || 0) + prize,
-                totalWinnings: (currentData.totalWinnings || 0) + prize,
-                kills: (currentData.kills || 0) + kills
-            }, { merge: true }).then(() => {
-                alert(`✅ Sent ₹${prize} and added ${kills} kills successfully!`);
-                document.getElementById('winner-uid').value = '';
-                document.getElementById('prize-amount').value = '';
-                document.getElementById('match-kills').value = '';
-            });
-        });
-    }
-
-    function joinMatch(mTitle, roomID, roomPass, fee) {
-        const uid = auth.currentUser.uid;
-        let useFreePass = false;
-
-        if (userFreeTickets > 0) {
-            useFreePass = confirm(`🎉 You have ${userFreeTickets} Free Pass(es)!\n\nUse 1 Free Pass to join "${mTitle}" for FREE?`);
-        }
-
-        let newPlayed = userPlayedMatches + 1;
-        let newTickets = userFreeTickets;
-
-        if (useFreePass) newTickets -= 1;
-        if (newPlayed % 10 === 0) {
-            newTickets += 1;
-            alert("🎯 10 matches completed! You earned a FREE Entry Pass 🎟️");
-        }
-
-        db.collection('users').doc(uid).set({
-            matchesPlayed: newPlayed,
-            freeTickets: newTickets
-        }, { merge: true }).then(() => {
-            alert(`✅ Joined Successfully!\nRoom ID: ${roomID || 'Pending'}\nPass: ${roomPass || 'Pending'}`);
-        });
-    }
-
-    function setupReferral(uid) {
-        userReferralLink = window.location.origin + window.location.pathname + "?ref=" + uid;
-        document.getElementById('ref-link').value = userReferralLink;
-    }
-
-    function copyRefLink() { navigator.clipboard.writeText(userReferralLink).then(() => alert("Link copied!")); }
-    function shareOnWhatsApp() {
-        const text = encodeURIComponent("Join ClutchZone Esports & win cash! " + userReferralLink);
-        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-
-    function openSupport() { window.open('https://t.me/Abhifftournamenthub', '_blank'); }
-    function showRules() { alert("RULES:\n1. No Teaming/Hacking.\n2. Room ID shared 15 mins before match.\n3. Take result screenshot."); }
-    
-    // Updated Withdrawal Limit to ₹80
-    function requestWithdrawal() {
-        const amount = prompt("Enter amount to withdraw (Min ₹80):");
-        if(amount >= 80) {
-            window.open(`https://t.me/Abhifftournamenthub?text=I%20want%20to%20withdraw%20Rs.%20${amount}`, '_blank');
-        } else if(amount !== null) { alert("Minimum withdrawal is ₹80."); }
-    }
-
-    function createTournament() {
-        const title = document.getElementById('match-title').value;
-        const roomID = document.getElementById('room-id').value;
-        const roomPass = document.getElementById('room-pass').value;
-        const fee = parseInt(document.getElementById('entry-fee').value);
-        
-        if(!title) { alert("Fill match title!"); return; }
-
-        db.collection("matches").add({
-            title, roomID, roomPass, entryFee: fee, organizerId: auth.currentUser.uid
-        }).then(() => alert("Tournament Created Successfully!"));
-    }
-
-    function loadMatches() { 
-        db.collection('matches').onSnapshot(s => { 
-            let h = ''; 
-            s.forEach(d => {
-                const m = d.data();
-                h += `<div class="t-card">
-                    <h4>${m.title}</h4>
-                    <p>Fee: ₹${m.entryFee || 0}</p>
-                    <button class="match-btn" onclick="joinMatch('${m.title}', '${m.roomID}', '${m.roomPass}', ${m.entryFee || 0})">JOIN / VIEW</button>
-                </div>`;
-            }); 
-            document.getElementById('match-list').innerHTML = h || '<p style="color:#aaa;">No matches right now.</p>'; 
-        }); 
-    }
-
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-box').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            document.getElementById('header-username').innerText = user.email.split('@')[0];
-            setupReferral(user.uid);
-            loadUserData(user.uid);
+        function switchTab(status, btn) {
+            currentTab = status;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             loadMatches();
-        } else {
-            document.getElementById('auth-box').classList.remove('hidden');
-            document.getElementById('main-content').classList.add('hidden');
         }
-    });
 
-    function signUp() { firebase.auth().createUserWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
-    function logIn() { firebase.auth().signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
-    </script>
-</body>
-</html>
+        function loadMatches() {
+            db.collection('matches').where('status', '==', currentTab).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const m = doc.data();
+                    html += `
+                        <div class="glass t-card">
+                            <span class="status-badge badge-${currentTab}">${currentTab}</span>
+                            <h4 style="margin:0 0 5px 0; font-size:14px;">${m.title}</h4>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#aaa; margin-bottom:10px;">
+                                <span>Fee: ₹${m.entryFee || 0}</span>
+                                <span>Room: ${m.roomID || 'Pending'}</span>
+                            </div>
+                            <button class="btn-primary" onclick="alert('Room ID & Pass will show here when match is live!')">
+                                ${currentTab === 'upcoming' ? 'JOIN MATCH' : 'VIEW DETAILS'}
+                            </button>
+                        </div>`;
+                });
+                document.getElementById('match-list').innerHTML = html || `<p style="text-align:center; color:#666; font-size:12px; padding:10px;">No ${currentTab} matches available.</p>`;
+            });
+        }
+
+        function loadLeaderboard() {
+            db.collection('users').orderBy('kills', 'desc').limit(5).onSnapshot(s => {
+                let html = ''; let rank = 1;
+                s.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px;">
+                        <span>#${rank++} <b>${d.ign || 'Gamer'}</b></span>
+                        <span style="color:var(--primary);">⚔️ ${d.kills || 0} Kills</span>
+                    </div>`;
+                });
+                document.getElementById('leaderboard-list').innerHTML = html || '<p style="font-size:11px; color:#666;">No ranking data yet.</p>';
+            });
+        }
+
+        function loadWinnersFeed() {
+            db.collection('winners').orderBy('timestamp', 'desc').limit(5).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const w = doc.data();
+                    html += `<div style="background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:6px; margin-bottom:5px; font-size:11px; border-left: 2px solid var(--success);">
+                        🏆 <b>${w.tournamentTitle}</b> — <span style="color:var(--primary);">${w.ign}</span> won <b style="color:var(--success);">₹${w.prize}</b>
+                    </div>`;
+                });
+                document.getElementById('winners-list').innerHTML = html || '<p style="font-size:11px; color:#666;">No recent winners.</p>';
+            });
+        }
+
+        function loadHistory(uid) {
+            db.collection('transactions').where('uid', '==', uid).orderBy('time', 'desc').limit(5).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const tx = doc.data();
+                    html += `
+                        <div class="history-item">
+                            <span>${tx.note}</span>
+                            <span style="color:${tx.type==='in'?'var(--success)':'var(--secondary)'}">${tx.type==='in'?'+':'-'}₹${tx.amt}</span>
+                        </div>`;
+                });
+                if(html) document.getElementById('tx-history').innerHTML = html;
+            });
+        }
+
+        function processInstantPayout() {
+            const ffuid = document.getElementById('p-ffuid').value.trim();
+            const prize = parseFloat(document.getElementById('p-prize').value) || 0;
+            const kills = parseInt(document.getElementById('p-kills').value) || 0;
+            const matchTitle = document.getElementById('match-title').value || "ClutchZone Tournament";
+
+            if(!ffuid) { alert("Enter Player FF UID!"); return; }
+
+            db.collection('users').where('ffUid', '==', ffuid).get().then(qs => {
+                if(qs.empty) { alert("User FF UID not found!"); return; }
+                qs.forEach(doc => {
+                    const userId = doc.id;
+                    const d = doc.data();
+                    db.collection('users').doc(userId).update({
+                        balance: (d.balance || 0) + prize,
+                        totalWinnings: (d.totalWinnings || 0) + prize,
+                        kills: (d.kills || 0) + kills
+                    }).then(() => {
+                        db.collection('transactions').add({ uid: userId, amt: prize, note: `Prize: ${matchTitle} (${kills} Kills)`, type: 'in', time: new Date() });
+                        if(prize > 0) {
+                            db.collection('winners').add({ tournamentTitle: matchTitle, ign: d.ign || 'Gamer', prize: prize, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                        }
+                        alert("✅ Credited successfully to player's wallet instantly!");
+                        document.getElementById('p-ffuid').value = '';
+                        document.getElementById('p-prize').value = '';
+                        document.getElementById('p-kills').value = '';
+                    });
+                });
+            });
+        }
+
+        function requestWithdrawal() {
+            const amt = parseInt(document.getElementById('w-amount').value);
+            const upi = document.getElementById('w-upi').value.trim();
+            const uid = auth.currentUser.uid;
+
+            if(amt < 80) { alert("Minimum withdrawal limit is ₹80!"); return; }
+            if(!upi) { alert("Enter your UPI ID!"); return; }
+
+            db.collection('users').doc(uid).get().then(doc => {
+                const bal = doc.data().balance || 0;
+                if(amt > bal) { alert("Insufficient balance!"); return; }
+
+                db.collection('users').doc(uid).update({ balance: bal - amt });
+                db.collection('withdrawals').add({ uid: uid, amount: amt, upi: upi, status: 'pending', time: new Date() });
+                db.collection('transactions').add({ uid: uid, amt: amt, note: 'Withdrawal Request', type: 'out', time: new Date() });
+
+                alert("✅ Withdrawal request submitted! Transferred within 24 hours.");
+                document.getElementById('w-amount').value = '';
+                document.getElementById('w-upi').value = '';
+            });
+        }
+
+        function saveProfile() {
+            const ign = document.getElementById('profile-ign').value.trim();
+            const ffUid = document.getElementById('profile-uid').value.trim();
+            if(!ign || !ffUid) { alert("Fill both IGN and UID!"); return; }
+            db.collection('users').doc(auth.currentUser.uid).set({ ign: ign, ffUid: ffUid }, { merge: true }).then(() => alert("✅ Profile Saved!"));
+        }
+
+        function addMoney() {
+            const amt = prompt("Enter amount to add (₹):");
+            if(amt >= 10) {
+                window.location.href = `upi://pay?pa=kinggkwrd@okicici&pn=ClutchZone&am=${amt}&cu=INR`;
+                alert("After payment, send screenshot on Telegram support to credit instantly.");
+                window.open('https://t.me/Abhifftournamenthub', '_blank');
+            }
+        }
+
+        function createTournament() {
+            db.collection('matches').add({
+                title: document.getElementById('match-title').value,
+                status: document.getElementById('match-status').value,
+                roomID: document.getElementById('room-id').value,
+                roomPass: document.getElementById('room-pass').value,
+                entryFee: document.getElementById('entry-fee').value,
+                time: new Date()
+            }).then(() => alert("✅ Tournament Launched Successfully!"));
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                loadMatches();
+                loadLeaderboard();
+                loadWinnersFeed();
+                loadHistory(user.uid);
+                db.collection('users').doc(user.uid).onSnapshot(doc => {
+                    if(doc.exists) {
+                        const d = doc.data();
+                        document.getElementById('balance').innerText = d.balance || 0;
+                        document.getElementById('stat-winnings').innerText = '₹' + (d.totalWinnings || 0);
+                        document.getElementById('stat-kills').innerText = d.kills || 0;
+                        if(d.ign) document.getElementById('profile-ign').value = d.ign;
+                        if(d.ffUid) document.getElementById('profile-uid').value = d.ffUid;
+                        if(d.role === 'organizer') document.getElementById('organizer-panel').classList.remove('hidden');
+                    }
+                });
+            } else {
+                document.getElementById('auth-box').classList.remove('hidden');
+                document.getElementById('main-content').c
