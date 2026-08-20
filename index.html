@@ -176,7 +176,20 @@ function logIn() {
 }
 
     function logOut() { auth.signOut(); }
-
+    // Add Money Function
+    function addMoney() {
+        let amount = prompt("Kitna paisa add karna hai? (e.g. 50, 100):");
+        
+        if (amount && amount > 0) {
+            // 👇 YAHAN APNA ASLI UPI ID DAAL DO (Jaise: yourname@paytm)
+            const myUpiID = "apna_upi_id@paytm"; 
+            const merchantName = "ClutchZone Esports";
+            
+            const upiUrl = `upi://pay?pa=${myUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`;
+            window.location.href = upiUrl;
+        }
+    }
+    
     function loadUserData(uid) {
       db.collection('users').doc(uid).onSnapshot(doc => {
         if(doc.exists) document.getElementById('balance').innerText = doc.data().balance || 0;
