@@ -11,20 +11,15 @@
         .container { padding: 12px; }
         .card { background: #1e1e1e; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
         .banner { background: linear-gradient(45deg, #2a2a2a, #1a1a1a); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #ff9900; margin-bottom: 15px; }
-        
         .announcement-bar { background: #251f0f; border-left: 4px solid #ff9900; padding: 8px 12px; font-size: 12px; margin-bottom: 15px; border-radius: 6px; color: #ffcc00; }
-
         .tournament-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .t-card { background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #333; text-align: center; padding-bottom: 10px; }
-        .t-card img { width: 100%; height: 100px; object-fit: cover; }
         .t-card h4 { margin: 8px 0 4px 0; font-size: 14px; }
         .t-card p { font-size: 11px; color: #aaa; margin: 0 0 8px 0; }
-        
         button { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; }
         input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; box-sizing: border-box; }
         .hidden { display: none; }
         .match-btn { background: #28a745; color: #fff; width: 90%; }
-        
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #444; z-index: 1000; }
         .nav-item { text-align: center; color: #aaa; font-size: 11px; cursor: pointer; }
         .nav-item div { font-size: 20px; }
@@ -38,7 +33,7 @@
     </div>
 
     <div class="container">
-        <!-- Login / Register Box -->
+        <!-- Auth Box -->
         <div id="auth-box" class="card">
             <h2>🔥 Login / Register</h2>
             <input type="email" id="email" placeholder="Email Address">
@@ -49,53 +44,77 @@
 
         <!-- Main Dashboard -->
         <div id="main-content" class="hidden">
-            
-            <div class="announcement-bar">
-                📢 <b>Notice:</b> Send payment screenshot on Telegram support after adding money or paying organizer fees!
+            <div class="announcement-bar">📢 <b>Notice:</b> Minimum withdrawal limit is now ₹80!</div>
+
+            <!-- Player Profile Stats Card -->
+            <div class="card" style="border: 1px solid #28a745; background: #15231c;">
+                <h3 style="color: #28a745; margin-top:0;">📊 My Gaming Stats</h3>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 8px;">
+                    <span>⚔️ Total Kills: <b id="stat-kills" style="color: #ff9900;">0</b></span>
+                    <span>🏆 Total Winnings: <b id="stat-winnings" style="color: #28a745;">₹0</b></span>
+                </div>
             </div>
 
-            <div class="banner">
-                <h3>⚡ ClutchZone Special Offer</h3>
-                <p>Add funds & play daily Free Fire tournaments to win cash!</p>
+            <!-- Loyalty / 10 Games Reward Card -->
+            <div class="card" style="border: 1px solid #007bff; background: #182232;">
+                <h3 style="color: #007bff; margin-top:0;">🎯 Play 10 Games = 1 FREE Entry</h3>
+                <div style="background: #0d1117; border-radius: 10px; height: 14px; width: 100%; margin: 8px 0; overflow: hidden; border: 1px solid #333;">
+                    <div id="loyalty-bar" style="background: linear-gradient(90deg, #007bff, #28a745); height: 100%; width: 0%; transition: width 0.4s;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                    <span>Matches Played: <b id="played-count">0</b>/10</span>
+                    <span>Free Passes: <b id="free-passes" style="color:#28a745;">0 🎟️</b></span>
+                </div>
             </div>
-            
+
             <h3>🔥 Live Tournaments</h3>
             <div id="match-list" class="tournament-grid"></div>
 
-            <!-- Organizer Gatekeeper (Shown to regular users) -->
+            <!-- Organizer Subscription Gatekeeper -->
             <div id="organizer-gatekeeper" class="card" style="border: 1px solid #ff9900; background: #251f0f;">
                 <h3 style="color: #ff9900;">🚀 Become an Organizer</h3>
-                <p style="font-size: 13px; color: #ccc;">Host your own tournaments and keep 40% of the profits! Activation fee: ₹250.</p>
-                <button onclick="payOrganizerFee()" style="background: #ff9900; color: #000;">Pay ₹250 Activation Fee</button>
+                <p style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Host tournaments and keep 40% profit! Select a plan:</p>
+                <button onclick="buyOrganizerPass(250, '1 Month')" style="background: #ff9900; color: #000; margin-bottom: 8px;">1 Month Pass - ₹250</button>
+                <button onclick="buyOrganizerPass(650, '3 Months')" style="background: #ff9900; color: #000; margin-bottom: 8px;">3 Months Pass - ₹650</button>
+                <button onclick="buyOrganizerPass(1200, '6 Months')" style="background: #ff9900; color: #000;">6 Months Pass - ₹1200</button>
             </div>
 
-            <!-- Organizer Dashboard (Unlocked when role is organizer) -->
+            <!-- Organizer Dashboard -->
             <div id="organizer-dashboard" class="card hidden" style="border: 2px dashed #28a745;">
-                <h3 style="color: #28a745;">🧑‍💼 Host Tournament (Organizer)</h3>
-                <input type="text" id="match-title" placeholder="Tournament Name (e.g., FF Squad)">
-                <input type="number" id="entry-fee" placeholder="Entry Fee per Player">
-                <input type="number" id="max-slots" placeholder="Total Slots">
+                <h3 style="color: #28a745;">🧑‍💼 Host Tournament Dashboard</h3>
+                <p id="expiry-status" style="font-size: 12px; color: #28a745; margin-bottom: 10px;"></p>
+                
+                <input type="text" id="match-title" placeholder="Tournament Name">
+                <input type="text" id="room-id" placeholder="Room ID">
+                <input type="text" id="room-pass" placeholder="Room Password">
+                <input type="number" id="entry-fee" placeholder="Entry Fee">
                 <button onclick="createTournament()" style="background: #28a745; color: #fff;">Create Match</button>
+
+                <hr style="border-color: #333; margin: 15px 0;">
+                
+                <h4 style="color: #ff9900; margin-bottom: 5px;">🏆 Distribute Prize & Kills</h4>
+                <input type="text" id="winner-uid" placeholder="Winner User UID">
+                <input type="number" id="prize-amount" placeholder="Prize Money to Add (₹)">
+                <input type="number" id="match-kills" placeholder="Kills Scored">
+                <button onclick="distributePrize()" style="background: #007bff; color: #fff;">Send Prize & Update Stats</button>
             </div>
 
-            <!-- Profile & Support Section -->
-            <div class="card" style="margin-top: 20px;">
-                <h3>⚙️ Profile & Support Settings</h3>
-                <input type="text" id="ff-name" placeholder="Free Fire Name (IGN)">
-                <input type="text" id="ff-uid" placeholder="Free Fire UID">
-                <button onclick="saveProfile()" style="background: #007bff; color: #fff;">Save Details</button>
-                <button onclick="openSupport()" style="background: #17a2b8; color: #fff; margin-top: 10px;">🎧 Join Telegram Support</button>
-                <button onclick="logOut()" style="background: #dc3545; color: #fff; margin-top: 10px;">Logout</button>
+            <!-- Refer & Earn Card -->
+            <div class="card" style="border: 1px solid #ff9900; background: #1a1a1a;">
+                <h3 style="color: #ff9900;">🎁 Refer & Earn ₹10</h3>
+                <input type="text" id="ref-link" readonly style="background: #111; color: #ff9900; text-align: center; font-weight: bold;">
+                <button onclick="copyRefLink()" style="background: #ff9900; color: #000; margin-top: 5px;">Copy Link</button>
+                <button onclick="shareOnWhatsApp()" style="background: #28a745; color: #fff; margin-top: 8px;">Share on WhatsApp</button>
+            </div>
+
+            <!-- Wallet & Support -->
+            <div class="card">
+                <h3>💸 Wallet & Support</h3>
+                <button onclick="requestWithdrawal()" style="background: #17a2b8; color: #fff;">Request Withdrawal</button>
+                <button onclick="showRules()" style="background: #6c757d; color: #fff; margin-top: 10px;">View Rules</button>
+                <button onclick="openSupport()" style="background: #007bff; color: #fff; margin-top: 10px;">🎧 Telegram Support</button>
             </div>
         </div>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <div class="bottom-nav">
-        <div class="nav-item" onclick="window.scrollTo(0,0)"><div>🏠</div>Home</div>
-        <div class="nav-item" onclick="alert('Leaderboard ranking will update daily!')"><div>🏆</div>Ranking</div>
-        <div class="nav-item" onclick="addMoney()"><div>🪙</div>Add Cash</div>
-        <div class="nav-item" onclick="openSupport()"><div>🎧</div>Support</div>
     </div>
 
     <!-- Firebase Scripts -->
@@ -103,104 +122,43 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script>
-    const firebaseConfig = { apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8", authDomain: "ff-tournaments-af47a.firebaseapp.com", projectId: "ff-tournaments-af47a", storageBucket: "ff-tournaments-af47a.appspot.com", messagingSenderId: "238745686365", appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4" };
+    const firebaseConfig = { apiKey: "AIzaSyA1jgyhtyv0fGNicgcIT-JjUunyv3zVLJ8", authDomain: "ff-tournaments-af47a.firebaseapp.com", projectId: "ff-tournaments-af47a", storageBucket: "ff-tournaments-af47a.appspot.com", messagingSenderId: "238745686365", appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(); const db = firebase.firestore();
 
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-box').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            document.getElementById('header-username').innerText = user.email.split('@')[0];
-            loadUserData(user.uid); loadMatches();
-        } else {
-            document.getElementById('auth-box').classList.remove('hidden');
-            document.getElementById('main-content').classList.add('hidden');
-        }
-    });
-
-    function openSupport() {
-            function openSupport() {
-        window.open('https://t.me/Abhifftournamenthub', '_blank'); 
-            }
-
-
-    function addMoney() {
-        let amount = prompt("Enter amount to add (Min ₹50):");
-        if (amount >= 50) {
-            const myUpiID = "kinggkwrd@okicici";
-            window.location.href = `upi://pay?pa=${myUpiID}&pn=ClutchZone&am=${amount}&cu=INR`;
-            setTimeout(() => {
-                if(confirm("Didn't open? Click OK to copy UPI ID: " + myUpiID)) {
-                    navigator.clipboard.writeText(myUpiID).then(() => alert("UPI ID Copied!"));
-                }
-            }, 3000);
-        } else if(amount !== null) { alert("Minimum amount is ₹50."); }
-    }
-
-    function payOrganizerFee() {
-        const fee = 250;
-        const myUpiID = "kinggkwrd@okicici";
-        window.location.href = `upi://pay?pa=${myUpiID}&pn=ClutchZoneOrganizer&am=${fee}&cu=INR`;
-        setTimeout(() => {
-            if(confirm("Pay ₹250 to activate organizer account. Click OK to copy UPI ID: " + myUpiID)) {
-                navigator.clipboard.writeText(myUpiID).then(() => alert("UPI ID Copied! Send screenshot on Telegram after payment."));
-            }
-        }, 3000);
-        openSupport();
-    }
-
-    function createTournament() {
-        const title = document.getElementById('match-title').value;
-        const fee = parseInt(document.getElementById('entry-fee').value);
-        const slots = parseInt(document.getElementById('max-slots').value);
-        
-        if(!title || !fee || !slots) { alert("Please fill all details!"); return; }
-
-        const totalPool = fee * slots;
-        const orgShare = totalPool * 0.40;
-        const appShare = totalPool * 0.60;
-
-        db.collection("matches").add({
-            title: title,
-            entryFee: fee,
-            slots: slots,
-            totalPool: totalPool,
-            orgShare: orgShare,
-            appShare: appShare,
-            organizerId: auth.currentUser.uid,
-            status: "active",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert(`Match Created Successfully!\nTotal Pool: ₹${totalPool}\nYour 40% Share: ₹${orgShare}`);
-            document.getElementById('match-title').value = '';
-            document.getElementById('entry-fee').value = '';
-            document.getElementById('max-slots').value = '';
-        }).catch(err => alert("Error: " + err.message));
-    }
-
-    function signUp() { firebase.auth().createUserWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
-    function logIn() { firebase.auth().signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
-    function logOut() { auth.signOut(); }
-    
-    function saveProfile() { 
-        const name = document.getElementById('ff-name').value;
-        const uid = document.getElementById('ff-uid').value;
-        if(!name || !uid) { alert("Please fill both Game Name and UID!"); return; }
-        db.collection("users").doc(auth.currentUser.uid).set({ gameName: name, uid: uid }, { merge: true }).then(() => alert("Profile details saved successfully! ✅")); 
-    }
+    let userReferralLink = "";
+    let userPlayedMatches = 0;
+    let userFreeTickets = 0;
 
     function loadUserData(uid) { 
         db.collection('users').doc(uid).onSnapshot(doc => { 
             if(doc.exists) {
                 const data = doc.data();
                 document.getElementById('balance').innerText = "₹" + (data.balance || 0);
-                if(data.gameName) document.getElementById('ff-name').value = data.gameName;
-                if(data.uid) document.getElementById('ff-uid').value = data.uid;
                 
-                if(data.role === 'organizer') {
-                    document.getElementById('organizer-dashboard').classList.remove('hidden');
-                    document.getElementById('organizer-gatekeeper').classList.add('hidden');
+                document.getElementById('stat-kills').innerText = data.kills || 0;
+                document.getElementById('stat-winnings').innerText = "₹" + (data.totalWinnings || 0);
+
+                userPlayedMatches = data.matchesPlayed || 0;
+                userFreeTickets = data.freeTickets || 0;
+
+                const currentProgress = userPlayedMatches % 10;
+                document.getElementById('played-count').innerText = currentProgress;
+                document.getElementById('free-passes').innerText = userFreeTickets + " 🎟️";
+                document.getElementById('loyalty-bar').style.width = (currentProgress * 10) + "%";
+
+                if(data.role === 'organizer' && data.planExpiry) {
+                    const expiryDate = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+                    const now = new Date();
+
+                    if(expiryDate > now) {
+                        document.getElementById('organizer-dashboard').classList.remove('hidden');
+                        document.getElementById('organizer-gatekeeper').classList.add('hidden');
+                        document.getElementById('expiry-status').innerText = `✅ Plan Active till: ${expiryDate.toLocaleDateString()}`;
+                    } else {
+                        document.getElementById('organizer-dashboard').classList.add('hidden');
+                        document.getElementById('organizer-gatekeeper').classList.remove('hidden');
+                    }
                 } else {
                     document.getElementById('organizer-dashboard').classList.add('hidden');
                     document.getElementById('organizer-gatekeeper').classList.remove('hidden');
@@ -209,21 +167,132 @@
         }); 
     }
 
+    function buyOrganizerPass(amount, planName) {
+        const myUpiID = "kinggkwrd@okicici";
+        window.location.href = `upi://pay?pa=${myUpiID}&pn=ClutchZoneOrganizer&am=${amount}&cu=INR`;
+        setTimeout(() => {
+            if(confirm(`Pay ₹${amount} for ${planName} Pass. Click OK to copy UPI ID: ` + myUpiID)) {
+                navigator.clipboard.writeText(myUpiID).then(() => alert("UPI ID Copied! Send screenshot on Telegram with your UID."));
+            }
+        }, 3000);
+        openSupport();
+    }
+
+    function distributePrize() {
+        const winnerUid = document.getElementById('winner-uid').value.trim();
+        const prize = parseFloat(document.getElementById('prize-amount').value) || 0;
+        const kills = parseInt(document.getElementById('match-kills').value) || 0;
+
+        if(!winnerUid) { alert("Please enter Winner User UID!"); return; }
+
+        db.collection('users').doc(winnerUid).get().then(doc => {
+            if(!doc.exists) { alert("User UID not found!"); return; }
+            
+            const currentData = doc.data();
+            db.collection('users').doc(winnerUid).set({
+                balance: (currentData.balance || 0) + prize,
+                totalWinnings: (currentData.totalWinnings || 0) + prize,
+                kills: (currentData.kills || 0) + kills
+            }, { merge: true }).then(() => {
+                alert(`✅ Sent ₹${prize} and added ${kills} kills successfully!`);
+                document.getElementById('winner-uid').value = '';
+                document.getElementById('prize-amount').value = '';
+                document.getElementById('match-kills').value = '';
+            });
+        });
+    }
+
+    function joinMatch(mTitle, roomID, roomPass, fee) {
+        const uid = auth.currentUser.uid;
+        let useFreePass = false;
+
+        if (userFreeTickets > 0) {
+            useFreePass = confirm(`🎉 You have ${userFreeTickets} Free Pass(es)!\n\nUse 1 Free Pass to join "${mTitle}" for FREE?`);
+        }
+
+        let newPlayed = userPlayedMatches + 1;
+        let newTickets = userFreeTickets;
+
+        if (useFreePass) newTickets -= 1;
+        if (newPlayed % 10 === 0) {
+            newTickets += 1;
+            alert("🎯 10 matches completed! You earned a FREE Entry Pass 🎟️");
+        }
+
+        db.collection('users').doc(uid).set({
+            matchesPlayed: newPlayed,
+            freeTickets: newTickets
+        }, { merge: true }).then(() => {
+            alert(`✅ Joined Successfully!\nRoom ID: ${roomID || 'Pending'}\nPass: ${roomPass || 'Pending'}`);
+        });
+    }
+
+    function setupReferral(uid) {
+        userReferralLink = window.location.origin + window.location.pathname + "?ref=" + uid;
+        document.getElementById('ref-link').value = userReferralLink;
+    }
+
+    function copyRefLink() { navigator.clipboard.writeText(userReferralLink).then(() => alert("Link copied!")); }
+    function shareOnWhatsApp() {
+        const text = encodeURIComponent("Join ClutchZone Esports & win cash! " + userReferralLink);
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function openSupport() { window.open('https://t.me/Abhifftournamenthub', '_blank'); }
+    function showRules() { alert("RULES:\n1. No Teaming/Hacking.\n2. Room ID shared 15 mins before match.\n3. Take result screenshot."); }
+    
+    // Updated Withdrawal Limit to ₹80
+    function requestWithdrawal() {
+        const amount = prompt("Enter amount to withdraw (Min ₹80):");
+        if(amount >= 80) {
+            window.open(`https://t.me/Abhifftournamenthub?text=I%20want%20to%20withdraw%20Rs.%20${amount}`, '_blank');
+        } else if(amount !== null) { alert("Minimum withdrawal is ₹80."); }
+    }
+
+    function createTournament() {
+        const title = document.getElementById('match-title').value;
+        const roomID = document.getElementById('room-id').value;
+        const roomPass = document.getElementById('room-pass').value;
+        const fee = parseInt(document.getElementById('entry-fee').value);
+        
+        if(!title) { alert("Fill match title!"); return; }
+
+        db.collection("matches").add({
+            title, roomID, roomPass, entryFee: fee, organizerId: auth.currentUser.uid
+        }).then(() => alert("Tournament Created Successfully!"));
+    }
+
     function loadMatches() { 
         db.collection('matches').onSnapshot(s => { 
             let h = ''; 
             s.forEach(d => {
                 const m = d.data();
                 h += `<div class="t-card">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300" alt="Match">
-                    <h4>${m.title || 'Free Fire Clash'}</h4>
-                    <p>Fee: ₹${m.entryFee || 10} | Win: ₹${m.prize || 100}</p>
-                    <button class="match-btn" onclick="alert('Successfully joined the tournament!')">PLAY</button>
+                    <h4>${m.title}</h4>
+                    <p>Fee: ₹${m.entryFee || 0}</p>
+                    <button class="match-btn" onclick="joinMatch('${m.title}', '${m.roomID}', '${m.roomPass}', ${m.entryFee || 0})">JOIN / VIEW</button>
                 </div>`;
             }); 
-            document.getElementById('match-list').innerHTML = h || '<p style="color:#aaa;">No live tournaments right now.</p>'; 
+            document.getElementById('match-list').innerHTML = h || '<p style="color:#aaa;">No matches right now.</p>'; 
         }); 
     }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('auth-box').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('header-username').innerText = user.email.split('@')[0];
+            setupReferral(user.uid);
+            loadUserData(user.uid);
+            loadMatches();
+        } else {
+            document.getElementById('auth-box').classList.remove('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+        }
+    });
+
+    function signUp() { firebase.auth().createUserWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
+    function logIn() { firebase.auth().signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message)); }
     </script>
 </body>
 </html>
