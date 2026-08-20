@@ -114,12 +114,6 @@ function logIn() {
         });
 }
 
-    function logIn() {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message))
-}
-
     function logOut() { auth.signOut(); }
 
     function loadUserData(uid) {
