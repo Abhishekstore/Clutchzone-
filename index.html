@@ -1,239 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Fire Esports Tournament</title>
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 15px; }
-    .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; }
-    h2 { color: #ff9900; margin-top: 0; }
-    input, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; box-sizing: border-box; }
-    input { background: #2a2a2a; color: #fff; }
-    button { background: #ff9900; color: #000; font-weight: bold; cursor: pointer; }
-    .hidden { display: none; }
-    .match-btn { background: #28a745; color: #fff; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClutchZone Esports - Pro Gaming Hub</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #121212; 
+            color: #fff; 
+            margin: 0; 
+            padding: 0 0 70px 0; /* Bottom nav ke liye space */
+        }
+        
+        /* Top Header */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1a1a;
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+        }
+        .user-welcome span { color: #00ffcc; font-weight: bold; }
+        .wallet-badge {
+            background: #ff9900;
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
 
-  <!-- Firebase Compat SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff9900">
+        .container { padding: 12px; }
+        .card { background: #1e1e1e; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #333; }
+        
+        /* Banner */
+        .banner {
+            background: linear-gradient(45deg, #2a2a2a, #1a1a1a);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ff9900;
+            margin-bottom: 15px;
+        }
+
+        /* Tournament Grid */
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .t-card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .t-card img { width: 100%; height: 100px; object-fit: cover; }
+        .t-card h4 { margin: 8px 0 4px 0; color: #fff; font-size: 14px; }
+        .t-card p { font-size: 12px; color: #aaa; margin: 0 0 8px 0; }
+        
+        input, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: none; box-sizing: border-box; }
+        input { background: #2a2a2a; color: #fff; }
+        button { background: #ff9900; color: #000; font-weight: bold; cursor: pointer; }
+        .hidden { display: none; }
+        .match-btn { background: #28a745; color: #fff; width: 85%; padding: 6px; font-size: 12px; }
+
+        /* Bottom Fixed Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #1a1a24;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #aaa;
+            font-size: 11px;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-item.active, .nav-item:hover { color: #ff9900; }
+        .nav-item div { font-size: 18px; }
+    </style>
+
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff9900">
 </head>
 <body>
 
-  <h1>🔥 FF Esports Hub</h1>
-
-  <!-- Login/Signup Section -->
-  <div id="auth-box" class="card">
-    <h2>Login / Register</h2>
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="signUp()">Register</button>
-    <button onclick="logIn()" style="background:#007bff; color:#fff;">Login</button>
-  </div>
-
-      <!-- Professional Dashboard Section -->
-    <div id="dashboard" class="card hidden" style="border: 2px solid #ff9900; background: #1a1a1a;">
-        <h2 style="color: #ff9900; border-bottom: 1px solid #333; padding-bottom: 8px;">⚡ Player Dashboard</h2>
-        <p><b>Email:</b> <span id="user-email" style="color: #00ffcc;"></span></p>
-        <p><b>Wallet Balance:</b> <span id="balance" style="color: #00ffcc; font-size: 18px;">₹0</span></p>
-        
-        <!-- Add Money Button -->
-        <button onclick="addMoney()" style="background: #28a745; color: #fff; margin-bottom: 10px;">+ Add Money (UPI)</button>
-        
-        <!-- Free Fire Profile Form -->
-        <div style="background: #111; padding: 10px; border-radius: 8px; margin-top: 10px;">
-            <h4 style="color: #ff9900; margin: 0 0 8px 0;">Free Fire Game Details</h4>
-            <input type="text" id="ff-name" placeholder="Enter Game Name (IGN)" style="margin-bottom: 5px;">
-            <input type="text" id="ff-uid" placeholder="Enter Free Fire UID" style="margin-bottom: 5px;">
-            <button onclick="saveProfile()" style="background: #007bff; color: #fff;">Save Details</button>
+    <!-- App Top Header -->
+    <div class="app-header">
+        <div class="user-welcome">
+            <div style="font-size: 12px; color: #aaa;">Welcome Back,</div>
+            <span id="header-username">Gamer</span>
         </div>
-
-        <button onclick="logOut()" style="background: #dc3545; color: #fff; margin-top: 15px;">Logout</button>
-    </div>
-
-    <!-- Professional Tournaments Section -->
-    <div id="matches-box" class="card hidden" style="border: 2px solid #ff9900; background: #1a1a1a;">
-        <h2 style="color: #ff9900;">🔥 Live Tournaments</h2>
-        
-        <!-- Sample Pro Tournament Card -->
-        <div style="background: #222; padding: 12px; border-radius: 8px; border-left: 5px solid #ff9900; margin-top: 10px;">
-            <h3 style="color: #fff; margin: 0;">Bermuda Clash Squad #1</h3>
-            <p style="margin: 5px 0; color: #aaa;">Map: Bermuda | Type: Squad</p>
-            <p style="margin: 5px 0; color: #00ffcc;"><b>Prize Pool: ₹500</b> | Entry Fee: ₹20</p>
-            <button onclick="joinMatch()" style="background: #ff9900; color: #000; font-weight: bold; width: 100%; margin-top: 8px;">Join Match</button>
+        <div class="wallet-badge" onclick="addMoney()">
+            💰 <span id="balance">₹0</span> +
         </div>
     </div>
 
+    <div class="container">
 
-  <script>
+        <!-- Login/Signup Section (Visible when logged out) -->
+        <div id="auth-box" class="card">
+            <h2>🔥 Login / Register</h2>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="signUp()">Register</button>
+            <button onclick="logIn()" style="background: #007bff; color: #fff;">Login</button>
+        </div>
+
+        <!-- Main Home Dashboard Content -->
+        <div id="main-content" class="hidden">
+            
+            <!-- Banner Section -->
+            <div class="banner">
+                <h3 style="margin: 0 0 5px 0; color: #ff9900;">⚡ ClutchZone Special Offer</h3>
+                <p style="margin: 0; font-size: 13px; color: #ccc;">Add minimum ₹50 & play daily Free Fire tournaments to win big cash!</p>
+            </div>
+
+            <!-- Exclusive Tournaments Grid -->
+            <h3 style="color: #ff9900; margin-bottom: 10px;">🔥 Live Tournaments</h3>
+            <div id="match-list" class="tournament-grid">
+                <p style="color: #aaa;">Loading matches...</p>
+            </div>
+
+            <!-- Profile & Wallet Management Section -->
+            <div class="card" style="margin-top: 15px; background: #181818;">
+                <h3 style="color: #ff9900; margin-top: 0;">⚙️ Player Profile & Wallet</h3>
+                <p><b>Email:</b> <span id="user-email" style="color: #00ffcc;"></span></p>
+                
+                <input type="text" id="ff-name" placeholder="Enter Game Name (IGN)">
+                <input type="text" id="ff-uid" placeholder="Enter Free Fire UID">
+                <button onclick="saveProfile()" style="background: #007bff; color: #fff;">Save Game Details</button>
+                
+                <button onclick="addMoney()" style="background: #28a745; color: #fff; margin-top: 10px;">+ Add Money via UPI (Min ₹50)</button>
+                <button onclick="logOut()" style="background: #dc3545; color: #fff; margin-top: 10px;">Logout</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <button class="nav-item active">
+            <div>🏠</div>Home
+        </button>
+        <button class="nav-item" onclick="alert('Ranking feature coming soon!')">
+            <div>🏆</div>Ranking
+        </button>
+        <button class="nav-item" onclick="addMoney()">
+            <div>🪙</div>Add Cash
+        </button>
+        <button class="nav-item" onclick="alert('Support: contact via Telegram/Email')">
+            <div>🎧</div>Support
+        </button>
+    </div>
+
+    <script>
     // Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
-      authDomain: "ff-tournaments-af47a.firebaseapp.com",
-      projectId: "ff-tournaments-af47a",
-      storageBucket: "ff-tournaments-af47a.firebasestorage.app",
-      messagingSenderId: "238745686365",
-      appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
-      measurementId: "G-BMHDM9WFJB"
+        apiKey: "AIzaSyA1jgyhtyv0fGNicgcIT-JjUunyv3zVLJ8",
+        authDomain: "ff-tournaments-af47a.firebaseapp.com",
+        projectId: "ff-tournaments-af47a",
+        storageBucket: "ff-tournaments-af47a.appspot.com",
+        messagingSenderId: "238745686365",
+        appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
+        measurementId: "G-BWM9WFJB"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Auth Listener
+    // Auth State Listener
     auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('auth-box').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        document.getElementById('matches-box').classList.remove('hidden');
-        document.getElementById('user-email').innerText = "User: " + user.email;
-        loadUserData(user.uid);
-        loadMatches();
-      } else {
-        document.getElementById('auth-box').classList.remove('hidden');
-        document.getElementById('dashboard').classList.add('hidden');
-        document.getElementById('matches-box').classList.add('hidden');
-      }
+        if (user) {
+            document.getElementById('auth-box').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('user-email').innerText = user.email;
+            document.getElementById('header-username').innerText = user.email.split('@')[0];
+            loadUserData(user.uid);
+            loadMatches();
+        } else {
+            document.getElementById('auth-box').classList.remove('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+        }
     });
-        // 1. Register Function
+
     function signUp() {
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if (!email || !password) {
-            alert("Pehle email aur password bharein!");
-            return;
-        }
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("Registration Successful! 🎉");
-            })
-            .catch((error) => {
-                alert("Error: " + error.message);
-            });
+        const pass = document.getElementById('password').value.trim();
+        if (!email || !pass) { alert("Pehle Email aur Password bharein!"); return; }
+        firebase.auth().createUserWithEmailAndPassword(email, pass)
+            .then(() => { alert("Account successfully ban gaya!"); })
+            .catch((error) => { alert("Error: " + error.message); });
     }
 
-    // 2. Login Function
     function logIn() {
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if (!email || !password) {
-            alert("Pehle email aur password bharein!");
-            return;
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("Login Successful! 👍");
-            })
-            .catch((error) => {
-                alert("Error: " + error.message);
-            });
+        const pass = document.getElementById('password').value.trim();
+        if (!email || !pass) { alert("Pehle Email aur Password bharein!"); return; }
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => { alert("Login ho gaya!"); })
+            .catch((error) => { alert("Error: " + error.message); });
     }
 
+    function logOut() { auth.signOut(); }
 
-    function signUp() {
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value.trim();
-    
-    if (!email || !pass) {
-        alert("Pehle Email aur Password bharein!");
-        return;
-    }
-
-    firebase.auth().createUserWithEmailAndPassword(email, pass)
-        .then((userCredential) => {
-            alert("Account successfully ban gaya!");
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
-}
-
-function logIn() {
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value.trim();
-    
-    if (!email || !pass) {
-        alert("Pehle Email aur Password bharein!");
-        return;
-    }
-
-    firebase.auth().signInWithEmailAndPassword(email, pass)
-        .then((userCredential) => {
-            alert("Login ho gaya!");
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
-}
-    // Save Profile Function (Game Name aur UID save karne ke liye)
     function saveProfile() {
         const name = document.getElementById('ff-name').value.trim();
         const uid = document.getElementById('ff-uid').value.trim();
-        
-        if(!name || !uid) {
-            alert("Pehle apna Game Name aur UID bharein!");
-            return;
-        }
-        
+        if(!name || !uid) { alert("Pehle apna Game Name aur UID bharein!"); return; }
         const userId = auth.currentUser.uid;
         db.collection("users").doc(userId).set({
             gameName: name,
             uid: uid
         }, { merge: true })
-        .then(() => { 
-            alert("Details successfully save ho gayi! ✅"); 
-        })
-        .catch((error) => { 
-            alert("Error: " + error.message); 
-        });
+        .then(() => { alert("Details successfully save ho gayi! ✅"); })
+        .catch((error) => { alert("Error: " + error.message); });
     }
-    
-    function logOut() { auth.signOut(); }
-    // Add Money Function
+
+    // UPI Add Money Function (Min ₹50)
     function addMoney() {
-        let amount = prompt("Kitna paisa add karna hai? (e.g. 50, 100):");
-        
-        if (amount && amount > 0) {
-            // 👇 YAHAN APNA ASLI UPI ID DAAL DO (Jaise: yourname@paytm)
+        let amount = prompt("Kitna paisa add karna hai? (Minimum ₹50):");
+        if (amount) {
+            amount = Number(amount);
+            if (amount < 50) {
+                alert("Kam se kam ₹50 add karna zaroori hai! ❌");
+                return;
+            }
             const myUpiID = "kinggkwrd@okicici"; 
             const merchantName = "ClutchZone Esports";
-            
             const upiUrl = `upi://pay?pa=${myUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`;
             window.location.href = upiUrl;
         }
     }
-    
-    function loadUserData(uid) {
-      db.collection('users').doc(uid).onSnapshot(doc => {
-        if(doc.exists) document.getElementById('balance').innerText = doc.data().balance || 0;
-      });
+
+    function loadUserData(userId) {
+        db.collection('users').doc(userId).onSnapshot(doc => {
+            if(doc.exists) {
+                const data = doc.data();
+                document.getElementById('balance').innerText = "₹" + (data.balance || 0);
+                if(data.gameName) {
+                    document.getElementById('ff-name').value = data.gameName;
+                    document.getElementById('header-username').innerText = data.gameName;
+                }
+                if(data.uid) document.getElementById('ff-uid').value = data.uid;
+            }
+        });
     }
 
     function loadMatches() {
-      db.collection('matches').onSnapshot(snapshot => {
-        let html = '';
-        snapshot.forEach(doc => {
-          const match = doc.data();
-          html += `
-            <div style="border: 1px solid #444; padding: 10px; margin-top: 10px; border-radius: 5px;">
-              <h3>${match.title || 'Daily FF Match'}</h3>
-              <p>Entry Fee: ₹${match.entryFee || 10} | Prize Pool: ₹${match.prize || 100}</p>
-              <button class="match-btn" onclick="alert('Joined successfully!')">Join Match</button>
-            </div>
-          `;
+        db.collection('matches').onSnapshot(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const match = doc.data();
+                html += `
+                    <div class="t-card">
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300" alt="Match">
+                        <h4>${match.title || 'Daily FF Match'}</h4>
+                        <p>Fee: ₹${match.entryFee || 10} | Win: ₹${match.prize || 100}</p>
+                        <button class="match-btn" onclick="alert('Match joined successfully!')">PLAY</button>
+                    </div>
+                `;
+            });
+            document.getElementById('match-list').innerHTML = html || '<p>No live matches right now.</p>';
         });
-        document.getElementById('match-list').innerHTML = html || '<p>No matches active right now.</p>';
-      });
     }
-  </script>
+    </script>
 </body>
 </html>
