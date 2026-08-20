@@ -137,7 +137,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8", authDomain: "ff-tournaments-af47a.firebaseapp.com", projectId: "ff-tournaments-af47a", storageBucket: "ff-tournaments-af47a.appspot.com", messagingSenderId: "238745686365", appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4" };
+        const firebaseConfig = {
+  apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
+  authDomain: "ff-tournaments-af47a.firebaseapp.com",
+  projectId: "ff-tournaments-af47a",
+  storageBucket: "ff-tournaments-af47a.firebasestorage.app",
+  messagingSenderId: "238745686365",
+  appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
+  measurementId: "G-BMHDM9WFJB"
+        }
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.firestore();
 
