@@ -24,7 +24,7 @@
         .status-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; font-weight: 700; }
         .badge-upcoming { background: var(--secondary); } .badge-live { background: var(--success); } .badge-finished { background: #555; }
         button.btn-primary { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; }
-        input.input-glass { width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 13px; }
+        input.input-glass, select.input-glass { width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 13px; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
         .hidden { display: none; }
     </style>
@@ -137,17 +137,20 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // --- ⚙️ APNA FIREBASE CONFIG YAHAN DAALO ---
         const firebaseConfig = {
-  apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
-  authDomain: "ff-tournaments-af47a.firebaseapp.com",
-  projectId: "ff-tournaments-af47a",
-  storageBucket: "ff-tournaments-af47a.firebasestorage.app",
-  messagingSenderId: "238745686365",
-  appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4",
-  measurementId: "G-BMHDM9WFJB"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
+        // -------------------------------------------
+
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); const db = firebase.firestore();
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
 
         let currentTab = 'upcoming';
 
@@ -171,7 +174,7 @@
                                 <span>Fee: ₹${m.entryFee || 0}</span>
                                 <span>Room: ${m.roomID || 'Pending'}</span>
                             </div>
-                            <button class="btn-primary" onclick="alert('Room ID & Pass will show here when match is live!')">
+                            <button class="btn-primary" onclick="alert('Room ID: ${m.roomID || 'N/A'} \nPassword: ${m.roomPass || 'N/A'}')">
                                 ${currentTab === 'upcoming' ? 'JOIN MATCH' : 'VIEW DETAILS'}
                             </button>
                         </div>`;
@@ -285,9 +288,8 @@
         function addMoney() {
             const amt = prompt("Enter amount to add (₹):");
             if(amt >= 10) {
-                window.location.href = `upi://pay?pa=kinggkwrd@okicici&pn=ClutchZone&am=${amt}&cu=INR`;
-                alert("After payment, send screenshot on Telegram support to credit instantly.");
-                window.open('https://t.me/Abhifftournamenthub', '_blank');
+                window.open(`https://t.me/Abhifftournamenthub`, '_blank');
+                alert("After payment on UPI, send screenshot on Telegram support to credit instantly.");
             }
         }
 
@@ -322,5 +324,4 @@
                     }
                 });
             } else {
-                document.getElementById('auth-box').classList.remove('hidden');
-                document.getElementById('main-content').c
+                document.getElementById('auth-box').classList.remove(
