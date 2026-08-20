@@ -35,18 +35,39 @@
     <button onclick="logIn()" style="background:#007bff; color:#fff;">Login</button>
   </div>
 
-  <!-- Dashboard Section -->
-  <div id="dashboard" class="card hidden">
-    <h2 id="user-email">Welcome Player</h2>
-    <p>Wallet Balance: <b>₹<span id="balance">0</span></b></p>
-    <button onclick="logOut()" style="background:#dc3545; color:#fff;">Logout</button>
-  </div>
+      <!-- Professional Dashboard Section -->
+    <div id="dashboard" class="card hidden" style="border: 2px solid #ff9900; background: #1a1a1a;">
+        <h2 style="color: #ff9900; border-bottom: 1px solid #333; padding-bottom: 8px;">⚡ Player Dashboard</h2>
+        <p><b>Email:</b> <span id="user-email" style="color: #00ffcc;"></span></p>
+        <p><b>Wallet Balance:</b> <span id="balance" style="color: #00ffcc; font-size: 18px;">₹0</span></p>
+        
+        <!-- Add Money Button -->
+        <button onclick="addMoney()" style="background: #28a745; color: #fff; margin-bottom: 10px;">+ Add Money (UPI)</button>
+        
+        <!-- Free Fire Profile Form -->
+        <div style="background: #111; padding: 10px; border-radius: 8px; margin-top: 10px;">
+            <h4 style="color: #ff9900; margin: 0 0 8px 0;">Free Fire Game Details</h4>
+            <input type="text" id="ff-name" placeholder="Enter Game Name (IGN)" style="margin-bottom: 5px;">
+            <input type="text" id="ff-uid" placeholder="Enter Free Fire UID" style="margin-bottom: 5px;">
+            <button onclick="saveProfile()" style="background: #007bff; color: #fff;">Save Details</button>
+        </div>
 
-  <!-- Matches Section -->
-  <div id="matches-box" class="card hidden">
-    <h2>Upcoming Tournaments</h2>
-    <div id="match-list"><p>Loading matches...</p></div>
-  </div>
+        <button onclick="logOut()" style="background: #dc3545; color: #fff; margin-top: 15px;">Logout</button>
+    </div>
+
+    <!-- Professional Tournaments Section -->
+    <div id="matches-box" class="card hidden" style="border: 2px solid #ff9900; background: #1a1a1a;">
+        <h2 style="color: #ff9900;">🔥 Live Tournaments</h2>
+        
+        <!-- Sample Pro Tournament Card -->
+        <div style="background: #222; padding: 12px; border-radius: 8px; border-left: 5px solid #ff9900; margin-top: 10px;">
+            <h3 style="color: #fff; margin: 0;">Bermuda Clash Squad #1</h3>
+            <p style="margin: 5px 0; color: #aaa;">Map: Bermuda | Type: Squad</p>
+            <p style="margin: 5px 0; color: #00ffcc;"><b>Prize Pool: ₹500</b> | Entry Fee: ₹20</p>
+            <button onclick="joinMatch()" style="background: #ff9900; color: #000; font-weight: bold; width: 100%; margin-top: 8px;">Join Match</button>
+        </div>
+    </div>
+
 
   <script>
     // Firebase Configuration
