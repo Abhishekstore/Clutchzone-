@@ -174,7 +174,29 @@ function logIn() {
             alert("Error: " + error.message);
         });
 }
-
+    // Save Profile Function (Game Name aur UID save karne ke liye)
+    function saveProfile() {
+        const name = document.getElementById('ff-name').value.trim();
+        const uid = document.getElementById('ff-uid').value.trim();
+        
+        if(!name || !uid) {
+            alert("Pehle apna Game Name aur UID bharein!");
+            return;
+        }
+        
+        const userId = auth.currentUser.uid;
+        db.collection("users").doc(userId).set({
+            gameName: name,
+            uid: uid
+        }, { merge: true })
+        .then(() => { 
+            alert("Details successfully save ho gayi! ✅"); 
+        })
+        .catch((error) => { 
+            alert("Error: " + error.message); 
+        });
+    }
+    
     function logOut() { auth.signOut(); }
     // Add Money Function
     function addMoney() {
