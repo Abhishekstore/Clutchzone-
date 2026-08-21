@@ -240,3 +240,72 @@ if (logoutBtn) {
         auth.signOut().then(() => { window.location.href = "index.html"; });
     });
 }
+// Tab Switching Function for Login/Register
+window.switchAuthTab = function(tab) {
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    const loginBtn = document.getElementById('tab-login-btn');
+    const regBtn = document.getElementById('tab-reg-btn');
+
+    if (tab === 'login') {
+        loginForm.style.display = 'block';
+        regForm.style.display = 'none';
+        loginBtn.style.background = '#ffa502';
+        loginBtn.style.color = '#000';
+        regBtn.style.background = 'transparent';
+        regBtn.style.color = '#fff';
+    } else {
+        loginForm.style.display = 'none';
+        regForm.style.display = 'block';
+        regBtn.style.background = '#ffa502';
+        regBtn.style.color = '#000';
+        loginBtn.style.background = 'transparent';
+        loginBtn.style.color = '#fff';
+    }
+};
+
+// Register Function
+window.registerUser = function() {
+    const name = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const ffUid = document.getElementById('reg-ffuid').value.trim();
+    const password = document.getElementById('reg-password').value.trim();
+
+    if (!name || !phone || !ffUid || !password) {
+        alert("Kripya sabhi details bharein!");
+        return;
+    }
+
+    localStorage.setItem('savedName', name);
+    localStorage.setItem('savedPhone', phone);
+    localStorage.setItem('savedPassword', password);
+    localStorage.setItem('savedFfUid', ffUid);
+
+    alert("Registration Successful! Ab aap Login kar sakte hain.");
+    switchAuthTab('login');
+};
+
+// Login Function
+window.loginUser = function() {
+    const inputId = document.getElementById('login-username').value.trim();
+    const passwordInput = document.getElementById('login-password').value.trim();
+
+    const savedPhone = localStorage.getItem('savedPhone');
+    const savedPassword = localStorage.getItem('savedPassword');
+    const savedName = localStorage.getItem('savedName') || "Gamer";
+
+    if (!inputId || !passwordInput) {
+        alert("Kripya Phone/Email aur Password darj karein!");
+        return;
+    }
+
+    if (inputId === savedPhone && passwordInput === savedPassword) {
+        localStorage.setItem('isLoggedIn', 'true');
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('user-display-name').textContent = savedName;
+        alert("Login Successful!");
+    } else {
+        alert("Galat Phone Number ya Password! Pehle Register karein.");
+    }
+};
+
