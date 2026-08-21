@@ -10,17 +10,35 @@
 </head>
 <body>
 
-    <!-- 🔐 LOGIN & REGISTRATION SCREEN -->
-    <div id="auth-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;">
-        <div style="background: #1e293b; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); text-align: center;">
-            <h2 style="color: #38bdf8; margin-bottom: 10px;">🔥 ClutchZone Login</h2>
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">App access karne ke liye pehle register karein.</p>
-            
-            <input type="text" id="reg-name" placeholder="Aapka Naam (IGN)" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #0f172a; border: 1px solid #475560; color: white; border-radius: 8px;">
-            <input type="text" id="reg-ffuid" placeholder="Free Fire UID" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #0f172a; border: 1px solid #475560; color: white; border-radius: 8px;">
-            <input type="tel" id="reg-phone" placeholder="Phone Number" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #0f172a; border: 1px solid #475560; color: white; border-radius: 8px;">
-            
-            <button onclick="registerUser()" style="width: 100%; background: #2ed573; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">Register & Enter App</button>
+        <!-- AUTH SCREEN (Login / Register) -->
+    <div id="auth-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #181818; z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px;">
+        <div style="width: 100%; max-width: 400px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #ffa502; margin-bottom: 5px;">ClutchZone</h2>
+                <p style="color: #888; font-size: 13px;">Please login or register to continue</p>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; margin-bottom: 20px; background: #121212; border-radius: 8px; padding: 4px;">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" style="flex: 1; background: #ffa502; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Login</button>
+                <button onclick="switchAuthTab('register')" id="tab-reg-btn" style="flex: 1; background: transparent; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Register</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-form">
+                <input type="text" id="login-username" placeholder="Phone Number or Email" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <input type="password" id="login-password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <button onclick="loginUser()" style="width: 100%; background: #ffa502; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Login Now</button>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="register-form" style="display: none;">
+                <input type="text" id="reg-name" placeholder="Full Name" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <input type="text" id="reg-phone" placeholder="Phone Number or Email" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <input type="text" id="reg-ffuid" placeholder="Free Fire UID" style="width: 100%; padding: 12px; margin-bottom: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <input type="password" id="reg-password" placeholder="Create Password" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box;">
+                <button onclick="registerUser()" style="width: 100%; background: #2ed573; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Register Account</button>
+            </div>
         </div>
     </div>
 
