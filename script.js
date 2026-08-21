@@ -230,43 +230,43 @@ auth.onAuthStateChanged((user) => {
         });
     }
 });
-
-const saveProfileBtn = document.getElementById('save-profile-btn');
+ const saveProfileBtn = document.getElementById('save-profile-btn');
 if (saveProfileBtn) {
     saveProfileBtn.addEventListener('click', () => {
         const ignEl = document.getElementById('ign-input');
         const ffuidEl = document.getElementById('ffuid-input');
-        if(!ignEl || !ffuidEl) return;
+        if (!ignEl || !ffuidEl) return;
+        
         const ign = ignEl.value.trim();
         const ffuid = ffuidEl.value.trim();
-        
-    });// Check karein ki user localStorage mein logged in hai ya nahi
-const isLoggedIn = localStorage.getItem('isLoggedIn');
-if (isLoggedIn !== 'true') {
-    alert("User not logged in! Pehle Login karein.");
-    return;
+
+        // Check karein ki user localStorage mein logged in hai ya nahi
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn !== 'true') {
+            alert("User not logged in! Pehle Login karein.");
+            return;
+        }
+
+        // User ki saved phone ID ko document ID ki tarah use karenge
+        const userPhone = localStorage.getItem('savedPhone');
+        if (!userPhone) {
+            alert("User data missing! Dobara login karein.");
+            return;
+        }
+
+        db.collection('users').doc(userPhone).set({ 
+            ign: ign, 
+            ffuid: ffuid, 
+            phone: userPhone 
+        }, { merge: true })
+        .then(() => {
+            alert("Profile Saved Successfully!");
+            localStorage.setItem('savedFFName', ign);
+            localStorage.setItem('savedFFUid', ffuid);
+        });
+    });
 }
 
-// User ki saved phone ID ko document ID ki tarah use karenge
-const userPhone = localStorage.getItem('savedPhone');
-if (!userPhone) {
-    alert("User data missing! Dobara login karein.");
-    return;
-}
-
-db.collection('users').doc(userPhone).set({ 
-    ign: ign, 
-    ffuid: ffuid, 
-    phone: userPhone 
-}, { merge: true })
-.then(() => {
-    alert("Profile Saved Successfully!");
-    // LocalStorage mein bhi save kar lenge
-    localStorage.setItem('savedFFName', ign);
-    localStorage.setItem('savedFFUid', ffuid);
-});
-
-}
 
 const logoutBtn = document.getElementById('logout-btn');
 if (logoutBtn) {
