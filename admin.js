@@ -58,6 +58,25 @@ function markMatchComplete() {
     db.collection('tournaments').doc(document.getElementById('res-match-id').value.trim()).update({ status: 'Results' }).then(() => alert("Match Finished!"));
 }
 
+function saveHostPlan() {
+    const hostCode = document.getElementById('manage-host-code').value.trim();
+    const planType = document.getElementById('manage-plan-type').value;
+    if (!hostCode) { alert("Please enter Host Code!"); return; }
+
+    let days = planType === '250' ? 30 : 90;
+    let planName = planType === '250' ? '₹250 - 1 Month' : '₹650 - 3 Months';
+    let expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+
+    db.collection('hosts').doc(hostCode).set({
+        hostCode: hostCode,
+        planName: planName,
+        expiryDate: expiryDate,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true })
+    .then(() => alert(`Host plan activated successfully for ${days} days!`))
+    .catch(err => alert("Error: " + err.message));
+}
+
 function loadWeeklyPayout() {
     const hostCode = document.getElementById('filter-host-code').value.trim();
     const output = document.getElementById('financial-output');
