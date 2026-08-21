@@ -90,21 +90,9 @@
                 <p>Total Balance</p>
             </div>
             <div class="wallet-breakdown-grid">
-                <div class="w-box">
-                    <i class="fa-solid fa-coins"></i>
-                    <h4 id="wallet-deposited">₹0</h4>
-                    <small>Deposited</small>
-                </div>
-                <div class="w-box">
-                    <i class="fa-solid fa-trophy"></i>
-                    <h4 id="wallet-winning">₹0</h4>
-                    <small>Winning</small>
-                </div>
-                <div class="w-box">
-                    <i class="fa-solid fa-gift"></i>
-                    <h4 id="wallet-bonus">₹0</h4>
-                    <small>Bonus</small>
-                </div>
+                <div class="w-box"><i class="fa-solid fa-coins"></i><h4 id="wallet-deposited">₹0</h4><small>Deposited</small></div>
+                <div class="w-box"><i class="fa-solid fa-trophy"></i><h4 id="wallet-winning">₹0</h4><small>Winning</small></div>
+                <div class="w-box"><i class="fa-solid fa-gift"></i><h4 id="wallet-bonus">₹0</h4><small>Bonus</small></div>
             </div>
             <div class="wallet-actions-grid">
                 <button class="w-action-btn" onclick="openAddCoinsModal()"><i class="fa-solid fa-plus-circle"></i> Add Coins</button>
@@ -128,19 +116,46 @@
 
             <div class="profile-menu-list">
                 <div class="menu-item" onclick="switchView('wallet-view')"><i class="fa-solid fa-wallet"></i> <span>My Wallet</span> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openMyMatches()"><i class="fa-solid fa-gamepad"></i> <span>My Matches & Room ID</span> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchView('refer-view')"><i class="fa-solid fa-users"></i> <span>Refer & Earn</span> <i class="fa-solid fa-chevron-right"></i></div>
                 <div class="menu-item" onclick="openDepositTelegram()"><i class="fa-solid fa-headset"></i> <span>Contact Support (Telegram)</span> <i class="fa-solid fa-chevron-right"></i></div>
                 <div class="menu-item" id="logout-btn"><i class="fa-solid fa-power-off" style="color: #e74c3c;"></i> <span style="color: #e74c3c;">Logout</span> <i class="fa-solid fa-chevron-right"></i></div>
             </div>
         </section>
 
-        <!-- 5. OFFER & RANKING -->
+        <!-- 5. MY MATCHES VIEW (Room ID / Password) -->
+        <section id="my-matches-view" class="view-section">
+            <div class="back-nav" onclick="switchView('profile-view')"><i class="fa-solid fa-arrow-left"></i> My Joined Matches</div>
+            <div id="my-matches-container"></div>
+        </section>
+
+        <!-- 6. REFER & EARN VIEW -->
+        <section id="refer-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Refer & Earn</div>
+            <div class="refer-banner">
+                <i class="fa-solid fa-gift refer-icon"></i>
+                <h3>Invite Friends & Earn ₹10</h3>
+                <p>Get ₹10 in your wallet bonus when your friend joins their first match using your referral code!</p>
+                <div class="upi-box" style="margin-top: 15px;">
+                    <span id="referral-code-text">CLUTCH2026</span>
+                    <button onclick="copyReferralCode()" class="copy-btn"><i class="fa-solid fa-copy"></i> Copy Code</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. OFFER & RANKING (Top Killers) -->
         <section id="offer-view" class="view-section">
             <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Offers & Rewards</div>
             <p style="text-align:center; color:#888; margin-top:30px;">No active offers right now.</p>
         </section>
+
         <section id="ranking-view" class="view-section">
             <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Top Killers Leaderboard</div>
-            <p style="text-align:center; color:#888; margin-top:30px;">Leaderboard data updating soon...</p>
+            <div class="leaderboard-list">
+                <div class="lead-item"><span>🥇 1. LegendAbhi</span> <strong>45 Kills</strong></div>
+                <div class="lead-item"><span>🥈 2. ViperOp</span> <strong>38 Kills</strong></div>
+                <div class="lead-item"><span>🥉 3. KillerX</span> <strong>30 Kills</strong></div>
+            </div>
         </section>
 
     </main>
