@@ -5,17 +5,19 @@
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#10b981",
-  "description": "ClutchZone Free Fire Esports Tournament App",
+  "description": "ClutchZone Free Fire Esports Tournament App",	  
   "icons": [
     {
-      "src": "https://i.ibb.co/G3V06vK/android-chrome-192x192.png",
+      "src": "/logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://i.ibb.co/4Zq2L0z/android-chrome-512x512.png",
+      "src": "/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
