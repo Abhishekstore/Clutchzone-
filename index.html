@@ -240,22 +240,29 @@
             </section>
         </main>
 
-<div id="add-coins-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
-        <h3>💰 Add Money to Wallet</h3>
-        <p style="font-size:12px; color:#94a3b8; margin:10px 0;">Amount daalein aur Pay Now par click karke payment karein:</p>
+<div id="add-coins-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
+    <div class="modal-content" style="background:#0f172a; padding:20px; color:white; width:90%; max-width:400px; border-radius:10px; position:relative; box-sizing:border-box;">
         
-        <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)" style="width:100%; padding:10px; margin-bottom:10px;">
+        <!-- Close Button -->
+        <span class="close-modal" onclick="closeAddCoinsModal()" style="position:absolute; right:15px; top:10px; font-size:24px; cursor:pointer; color:#aaa;">&times;</span>
         
-        <!-- Pay Now Link Button -->
-<a id="upi-link-btn" href="upi://pay?pa=kinggkwrd@okicici&pn=ClutchZone&am=100&cu=INR" style="display:block; text-align:center; background:#22c55e; margin-bottom:10px; width:100%; padding:10px; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">1. Pay via UPI App (GPay/PhonePe)</a>
+        <h3 style="margin-top:0; color:#22c55e;">💰 Add Money to Wallet</h3>
+        <p style="font-size:12px; color:#94a3b8; margin:10px 0;">1. Amount daalein aur Pay Now par click karein:</p>
         
+        <!-- Amount Input Box -->
+        <input type="number" id="deposit-amount" placeholder="Enter amount (₹)" value="100" style="width:100%; padding:10px; margin-bottom:10px; background:#1e293b; border:1px solid #334155; color:white; border-radius:5px; box-sizing:border-box;">
         
-        <input type="text" id="deposit-utr" placeholder="Enter 12-digit UTR / Txn ID" style="width:100%; padding:10px; margin-bottom:10px;">
+        <!-- Pay Now Button -->
+        <button onclick="payWithUPI()" style="width:100%; padding:12px; background:#22c55e; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-bottom:15px;">Pay Now</button>
+        
+        <p style="font-size:12px; color:#94a3b8; margin:10px 0;">2. Payment ke baad 12-digit UTR / Txn ID yahan daalein:</p>
+        
+        <!-- UTR Input Box -->
+        <input type="text" id="deposit-utr" placeholder="Enter 12-digit UTR / Txn ID" style="width:100%; padding:10px; margin-bottom:15px; background:#1e293b; border:1px solid #334155; color:white; border-radius:5px; box-sizing:border-box;">
         
         <!-- Submit Button -->
-        <button class="btn-primary" onclick="submitDepositRequest()" style="width:100%; padding:10px; background:#3498db; color:white; border:none; border-radius:5px; font-weight:bold;">2. Done? Submit UTR</button>
+        <button class="btn-primary" onclick="submitDepositRequest()" style="width:100%; padding:12px; background:#3498db; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Submit Payment Proof</button>
+        
     </div>
 </div>
 
