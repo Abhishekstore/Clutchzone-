@@ -377,3 +377,27 @@ function buyPlan(amount) {
         }
     }, 2000);
 }
+
+function loadUserData() {
+    const userPhone = localStorage.getItem('savedPhone');
+    if (!userPhone) return;
+
+    db.collection('users').doc(userPhone).get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            const wallet = data.wallet || 0;
+
+            const hb = document.getElementById('header-balance');
+            const wb = document.getElementById('wallet-main-balance');
+            if (hb) hb.innerText = '₹' + wallet;
+            if (wb) wb.innerText = '₹' + wallet;
+
+            const profileName = document.getElementById('user-display-name');
+            if (profileName && data.ign) profileName.innerText = data.ign;
+        }
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadUserData();
+});
