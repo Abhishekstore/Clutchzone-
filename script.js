@@ -1,4 +1,14 @@
-// Firebase references (Assuming initialized)
+        // Firebase Configuration & Initialization
+const firebaseConfig = {
+    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
+    authDomain: "ff-tournaments.firebaseapp.com",
+    projectId: "ff-tournaments",
+    storageBucket: "ff-tournaments.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:123d567890:web:abcdef"
+};
+
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -235,3 +245,4 @@ if (logoutBtn) {
         auth.signOut().then(() => { window.location.href = "index.html"; });
     });
 }
+    
