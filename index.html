@@ -261,5 +261,30 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
+    <script>
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Browser ko automatic prompt dikhane se rokein
+        e.preventDefault();
+        deferredPrompt = e;
+        // Button ko show karein
+        installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', (e) => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install');
+                    installBtn.style.display = 'none'; // Install hone par button hata dein
+                }
+                deferredPrompt = null;
+            });
+        }
+    });
+</script>
 </body>
 </html>
