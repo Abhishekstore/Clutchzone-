@@ -1,6 +1,6 @@
-        // Firebase Configuration & Initialization
+// Firebase Configuration & Initialization
 const firebaseConfig = {
-    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
+    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
     authDomain: "ff-tournaments.firebaseapp.com",
     projectId: "ff-tournaments",
     storageBucket: "ff-tournaments.appspot.com",
@@ -41,6 +41,7 @@ function filterTab(status) {
     loadTournamentsForCategory(currentCategory, status);
 }
 
+// Tournament loading with Automated 10-Min Room ID Unlock Logic
 function loadTournamentsForCategory(category, status) {
     const container = document.getElementById('tournaments-container');
     if(!container) return;
@@ -59,20 +60,38 @@ function loadTournamentsForCategory(category, status) {
             snapshot.forEach((doc) => {
                 const match = doc.data();
                 const matchId = doc.id;
+                
+                const now = new Date().getTime();
+                const startTime = match.startTime || 0;
+                const tenMinutesBefore = startTime - (10 * 60 * 1000); // 10 minutes prior
+
+                let roomSection = '';
+                if (startTime > 0) {
+                    if (now >= tenMinutesBefore) {
+                        // Unlocks Room ID & Password
+                        roomSection = `
+                            <div style="background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #22c55e;">
+                                <p style="margin:2px 0; color:#22c55e; font-size:13px;">Room ID: <strong>${match.roomId || 'Updating'}</strong></p>
+                                <p style="margin:2px 0; color:#22c55e; font-size:13px;">Password: <strong>${match.roomPass || 'Updating'}</strong></p>
+                            </div>`;
+                    } else {
+                        // Locked state message
+                        roomSection = `<p style="color: #fbbf24; font-size: 11px; margin-top:5px;">🔒 Room ID unlocks 10 mins before match.</p>`;
+                    }
+                }
+
                 container.innerHTML += `
                     <div class="tournament-card">
                         <div class="card-top-rules">
                             <span>⚡ ${match.title || category}</span>
                             <span class="match-id-tag">#${matchId.slice(-5)}</span>
                         </div>
-                        <div class="card-details-grid">
-                            <div><small>ENTRY FEE</small><h4>₹${match.entryFee || 0}</h4></div>
-                            <div><small>PRIZE POOL</small><h4>₹${match.prizePool || 3000}</h4></div>
+                        <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Starts: ${startTime ? new Date(startTime).toLocaleString() : 'Soon'}</p>
+                        ${roomSection}
+                        <div class="card-details-grid" style="margin-top:10px;">
+                            <div><small>ENTRY</small><h4>₹${match.entryFee || 0}</h4></div>
+                            <div><small>PRIZE</small><h4>₹${match.prizePool || 3000}</h4></div>
                             <div><small>PER KILL</small><h4>₹${match.perKill || 5}</h4></div>
-                        </div>
-                        <div class="card-info-row">
-                            <span><i class="fa-solid fa-clock"></i> ${match.time || 'Today'}</span>
-                            <span><i class="fa-solid fa-map"></i> ${match.map || 'Bermuda'}</span>
                         </div>
                         <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})">JOIN MATCH</button>
                     </div>
@@ -245,4 +264,3 @@ if (logoutBtn) {
         auth.signOut().then(() => { window.location.href = "index.html"; });
     });
 }
-    
