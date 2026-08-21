@@ -91,41 +91,56 @@ function closeJoinModal() {
     const joinModal = document.getElementById('join-modal');
     if(joinModal) joinModal.style.display = 'none';
 }
-
 function confirmJoinModal() {
-    const ffuidEl = document.getElementById('join-ffuid');
-    if(!ffuidEl) return;
-    const ffuid = ffuidEl.value.trim();
-    const user = auth.currentUser;
-    if (!user) { alert("Please login first!"); return; }
-    if (!ffuid) { alert("Please enter your Free Fire UID!"); return; }
+    const ffuidInput = document.getElementById('join-ffuid');
+    if (!ffuidInput) return;
+    const ffuid = ffuidInput.value.trim();
+    
+    if (!ffuid) { 
+        alert("Please enter your Free Fire UID!"); 
+        return; 
+    }
 
-    db.collection('users').doc(user.uid).get().then(doc => {
-        const userData = doc.data() || {};
+    const userPhone = localStorage.getItem('savedPhone');
+    if (!userPhone) { 
+        alert("Please login first!"); 
+        switchAuthTab('login'); 
+        return; 
+    }
+
+    // Pehle user ka wallet balance check karein
+    db.collection('users').doc(userPhone).get().then(doc => {
+        const userData = doc.exists ? doc.data() : {};
         const wallet = userData.wallet || 0;
 
+        // Check karein ki wallet mein paise hain ya nahi
         if (wallet < selectedTournamentFee) {
-            alert("Insufficient balance! Please add coins.");
+            alert("Insufficient balance! Please add coins/money to your wallet.");
             return;
         }
 
+        // Tournament join list mein add karein
         db.collection('participants').add({
-            userId: user.uid,
-            email: user.email,
+            userPhone: userPhone,
             matchId: selectedTournamentId,
             ffuid: ffuid,
             joinedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            return db.collection('users').doc(user.uid).update({
+            // Wallet se entry fee cut karein
+            return db.collection('users').doc(userPhone).update({
                 wallet: wallet - selectedTournamentFee
             });
         }).then(() => {
             alert("Successfully Joined Tournament!");
             closeJoinModal();
+            loadUserData(); 
         }).catch(err => {
             alert("Error: " + err.message);
         });
     });
+}
+
+
 }
 
 function copyReferralCode() {
