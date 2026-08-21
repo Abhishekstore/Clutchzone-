@@ -43,15 +43,52 @@ function updateRoomCredentials() {
     }).then(() => alert("Room Updated!"));
 }
 
+
 function submitResult() {
-    const matchId = document.getElementById('res-match-id').value.trim();
-    db.collection('results').add({
-        matchId: matchId,
-        ffuid: document.getElementById('res-player-uid').value.trim(),
-        kills: Number(document.getElementById('res-kills').value) || 0,
-        prize: Number(document.getElementById('res-prize').value) || 0,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert("Result Added!"));
+    const matchIdInput = document.getElementById('res-match-id');
+    const ffuidInput = document.getElementById('res-player-uid');
+    const amountInput = document.getElementById('res-prize');
+
+    if (!matchIdInput || !ffuidInput) return;
+
+    const matchId = matchIdInput.value.trim();
+    const ffuid = ffuidInput.value.trim();
+    const amount = amountInput ? Number(amountInput.value) || 0 : 0;
+
+    if (!matchId || !ffuid) {
+        alert("Kripya Match ID aur Player FF UID bharein!");
+        return;
+    }
+
+    db.collection('users').where('ffuid', '==', ffuid).get().then(snapshot => {
+        if (snapshot.empty) {
+            alert("Is Free Fire UID (" + ffuid + ") ka koi user register nahi mila!");
+            return;
+        }
+
+        let userDoc = snapshot.docs[0];
+        let userPhone = userDoc.id;
+        let currentWallet = userDoc.data().wallet || 0;
+        let newWallet = currentWallet + amount;
+
+        db.collection('users').doc(userPhone).update({
+            wallet: newWallet
+        }).then(() => {
+            return db.collection('tournaments').doc(matchId).update({
+                status: 'Results',
+                winnerFfuid: ffuid
+            });
+        }).then(() => {
+            alert(`Success! ₹${amount} winner ke wallet mein successfully add kar diye gaye hain.`);
+            matchIdInput.value = '';
+            ffuidInput.value = '';
+            if(amountInput) amountInput.value = '';
+        }).catch(err => {
+            alert("Error: " + err.message);
+        });
+    }).catch(err => {
+        alert("Error finding user: " + err.message);
+    });
 }
 
 function markMatchComplete() {
