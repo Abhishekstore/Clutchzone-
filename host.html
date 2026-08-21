@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClutchZone - Host Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 20px; }
+        .admin-container { max-width: 600px; margin: 0 auto 20px auto; background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        h2 { text-align: center; color: #f97316; margin-bottom: 20px; font-size: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; }
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+        .btn-submit { width: 100%; background: #f97316; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        #lock-screen { display: none; text-align: center; padding: 40px; background: #1e293b; border-radius: 12px; max-width: 500px; margin: 50px auto; border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+
+    <!-- Plan & Subscription Status Box -->
+    <div id="plan-status-box" class="admin-container" style="background: #1e293b; border: 1px solid #38bdf8; display:none;">
+        <h3 style="color: #38bdf8; margin-bottom: 8px;">📦 Your Active Plan</h3>
+        <p id="plan-info" style="font-size: 14px; color: #cbd5e1;"></p>
+    </div>
+
+    <!-- Lock Screen (If Plan Expired) -->
+    <div id="lock-screen">
+        <h2 style="color: #ef4444;">❌ Plan Expired!</h2>
+        <p id="lock-message" style="color: #94a3b8; margin: 15px 0; font-size: 14px;"></p>
+        <p style="color: #fbbf24; font-size: 13px;">Please contact the Owner and pay (₹250 for 1 Month / ₹650 for 3 Months) to renew your hosting access.</p>
+    </div>
+
+    <!-- Main Host Panel Content -->
+    <div id="host-main-content">
+        <div class="admin-container">
+            <h2>⚡ Create Tournament</h2>
+            <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001" oninput="verifyHostAccess()"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
+            <div class="row">
+                <div class="form-group"><label>Category</label><select id="tournament-category" onchange="updateSubModes()"><option value="Full Map">Full Map</option><option value="Survival">Survival</option><option value="Clash Squad">Clash Squad</option><option value="Lone Wolf">Lone Wolf</option></select></div>
+                <div class="form-group"><label>Sub-Mode</label><select id="tournament-submode"></select></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Entry (₹)</label><input type="number" id="tournament-entry" placeholder="0"></div>
+                <div class="form-group"><label>Prize (₹)</label><input type="number" id="tournament-prize" placeholder="0"></div>
+                <div class="form-group"><label>Kill (₹)</label><input type="number" id="tournament-perkill" placeholder="0"></div>
+            </div>
+            <div class="form-group"><label>Start Date/Time</label><input type="datetime-local" id="tournament-time"></div>
+            <button class="btn-submit" onclick="createTournament()">🚀 Launch Tournament</button>
+        </div>
+
+        <div class="admin-container">
+            <h2>🔑 Update Room ID</h2>
+            <div class="form-group"><label>Match ID</label><input type="text" id="room-match-id" placeholder="Match ID"></div>
+            <div class="row">
+                <div class="form-group"><label>Room ID</label><input type="text" id="room-id-val" placeholder="12345678"></div>
+                <div class="form-group"><label>Password</label><input type="text" id="room-pass-val" placeholder="Pass"></div>
+            </div>
+            <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8; color: #0f172a;">📢 Publish Room Details</button>
+        </div>
+
+        <div class="admin-container">
+            <h2>🏆 Declare Results</h2>
+            <div class="form-group"><label>Match ID</label><input type="text" id="res-match-id" placeholder="Match ID"></div>
+            <div class="form-group"><label>Player FF UID</label><input type="text" id="res-player-uid" placeholder="UID"></div>
+            <div class="row">
+                <div class="form-group"><label>Kills</label><input type="number" id="res-kills" placeholder="0"></div>
+                <div class="form-group"><label>Earnings (₹)</label><input type="number" id="res-prize" placeholder="0"></div>
+            </div>
+            <button class="btn-submit" onclick="submitResult()" style="background: #22c55e;">✅ Save Result</button>
+            <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569; margin-top: 10px;">🏁 Mark Match Completed</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        function verifyHostAccess() {
+            const hostCode = document.getElementById('host-code').value.trim();
+            const statusBox = document.getElementById('plan-status-box');
+            const planInfo = document.getElementById('plan-info');
+            const mainContent = document.getElementById('host-main-content');
+            const lockScreen = document.getElementById('lock-screen');
+            const lockMsg = document.getElementById('lock-message');
+
+            if (!hostCode) {
+                statusBox.style.display = 'none';
+                lockScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                return;
+            }
+
+            db.collection('hosts').doc(hostCode).get().then(doc => {
+                if (!doc.exists) {
+                    lockScreen.style.display = 'block';
+                    mainContent.style.display = 'none';
+                    statusBox.style.display = 'none';
+                    lockMsg.textContent = `Host Code "${hostCode}" is invalid or not registered by owner!`;
+                    return;
+                }
+
+                const data = doc.data();
+                const expiryTime = data.expiryDate || 0;
+                const currentTime = new Date().getTime();
+
+                if (currentTime > expiryTime) {
+                    lockScreen.style.display = 'block';
+                    mainContent.style.display = 'none';
+                    statusBox.style.display = 'none';
+                    lockMsg.textContent = `Your plan (${data.planName}) has expired on ${new Date(expiryTime).toLocaleDateString()}.`;
+                } else {
+                    lockScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    statusBox.style.display = 'block';
+                    planInfo.innerHTML = `Plan: <strong>${data.planName}</strong> | Expires on: <span style="color:#22c55e;">${new Date(expiryTime).toLocaleString()}</span>`;
+                }
+            }).catch(err => {
+                console.error("Error:", err);
+            });
+        }
+    </script>
+</body>
+</html>
