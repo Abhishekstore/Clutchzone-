@@ -417,6 +417,43 @@ function submitWithdrawal() {
         alert("Sahi UPI aur min ₹50 dalein!");
         return;
     }
+    // Function: Transactions record karne ke liye
+function logTransaction(userPhone, type, amount) {
+    db.collection('transactions').add({
+        userPhone: userPhone,
+        type: type, // e.g., 'Deposit', 'Entry Fee', 'Winnings', 'Withdrawal'
+        amount: amount,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
+// Function: Passbook load karne ke liye
+function loadPassbook() {
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) return;
+
+    switchView('passbook-view');
+    const listDiv = document.getElementById('transaction-list');
+    listDiv.innerHTML = "<p style='color:white;'>Loading history...</p>";
+
+    db.collection('transactions').where('userPhone', '==', userPhone).orderBy('timestamp', 'desc').get().then(snapshot => {
+        if (snapshot.empty) {
+            listDiv.innerHTML = "<p style='color:white; text-align:center;'>Koi record nahi mila.</p>";
+            return;
+        }
+
+        let html = "";
+        snapshot.forEach(doc => {
+            let t = doc.data();
+            let color = (t.type === 'Deposit' || t.type === 'Winnings') ? '#2ecc71' : '#e74c3c';
+            html += `<div style="background:#1e293b; padding:12px; margin-bottom:8px; border-radius:8px; display:flex; justify-content:space-between; color:white;">
+                <span>${t.type}</span>
+                <span style="color: ${color}; font-weight:bold;">₹${t.amount}</span>
+            </div>`;
+        });
+        listDiv.innerHTML = html;
+    });
+}
 
     // Database mein withdrawal request save karo
     db.collection('withdrawals').add({
