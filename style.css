@@ -1,43 +1,23 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
 body { background: #121212; color: #fff; padding-bottom: 60px; }
 
-/* Header */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #1a1a1a;
-    padding: 12px 16px;
-    border-bottom: 1px solid #333;
-}
+.app-header { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px 16px; border-bottom: 1px solid #333; }
 .user-info { display: flex; align-items: center; gap: 10px; }
 .avatar { width: 35px; height: 35px; background: #f39c12; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
 .welcome-text { font-size: 11px; color: #aaa; }
 .wallet-badge { background: #222; border: 1px solid #444; padding: 6px 12px; border-radius: 20px; color: #f39c12; font-weight: bold; cursor: pointer; }
 
-/* Main Container & Views (Fixes overlapping sections) */
 .app-container { padding: 15px; }
 .view-section { display: none; }
 .view-section.active { display: block; }
 
-/* Promo Banner */
-.promo-banner {
-    background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
-    border: 1px solid #444;
-    border-radius: 10px;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+.promo-banner { background: linear-gradient(135deg, #1e1e1e, #2c2c2c); border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .promo-text h3 { font-size: 14px; color: #f39c12; }
 .promo-text p { font-size: 11px; color: #aaa; margin-top: 3px; }
 .tg-btn { background: #0088cc; color: #fff; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 12px; }
 
 .section-title { font-size: 14px; color: #aaa; margin-bottom: 10px; letter-spacing: 1px; }
 
-/* Category Grid */
 .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cat-card { background: #1e1e1e; border-radius: 10px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
 .cat-img { height: 90px; background-size: cover; background-position: center; }
@@ -48,18 +28,15 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 .cat-footer { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-weight: bold; font-size: 13px; background: #141414; }
 .cat-footer i { color: #f39c12; }
 
-/* Profile Card / Setup Box */
 .card { background: #181818; border: 1px solid #333; border-radius: 10px; padding: 15px; }
 .card input { width: 100%; padding: 10px; margin: 8px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 5px; }
 .btn-primary { width: 100%; background: #f39c12; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; }
 
-/* Back Nav & Tabs */
 .back-nav { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: bold; color: #f39c12; cursor: pointer; margin-bottom: 15px; }
 .tab-bar { display: flex; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin-bottom: 15px; }
 .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #aaa; font-weight: bold; cursor: pointer; }
 .tab-btn.active { background: #f39c12; color: #000; }
 
-/* Tournament Cards */
 .tournament-card { background: #181818; border: 1px solid #333; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
 .card-top-rules { display: flex; justify-content: space-between; font-weight: bold; color: #fff; margin-bottom: 12px; }
 .match-id-tag { color: #f39c12; font-size: 12px; }
@@ -69,7 +46,6 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 .card-info-row { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 12px; }
 .btn-join { width: 100%; background: #f39c12; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* Wallet UI */
 .wallet-top-card { background: #1c1c1c; border-radius: 12px; padding: 25px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
 .wallet-top-card h1 { color: #f39c12; font-size: 32px; margin: 5px 0; }
 .wallet-breakdown-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
@@ -80,7 +56,6 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 .wallet-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .w-action-btn { background: #f39c12; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-/* Profile View */
 .profile-header-card { background: #1c1c1c; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
 .pro-avatar { width: 70px; height: 70px; background: #f39c12; border-radius: 50%; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #000; border: 3px solid #ffcc00; }
 .kyc-badge { background: rgba(46, 204, 113, 0.2); color: #2ecc71; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 6px; }
@@ -93,6 +68,18 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 .menu-item span { flex: 1; margin-left: 10px; }
 .menu-item i:last-child { color: #666; font-size: 12px; }
 
+/* Room credentials & Refer banner */
+.room-credential-box { background: #111; border: 1px solid #f39c12; padding: 12px; border-radius: 8px; margin-top: 10px; color: #ddd; font-size: 13px; }
+.refer-banner { background: #1c1c1c; border: 1px solid #333; padding: 25px; border-radius: 12px; text-align: center; }
+.refer-icon { font-size: 40px; color: #f39c12; margin-bottom: 10px; }
+.refer-banner h3 { color: #fff; margin-bottom: 8px; }
+.refer-banner p { color: #aaa; font-size: 13px; }
+
+/* Leaderboard */
+.leaderboard-list { display: flex; flex-direction: column; gap: 10px; }
+.lead-item { background: #181818; border: 1px solid #333; padding: 14px 16px; border-radius: 8px; display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; }
+.lead-item strong { color: #f39c12; }
+
 /* Modals & UPI Box */
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
 .modal-content { background: #1e1e1e; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; border: 1px solid #444; text-align: center; }
@@ -102,7 +89,6 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 .upi-box span { color: #f39c12; font-weight: bold; font-size: 15px; }
 .copy-btn { background: #333; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
-/* Bottom Navigation Bar */
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #141414; border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 10px 0; z-index: 999; }
 .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 11px; cursor: pointer; text-decoration: none; }
 .nav-item i { font-size: 18px; margin-bottom: 3px; }
