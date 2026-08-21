@@ -19,6 +19,20 @@
     </style>
 </head>
 <body>
+    <body>
+    <script>
+        // Admin Panel Password Check
+        const adminPassword = prompt("Enter Admin Password to access:");
+        if (adminPassword !== "BR01GJ248871054") { 
+            alert("Wrong Password! Access Denied.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+
+    <div class="admin-container">
+        <h2>⚡ Create Tournament</h2>
+        <!-- Baaki ka aapka purana code waisa hi rahega -->
+
     <div class="admin-container">
         <h2>⚡ Create Tournament</h2>
         <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
