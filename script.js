@@ -236,8 +236,7 @@ if (saveProfileBtn) {
         const ignEl = document.getElementById('ign-input');
         const ffuidEl = document.getElementById('ffuid-input');
         if (!ignEl || !ffuidEl) return;
-        
-        const ign = ignEl.value.trim();
+
         const ffuid = ffuidEl.value.trim();
 
         // Check karein ki user localStorage mein logged in hai ya nahi
