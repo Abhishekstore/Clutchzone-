@@ -316,23 +316,30 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 function openHosting() {
-    // Check karein ki user subscribed hai ya nahi
     const isSubscribed = localStorage.getItem('isHostingSubscribed');
     
     if (isSubscribed === 'true') {
-        window.location.href = "YOUR_HOSTING_LINK_HERE"; // Apni hosting ka link yahan dalein
+        window.location.href = "host.html"; 
     } else {
         document.getElementById('hosting-modal').style.display = 'flex';
     }
 }
 
 function buyPlan(amount) {
-    alert("Payment ke liye Admin se contact karein! (Simulated)");
-    // Payment confirm hone ke baad subscription set kar rahe hain
-    localStorage.setItem('isHostingSubscribed', 'true');
-    document.getElementById('hosting-modal').style.display = 'none';
-    window.location.href = "YOUR_HOSTING_LINK_HERE"; // Payment ke baad direct khulega
+    const upiId = "kinggkwrd@okicici"; 
+    const merchantName = "ClutchZone Hosting";
+    
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`;
+    
+    window.location.href = upiUrl;
+
+    setTimeout(() => {
+        let check = confirm("Kya aapne payment successful kar diya hai? OK dabate hi aapka hosting plan activate ho jayega.");
+        if (check) {
+            localStorage.setItem('isHostingSubscribed', 'true');
+            document.getElementById('hosting-modal').style.display = 'none';
+            alert("Payment Confirmed! Plan Activated.");
+            window.location.href = "host.html"; 
+        }
+    }, 2000);
 }
-
-
-
