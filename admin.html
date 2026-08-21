@@ -19,14 +19,19 @@
     </style>
 </head>
 <body>
-    <body>
     <script>
-        // Admin Panel Password Check
-        const adminPassword = prompt("Enter Admin Password to access:");
-        if (adminPassword !== "BR01GJ248871054") { 
-            alert("Wrong Password! Access Denied.");
-            window.location.href = "index.html"; 
+        // Agar pehle se login nahi hai, tabhi password maangega
+        if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+            const adminPassword = prompt("Enter Admin Password to access:");
+            if (adminPassword === "BR01GJ248871054") {
+                localStorage.setItem('isAdminLoggedIn', 'true');
+            } else {
+                alert("Wrong Password! Access Denied.");
+                window.location.href = "index.html"; 
+            }
         }
+    </script>
+
     </script>
 
     <div class="admin-container">
