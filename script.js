@@ -530,33 +530,41 @@ function logoutUser() {
     }
 }
 
-// Modal kholne ke liye function
+// 1. Modal kholne aur band karne ke liye functions
 function openAddCoinsModal() {
     const modal = document.getElementById('add-coins-modal');
-    if (modal) modal.style.display = 'block';
+    if (modal) modal.style.display = 'flex';
 }
 
-// Amount daal kar UPI app (GPay/PhonePe/Paytm) kholne ke liye
+function closeAddCoinsModal() {
+    const modal = document.getElementById('add-coins-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// 2. UPI App kholne ke liye (Yahan backticks ` ka use hai)
 function payWithUPI() {
     let amount = document.getElementById('deposit-amount').value;
     if (!amount || amount <= 0) {
         alert("Kripya pehle sahi amount dalein!");
         return;
     }
-    let upiID = "kinggkwrd@okicici"; // Aapki UPI ID
+    let upiID = "kinggkwrd@okicici";
     let upiUrl = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
     window.location.href = upiUrl;
 }
-// Amount type karte hi UPI link update karne ke liye
+
+// 3. Live link update karne ke liye
 function updateUpiLink() {
-    let amount = document.getElementById('deposit-amount').value || "1";
+    let amount = document.getElementById('deposit-amount').value || "100";
     let upiID = "kinggkwrd@okicici";
     let btn = document.getElementById('upi-link-btn');
-    if(btn) {
+    if (btn) {
         btn.href = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
     }
 }
 
-// Amount input field par oninput event jodne ke liye
-document.getElementById('deposit-amount').addEventListener('input', updateUpiLink);
-
+// 4. Amount input par event listener
+let depositInput = document.getElementById('deposit-amount');
+if (depositInput) {
+    depositInput.addEventListener('input', updateUpiLink);
+}
