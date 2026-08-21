@@ -240,17 +240,25 @@
             </section>
         </main>
 
-        <!-- ADD COINS MODAL -->
-        <div id="add-coins-modal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
-                <h3>Add Coins via UPI</h3>
-                <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)" style="width:100%; padding:10px; margin:10px 0;">
-                <button class="btn-primary" style="background:#22c55e; margin-bottom:10px; width:100%; padding:10px;">Pay Now</button>
-                <button class="btn-primary" onclick="submitDepositRequest()" style="width:100%; padding:10px;">2. Done? Send Screenshot</button>
-            </div>
-        </div>
+<div id="add-coins-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
+        <h3>💰 Add Money to Wallet</h3>
+        <p style="font-size:12px; color:#94a3b8; margin:10px 0;">Amount daalein aur Pay Now par click karke payment karein:</p>
+        
+        <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)" style="width:100%; padding:10px; margin-bottom:10px;">
+        
+        <!-- Pay Now Button -->
+        <button class="btn-primary" onclick="payWithUPI()" style="background:#22c55e; margin-bottom:10px; width:100%; padding:10px; color:white; border:none; border-radius:5px; font-weight:bold;">1. Pay via UPI App (GPay/PhonePe)</button>
+        
+        <input type="text" id="deposit-utr" placeholder="Enter 12-digit UTR / Txn ID" style="width:100%; padding:10px; margin-bottom:10px;">
+        
+        <!-- Submit Button -->
+        <button class="btn-primary" onclick="submitDepositRequest()" style="width:100%; padding:10px; background:#3498db; color:white; border:none; border-radius:5px; font-weight:bold;">2. Done? Submit UTR</button>
+    </div>
+</div>
 
+        
         <!-- JOIN MATCH MODAL -->
         <div id="join-modal" class="modal" style="display:none;">
             <div class="modal-content">
