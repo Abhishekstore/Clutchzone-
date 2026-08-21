@@ -408,3 +408,26 @@ function openMyMatches() {
     });
 }
 
+function submitWithdrawal() {
+    let upi = document.getElementById('withdraw-upi').value.trim();
+    let amount = Number(document.getElementById('withdraw-amount').value);
+    let userPhone = localStorage.getItem('userPhone');
+
+    if (!upi || amount < 50) {
+        alert("Sahi UPI aur min ₹50 dalein!");
+        return;
+    }
+
+    // Database mein withdrawal request save karo
+    db.collection('withdrawals').add({
+        userPhone: userPhone,
+        upi: upi,
+        amount: amount,
+        status: 'Pending',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("Request submit ho gayi! Admin jald hi approve karega.");
+        document.getElementById('withdraw-modal').style.display = 'none';
+        logTransaction(userPhone, 'Withdrawal', amount); // Transaction history mein dikhega
+    });
+}
