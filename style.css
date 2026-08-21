@@ -20,11 +20,20 @@ body { background: #121212; color: #fff; padding-bottom: 60px; }
 
 .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cat-card { background: #1e1e1e; border-radius: 10px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
-.cat-img { height: 90px; background-size: cover; background-position: center; }
-.fullmap-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500'); }
-.survival-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500'); }
-.cs-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=500'); }
-.lonewolf-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500'); }
+.cat-img { 
+    height: 100px; 
+    width: 100%; 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+    border-radius: 8px 8px 0 0;
+    display: block;
+}
+.fullmap-bg { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=60'); }
+.survival-bg { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1593341646847-8178a99478f7?auto=format&fit=crop&w=500&q=60'); }
+.cs-bg { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1589241062272-c8a77033580e?auto=format&fit=crop&w=500&q=60'); }
+.lonewolf-bg { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1614728853683-fb7e81081515?auto=format&fit=crop&w=500&q=60'); }
+
 .cat-footer { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-weight: bold; font-size: 13px; background: #141414; }
 .cat-footer i { color: #f39c12; }
 
