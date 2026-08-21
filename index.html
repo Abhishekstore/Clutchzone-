@@ -380,6 +380,16 @@
         <button onclick="document.getElementById('hosting-modal').style.display='none'" style="padding: 10px; background: transparent; color: white; border: 1px solid white; border-radius: 10px; cursor: pointer;">Cancel</button>
     </div>
     </div>
+    <!-- WITHDRAWAL MODAL -->
+<div id="withdraw-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999;">
+    <div class="modal-content" style="background:#0f172a; padding:20px; color:white; border-radius:10px; margin:20% auto; width:80%;">
+        <h3>💸 Withdraw Request</h3>
+        <input type="text" id="withdraw-upi" placeholder="Enter UPI ID" style="width:90%; padding:10px; margin:10px 0; border-radius:5px;">
+        <input type="number" id="withdraw-amount" placeholder="Amount (Min ₹50)" style="width:90%; padding:10px; margin:10px 0; border-radius:5px;">
+        <button onclick="submitWithdrawal()" style="width:100%; padding:10px; background:#2ecc71; border:none; color:white; border-radius:5px;">Submit Request</button>
+        <button onclick="document.getElementById('withdraw-modal').style.display='none'" style="width:100%; padding:10px; background:#e74c3c; border:none; color:white; border-radius:5px; margin-top:10px;">Close</button>
+    </div>
+</div>
     
 </body>
 </html>
