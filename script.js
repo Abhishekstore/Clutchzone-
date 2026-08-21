@@ -380,7 +380,7 @@ function buyPlan(amount) {
 
 function loadUserData() {
     const userPhone = localStorage.getItem('savedPhone');
-    if (!userPhone) return;
+    if (!userPhone) return; // Yahan 'fuserPhone' ki jagah '!userPhone' hona chahiye
 
     db.collection('users').doc(userPhone).get().then(doc => {
         if (doc.exists) {
