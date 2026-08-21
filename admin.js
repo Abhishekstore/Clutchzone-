@@ -1,6 +1,6 @@
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "",
+    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
     authDomain: "ff-tournaments.firebaseapp.com",
     projectId: "ff-tournaments",
     storageBucket: "ff-tournaments.appspot.com",
