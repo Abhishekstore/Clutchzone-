@@ -1,11 +1,11 @@
 // Firebase Configuration & Initialization
 const firebaseConfig = {
-    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
-    authDomain: "ff-tournaments.firebaseapp.com",
-    projectId: "ff-tournaments",
-    storageBucket: "ff-tournaments.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:123d567890:web:abcdef"
+    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
+    authDomain: "ff-tournaments-af47a.firebaseapp.com",
+    projectId: "ff-tournaments-af47a",
+    storageBucket: "ff-tournaments-af47a.appspot.com",
+    messagingSenderId: "238745686365",
+    appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
 };
 
 firebase.initializeApp(firebaseConfig);
