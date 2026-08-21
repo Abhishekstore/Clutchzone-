@@ -209,14 +209,30 @@
             </div>
         </div>
 
-        <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="bottom-nav">
-            <a onclick="switchView('offer-view')" class="nav-item" id="nav-offer">Offer</a>
-            <a onclick="switchView('ranking-view')" class="nav-item" id="nav-ranking">Ranking</a>
-            <a onclick="switchView('home-view')" class="nav-item active" id="nav-home">Home</a>
-            <a onclick="switchView('wallet-view')" class="nav-item" id="nav-wallet">Wallet</a>
-            <a onclick="switchView('profile-view')" class="nav-item" id="nav-profile">Profile</a>
-        </nav>
+            <!-- BOTTOM NAVIGATION BAR -->
+    <div class="tab-bar">
+        <button class="tab-btn" onclick="switchView('offer-view')">
+            <i class="fa-solid fa-percent"></i>
+            <span>Offer</span>
+        </button>
+        <button class="tab-btn" onclick="switchView('ranking-view')">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Ranking</span>
+        </button>
+        <button class="tab-btn active" onclick="switchView('home-view')">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="tab-btn" onclick="switchView('wallet-view')">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Wallet</span>
+        </button>
+        <button class="tab-btn" onclick="switchView('profile-view')">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </button>
+    </div>
+
 
     </div> <!-- Main App Container End -->
 
