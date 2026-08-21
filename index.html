@@ -261,18 +261,18 @@
             deferredPrompt = e;
         });
 
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
-                deferredPrompt = null;
-            } else {
-                alert("App Install karne ke liye:\n1. Top-Right mein 3-Dots (⋮) par click karein.\n2. 'Add to Home screen' ya 'Install app' par click karein.");
+            installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
             }
-        });
+            deferredPrompt = null;
+        } else {
+            alert("App pehle se installed hai ya aapka browser direct install support nahi kar raha!");
+        }
+    });
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
