@@ -175,11 +175,44 @@ function copyUpiId() {
     navigator.clipboard.writeText("kinggkwrd@okicici");
     alert("UPI ID Copied: kinggkwrd@okicici");
 }
-function submitDepositRequest() {
+// Direct UPI App kholne ke liye (PhonePe, GPay, Paytm etc.)
+function initiateUpiPayment() {
     const amount = document.getElementById('deposit-amount').value;
-    if(!amount || amount <= 0) { alert("Please enter valid amount!"); return; }
-    window.open(`https://t.me/Abhifftournamenthub?text=Hello%20Admin,%20I%20paid%20₹${amount}%20to%20kinggkwrd@okicici.%20Screenshot attached!`, "_blank");
+    const upiId = "kinggkwrd@okicici";
+    const name = "TournamentHub";
+    
+    if(!amount || amount <= 0) {
+        alert("Please enter a valid amount!");
+        return;
+    }
+
+    // UPI Deep Link URL
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+    
+    // User ke phone ka UPI app direct khol dega
+    window.location.href = upiUrl;
+}
+
+// Telegram par screenshot bhejne ke liye
+function submitDepositRequest() {
+    const amountInput = document.getElementById('deposit-amount').value;
+    const amount = Number(amountInput);
+
+    if(!amount || amount <= 0) { 
+        alert("Please enter a valid amount!"); 
+        return; 
+    }
+
+    let bonusText = "";
+    if (amount >= 150) {
+        bonusText = "%20(Eligible%20for%20₹10%20Bonus!)";
+    }
+
+    const telegramUrl = `https://t.me/Abhifftournamenthub?text=Hello%20Admin,%20I%20have%20paid%20₹${amount}%20to%20kinggkwrd@okicici.${bonusText}%20Here%20is%20my%20screenshot!`;
+    window.open(telegramUrl, "_blank");
     closeAddCoinsModal();
+}
+
 }
 function openWithdrawModal() { openDepositTelegram(); }
 function openDepositTelegram() { window.open("https://t.me/Abhifftournamenthub", "_blank"); }
