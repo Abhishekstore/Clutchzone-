@@ -51,3 +51,20 @@ function markMatchComplete() {
     const matchId = document.getElementById('res-match-id').value.trim();
     db.collection('tournaments').doc(matchId).update({ status: 'Results' }).then(() => alert("Match moved to Results!"));
 }
+function updateRoomCredentials() {
+    const matchId = document.getElementById('room-match-id').value.trim();
+    const roomId = document.getElementById('room-id-val').value.trim();
+    const roomPass = document.getElementById('room-pass-val').value.trim();
+
+    if (!matchId) {
+        alert("Please enter Match ID!");
+        return;
+    }
+
+    db.collection('tournaments').doc(matchId).update({
+        roomId: roomId,
+        roomPass: roomPass
+    })
+    .then(() => alert("Room ID & Password updated successfully for players!"))
+    .catch(err => alert("Error: " + err.message));
+}
