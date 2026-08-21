@@ -1,6 +1,6 @@
-// Firebase Configuration
+// Firebase Configuration (Sahi Project ID ke sath)
 const firebaseConfig = {
-    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
+    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
     authDomain: "ff-tournaments-af47a.firebaseapp.com",
     projectId: "ff-tournaments-af47a",
     storageBucket: "ff-tournaments-af47a.appspot.com",
@@ -8,94 +8,75 @@ const firebaseConfig = {
     appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase agar pehle se initialized na ho
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.firestore();
 
-// 1. Launch Tournament Logic with Category & Auto-Time
-const launchBtn = document.getElementById('launch-tournament-btn');
-if (launchBtn) {
-    launchBtn.addEventListener('click', () => {
-        const title = document.getElementById('admin-title').value.trim();
-        const category = document.getElementById('admin-category').value; // Dropdown value
-        const status = document.getElementById('admin-status').value;
-        const roomId = document.getElementById('admin-room-id').value.trim();
-        const roomPass = document.getElementById('admin-room-password').value.trim();
-        const entryFee = Number(document.getElementById('admin-entry-fee').value) || 0;
-        const timeInput = document.getElementById('admin-match-time').value;
+// Category ke mutabiq Sub-Modes update karne ka function
+function updateSubModes() {
+    const category = document.getElementById('tournament-category').value;
+    const subModeSelect = document.getElementById('tournament-submode');
+    subModeSelect.innerHTML = '';
 
-        if (!title || !timeInput) {
-            alert("Please enter Match Title and Start Time!");
-            return;
-        }
+    let options = [];
+    if (category === 'Full Map' || category === 'Survival') {
+        options = ['Solo (Max 48)', 'Duo (Max 48)', 'Squad 12 Teams (Max 48)'];
+    } else if (category === 'Clash Squad') {
+        options = ['1 vs 1', '2 vs 2', '3 vs 3', '4 vs 4', '6 vs 6'];
+    } else if (category === 'Lone Wolf') {
+        options = ['1 vs 1', '2 vs 2'];
+    }
 
-        const matchTimestamp = new Date(timeInput).getTime();
-
-        db.collection('tournaments').add({
-            title: title,
-            category: category, // Saves user selected category
-            status: status,
-            roomId: roomId,
-            roomPass: roomPass,
-            entryFee: entryFee,
-            startTime: matchTimestamp,
-            prizePool: 3000,
-            perKill: 5,
-            map: "Bermuda",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
-            alert("Tournament Launched Successfully! 🚀");
-            // Clear fields
-            document.getElementById('admin-title').value = '';
-            document.getElementById('admin-room-id').value = '';
-            document.getElementById('admin-room-password').value = '';
-            document.getElementById('admin-entry-fee').value = '';
-            document.getElementById('admin-match-time').value = '';
-        })
-        .catch(error => {
-            alert("Error: " + error.message);
-        });
+    options.forEach(opt => {
+        let el = document.createElement('option');
+        el.value = opt;
+        el.textContent = opt;
+        subModeSelect.appendChild(el);
     });
 }
 
-// 2. Credit Instantly Logic (By Free Fire UID)
-const creditBtn = document.getElementById('credit-instantly-btn');
-if (creditBtn) {
-    creditBtn.addEventListener('click', () => {
-        const ffuid = document.getElementById('admin-ffuid').value.trim();
-        const prizeAmount = Number(document.getElementById('admin-prize').value) || 0;
+// Page load hote hi sub-modes load karein
+window.onload = function() {
+    updateSubModes();
+};
 
-        if (!ffuid || prizeAmount <= 0) {
-            alert("Please enter valid FF UID and Prize Amount!");
-            return;
-        }
+// Tournament Create karne ka function (Non-full room start support ke sath)
+function createTournament() {
+    const title = document.getElementById('tournament-title').value.trim();
+    const category = document.getElementById('tournament-category').value;
+    const subMode = document.getElementById('tournament-submode').value;
+    const entryFee = Number(document.getElementById('tournament-entry').value) || 0;
+    const prizePool = Number(document.getElementById('tournament-prize').value) || 0;
+    const perKill = Number(document.getElementById('tournament-perkill').value) || 0;
+    const timeInput = document.getElementById('tournament-time').value;
 
-        db.collection('users').where('ffuid', '==', ffuid).get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                alert("No user found registered with this Free Fire UID!");
-                return;
-            }
+    if (!title) {
+        alert('Please enter a tournament title!');
+        return;
+    }
 
-            querySnapshot.forEach((docSnapshot) => {
-                const userId = docSnapshot.id;
-                const userData = docSnapshot.data();
-                const currentWallet = userData.wallet || 0;
-                const newBalance = currentWallet + prizeAmount;
+    const startTime = timeInput ? new Date(timeInput).getTime() : Date.now();
 
-                db.collection('users').doc(userId).update({
-                    wallet: newBalance
-                })
-                .then(() => {
-                    alert(`Successfully credited ₹${prizeAmount} to UID: ${ffuid}!`);
-                    document.getElementById('admin-ffuid').value = '';
-                    document.getElementById('admin-prize').value = '';
-                    document.getElementById('admin-kills').value = '';
-                });
-            });
-        })
-        .catch(error => {
-            alert("Error: " + error.message);
-        });
+    db.collection('tournaments').add({
+        title: title,
+        category: category,
+        subMode: subMode,
+        entryFee: entryFee,
+        prizePool: prizePool,
+        perKill: perKill,
+        startTime: startTime,
+        status: 'Upcoming',
+        roomId: 'Updating',
+        roomPass: 'Updating',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        alert('Tournament Launched Successfully!');
+        location.reload();
+    })
+    .catch((error) => {
+        alert('Error launching tournament: ' + error.message);
     });
 }
