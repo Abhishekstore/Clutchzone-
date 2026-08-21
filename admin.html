@@ -43,7 +43,7 @@
             <div class="form-group"><label>Room ID</label><input type="text" id="room-id-val" placeholder="12345678"></div>
             <div class="form-group"><label>Password</label><input type="text" id="room-pass-val" placeholder="Pass"></div>
         </div>
-        <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8;">📢 Publish Room Details</button>
+        <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8; color: #0f172a;">📢 Publish Room Details</button>
     </div>
 
     <div class="admin-container">
@@ -58,6 +58,20 @@
         <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569; margin-top: 10px;">🏁 Mark Match Completed</button>
     </div>
 
+    <!-- Manage Host Subscriptions & Plans (Owner Only) -->
+    <div class="admin-container" style="background: #1e293b; border: 1px solid #38bdf8;">
+        <h2 style="color: #38bdf8;">👥 Manage Host Plans</h2>
+        <div class="form-group"><label>Host Code</label><input type="text" id="manage-host-code" placeholder="e.g. HOST001"></div>
+        <div class="form-group"><label>Select Plan</label>
+            <select id="manage-plan-type">
+                <option value="250">₹250 - 1 Month Plan</option>
+                <option value="650">₹650 - 3 Months Plan</option>
+            </select>
+        </div>
+        <button class="btn-submit" onclick="saveHostPlan()" style="background: #38bdf8; color: #0f172a;">💾 Activate / Extend Host Plan</button>
+    </div>
+
+    <!-- Saturday Payout Dashboard (Owner Only) -->
     <div class="admin-container" style="background: #312e81;">
         <h2 style="color: #fbbf24;">💰 Saturday Payout Dashboard</h2>
         <div class="form-group"><label>Enter Host Code</label><input type="text" id="filter-host-code" placeholder="e.g. HOST001"></div>
