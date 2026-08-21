@@ -1,4 +1,3 @@
-// Firebase Configuration with your API Key
 const firebaseConfig = {
     apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
     authDomain: "ff-tournaments.firebaseapp.com",
@@ -8,7 +7,6 @@ const firebaseConfig = {
     appId: "1:1234567890:web:abcdef"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -17,7 +15,6 @@ let currentCategory = 'Full Map';
 let selectedTournamentId = null;
 let selectedTournamentFee = 0;
 
-// Switch Views & Bottom Nav Active State
 function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
@@ -30,7 +27,6 @@ function switchView(viewId) {
     if(viewId === 'ranking-view') document.getElementById('nav-ranking').classList.add('active');
 }
 
-// Open Category and Load Tournaments
 function openCategory(categoryName) {
     currentCategory = categoryName;
     document.getElementById('category-title-header').innerText = categoryName.toUpperCase();
@@ -82,13 +78,9 @@ function loadTournamentsForCategory(category, status) {
                 </div>
               `;
           });
-      })
-      .catch((error) => {
-          console.error("Error loading tournaments:", error);
       });
 }
 
-// Join Match Modal & Logic
 function openJoinModal(matchId, title, entryFee) {
     selectedTournamentId = matchId;
     selectedTournamentFee = entryFee;
@@ -103,21 +95,14 @@ function closeJoinModal() {
 
 function confirmJoinMatch() {
     const ffuid = document.getElementById('join-ffuid').value.trim();
-    if (!ffuid) {
-        alert("Please enter your Free Fire UID!");
-        return;
-    }
+    if (!ffuid) { alert("Please enter your Free Fire UID!"); return; }
 
     const user = auth.currentUser;
-    if (!user) {
-        alert("Please log in first!");
-        return;
-    }
+    if (!user) { alert("Please log in first!"); return; }
 
     db.collection('users').doc(user.uid).get().then((doc) => {
         if (!doc.exists) return;
-        const userData = doc.data();
-        const currentBalance = userData.wallet || 0;
+        const currentBalance = doc.data().wallet || 0;
 
         if (currentBalance < selectedTournamentFee) {
             alert("Insufficient wallet balance! Please deposit funds first.");
@@ -139,42 +124,66 @@ function confirmJoinMatch() {
     });
 }
 
-// UPI Add Coins Modal Functions
-function openAddCoinsModal() {
-    document.getElementById('add-coins-modal').style.display = 'flex';
-}
+// My Matches & Room ID view
+function openMyMatches() {
+    switchView('my-matches-view');
+    const container = document.getElementById('my-matches-container');
+    container.innerHTML = '<p style="text-align:center; color:#aaa; padding:20px;">Loading your matches...</p>';
 
-function closeAddCoinsModal() {
-    document.getElementById('add-coins-modal').style.display = 'none';
-}
-
-function copyUpiId() {
-    const upiText = "kinggkwrd@okicici";
-    navigator.clipboard.writeText(upiText);
-    alert("UPI ID Copied: " + upiText);
-}
-
-function submitDepositRequest() {
-    const amount = document.getElementById('deposit-amount').value;
-    if(!amount || amount <= 0) {
-        alert("Please enter a valid amount!");
+    const user = auth.currentUser;
+    if(!user) {
+        container.innerHTML = '<p style="text-align:center; color:#e74c3c;">Please login first.</p>';
         return;
     }
-    const telegramUrl = `https://t.me/Abhifftournamenthub?text=Hello%20Admin,%20I%20have%20paid%20₹${amount}%20to%20UPI%20kinggkwrd@okicici.%20Here%20is%20my%20screenshot!`;
-    window.open(telegramUrl, "_blank");
+
+    db.collection('tournaments').get().then((snapshot) => {
+        container.innerHTML = '';
+        let found = false;
+
+        snapshot.forEach((doc) => {
+            const match = doc.data();
+            const matchId = doc.id;
+
+            doc.ref.collection('participants').where('userId', '==', user.uid).get().then((pSnap) => {
+                if(!pSnap.empty) {
+                    container.innerHTML += `
+                        <div class="tournament-card">
+                            <div class="card-top-rules"><span>⚡ ${match.title || 'Tournament'}</span> <span class="match-id-tag">Joined</span></div>
+                            <div class="room-credential-box">
+                                <p><i class="fa-solid fa-key"></i> Room ID: <strong>${match.roomId || 'Will update soon'}</strong></p>
+                                <p><br><i class="fa-solid fa-lock"></i> Password: <strong>${match.roomPass || 'Will update soon'}</strong></p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        });
+    });
+}
+
+// Refer & Earn copy code
+function copyReferralCode() {
+    const code = "CLUTCH2026";
+    navigator.clipboard.writeText(code);
+    alert("Referral Code Copied: " + code);
+}
+
+// UPI Add Coins Modal Functions
+function openAddCoinsModal() { document.getElementById('add-coins-modal').style.display = 'flex'; }
+function closeAddCoinsModal() { document.getElementById('add-coins-modal').style.display = 'none'; }
+function copyUpiId() {
+    navigator.clipboard.writeText("kinggkwrd@okicici");
+    alert("UPI ID Copied: kinggkwrd@okicici");
+}
+function submitDepositRequest() {
+    const amount = document.getElementById('deposit-amount').value;
+    if(!amount || amount <= 0) { alert("Please enter valid amount!"); return; }
+    window.open(`https://t.me/Abhifftournamenthub?text=Hello%20Admin,%20I%20paid%20₹${amount}%20to%20kinggkwrd@okicici.%20Screenshot attached!`, "_blank");
     closeAddCoinsModal();
 }
+function openWithdrawModal() { openDepositTelegram(); }
+function openDepositTelegram() { window.open("https://t.me/Abhifftournamenthub", "_blank"); }
 
-function openWithdrawModal() {
-    alert("For withdrawals, please contact admin on Telegram!");
-    openDepositTelegram();
-}
-
-function openDepositTelegram() {
-    window.open("https://t.me/Abhifftournamenthub", "_blank");
-}
-
-// Auth State & Profile Handler
 auth.onAuthStateChanged((user) => {
     if (user) {
         db.collection('users').doc(user.uid).onSnapshot((doc) => {
@@ -197,25 +206,13 @@ document.getElementById('save-profile-btn').addEventListener('click', () => {
     const ign = document.getElementById('ign-input').value.trim();
     const ffuid = document.getElementById('ffuid-input').value.trim();
     const user = auth.currentUser;
+    if(!user) { alert("User not logged in!"); return; }
 
-    if(!user) {
-        alert("User not logged in!");
-        return;
-    }
-
-    db.collection('users').doc(user.uid).set({
-        ign: ign,
-        ffUid: ffuid,
-        email: user.email,
-        wallet: 0,
-        role: "user"
-    }, { merge: true }).then(() => {
+    db.collection('users').doc(user.uid).set({ ign: ign, ffUid: ffuid, email: user.email, wallet: 0, role: "user" }, { merge: true }).then(() => {
         alert("Profile Saved Successfully!");
     });
 });
 
 document.getElementById('logout-btn').addEventListener('click', () => {
-    auth.signOut().then(() => {
-        window.location.href = "index.html";
-    });
+    auth.signOut().then(() => { window.location.href = "index.html"; });
 });
