@@ -1,12 +1,16 @@
 {
-  "name": "ClutchZone",
+  "id": "/",
+  "name": "ClutchZone - Free Fire Esports",
   "short_name": "ClutchZone",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#10b981",
-  "description": "ClutchZone Free Fire Esports Tournament App",
-  "orientation": "portrait",
+  "description": "ClutchZone Free Fire Esports Tournament App - Join tournaments, win prizes, and track your matches.",
+  "categories": ["games", "sports", "entertainment"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "https://clutchzone-omega.vercel.app/logo.png",
