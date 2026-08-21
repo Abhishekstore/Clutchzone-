@@ -514,4 +514,19 @@ function submitDepositRequest() {
         alert("Error: " + err.message);
     });
 }
+// User Logout Function
+function logoutUser() {
+    if (confirm("Kya aap sach mein Logout karna chahte hain?")) {
+        // Saara local storage data clear kar dein
+        localStorage.removeItem('userPhone');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userFFuid');
+        localStorage.removeItem('isLoggedIn');
+        
+        alert("Aap successfully logout ho chuke hain!");
+        
+        // Page reload karte hi wapas login screen aa jayegi
+        location.reload();
+    }
+}
 
