@@ -3,124 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClutchZone Pro - Esports Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ClutchZone Pro - Esports Tournaments</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- Professional Header -->
-    <div class="app-header">
-        <div class="logo">⚡ CLUTCHZONE PRO</div>
-        <div class="header-actions">
-            <div id="wallet-pill-container" class="hidden wallet-pill" onclick="addMoney()">₹<span id="balance">0</span> +</div>
-            <button id="logout-btn" class="hidden logout-btn" onclick="logoutUser()">Logout</button>
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="user-info">
+            <div class="avatar"><i class="fa-solid fa-fire"></i></div>
+            <div>
+                <span class="welcome-text">Welcome Back,</span>
+                <h4 id="user-display-name">Gamer</h4>
+            </div>
         </div>
-    </div>
-
-    <div class="container">
-        <!-- Professional Auth Box -->
-        <div id="auth-box" class="glass">
-            <h2 style="color:var(--primary); margin-bottom: 5px;">Welcome Gamer</h2>
-            <p style="font-size:12px; color:#888; margin-bottom: 20px;">Enter the ultimate esports arena</p>
-            
-            <div class="auth-tabs">
-                <button id="tab-login-btn" class="auth-tab active" onclick="switchAuthMode('login')">Login</button>
-                <button id="tab-signup-btn" class="auth-tab" onclick="switchAuthMode('signup')">Register</button>
+        <div class="header-right">
+            <div class="wallet-badge" onclick="switchView('wallet-view')">
+                <i class="fa-solid fa-wallet"></i> <span id="wallet-balance">₹0</span>
             </div>
-
-            <input type="email" id="email" class="input-glass" placeholder="Email Address">
-            <input type="password" id="password" class="input-glass" placeholder="Password">
-            
-            <button id="auth-action-btn" onclick="handleAuth()" class="btn-primary" style="margin-top: 10px;">Login to Account</button>
         </div>
+    </header>
 
-        <!-- Main Dashboard -->
-        <div id="main-content" class="hidden">
-            
-            <!-- Stats -->
-            <div class="stat-card">
-                <div class="stat-box glass"><small>WINNINGS</small><div id="stat-winnings" style="color:var(--success);">₹0</div></div>
-                <div class="stat-box glass"><small>TOTAL KILLS</small><div id="stat-kills" style="color:var(--primary)">0</div></div>
+    <!-- MAIN APP CONTAINER -->
+    <main class="app-container" style="padding-bottom: 70px;">
+
+        <!-- 1. HOME VIEW -->
+        <section id="home-view" class="view-section active">
+            <div class="promo-banner">
+                <div class="promo-text">
+                    <h3>OFFICIAL CHANNEL</h3>
+                    <p>Join Telegram for Room IDs & Updates</p>
+                </div>
+                <a href="https://t.me/Abhifftournamenthub" target="_blank" class="tg-btn"><i class="fa-brands fa-telegram"></i> Join</a>
             </div>
 
-            <!-- Profile Setup -->
-            <div class="glass" style="padding: 16px; margin-bottom: 20px;">
-                <h5 style="margin:0 0 10px 0; font-size:13px; color:var(--secondary); letter-spacing: 0.5px;">🎮 GAME PROFILE SETUP</h5>
-                <input type="text" id="profile-ign" class="input-glass" placeholder="Free Fire In-Game Name">
-                <input type="text" id="profile-uid" class="input-glass" placeholder="Free Fire UID">
-                <button onclick="saveProfile()" class="btn-primary" style="padding: 10px; margin-top:5px; font-size:12px;">Save Profile</button>
-            </div>
-
-            <!-- Tournament Tabs -->
-            <div class="status-tabs">
-                <button class="tab-btn active" onclick="switchTab('upcoming', this)">UPCOMING</button>
-                <button class="tab-btn" onclick="switchTab('live', this)">LIVE</button>
-                <button class="tab-btn" onclick="switchTab('finished', this)">FINISHED</button>
-            </div>
-
-            <div id="match-list"></div>
-
-            <!-- Global Leaderboard -->
-            <div class="glass" style="padding: 16px; margin-top: 20px;">
-                <h5 style="margin:0 0 12px 0; color:var(--primary); font-size:13px;">👑 TOP KILLERS LEADERBOARD</h5>
-                <div id="leaderboard-list"><p style="font-size:12px; color:#666; text-align:center;">Loading ranking...</p></div>
-            </div>
-
-            <!-- Winners Feed -->
-            <div class="glass" style="padding: 16px; margin-top: 20px;">
-                <h5 style="margin:0 0 12px 0; color:var(--success); font-size:13px;">🏆 RECENT WINNERS FEED</h5>
-                <div id="winners-list"><p style="font-size:12px; color:#666; text-align:center;">No recent winners yet.</p></div>
-            </div>
-
-            <!-- Withdrawal Section -->
-            <div class="glass" style="padding: 16px; margin-top: 20px; border: 1px solid rgba(0,123,255,0.3);">
-                <h5 style="margin:0 0 4px 0; color:var(--secondary); font-size:13px;">💸 WITHDRAW FUNDS</h5>
-                <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Minimum withdrawal limit is ₹80.</p>
-                <input type="number" id="w-amount" class="input-glass" placeholder="Amount (Min 80)">
-                <input type="text" id="w-upi" class="input-glass" placeholder="Enter UPI ID (e.g. paytm@oksbi)">
-                <button onclick="requestWithdrawal()" class="btn-primary" style="background:linear-gradient(135deg, #007bff, #0056b3);">SUBMIT WITHDRAWAL</button>
-            </div>
-
-            <!-- Wallet Statement -->
-            <div class="glass" style="padding: 16px; margin-top: 20px;">
-                <h5 style="margin:0 0 10px 0; font-size:13px;">🧾 TRANSACTION HISTORY</h5>
-                <div id="tx-history" style="max-height: 150px; overflow-y: auto;">
-                    <p style="font-size:12px; color:#666; text-align:center;">No transactions yet.</p>
+            <h3 class="section-title">EXCLUSIVE CATEGORIES</h3>
+            <div class="category-grid">
+                <div class="cat-card" onclick="openCategory('Full Map')">
+                    <div class="cat-img fullmap-bg"></div>
+                    <div class="cat-footer"><span>FULL MAP</span> <i class="fa-solid fa-play"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Survival')">
+                    <div class="cat-img survival-bg"></div>
+                    <div class="cat-footer"><span>SURVIVAL</span> <i class="fa-solid fa-play"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Clash Squad')">
+                    <div class="cat-img cs-bg"></div>
+                    <div class="cat-footer"><span>CLASH SQUAD</span> <i class="fa-solid fa-play"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Lone Wolf')">
+                    <div class="cat-img lonewolf-bg"></div>
+                    <div class="cat-footer"><span>LONE WOLF</span> <i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
 
-            <!-- Organizer Dashboard -->
-            <div id="organizer-panel" class="hidden glass" style="padding: 16px; border: 1px dashed var(--success); margin-top: 20px;">
-                <h4 style="color:var(--success); margin-top:0; font-size:14px;">🧑‍💼 ORGANIZER COMMAND CENTER</h4>
-                
-                <input type="text" id="match-title" class="input-glass" placeholder="Match Title (e.g. Solo Classic)">
-                <select id="match-status" class="input-glass" style="background: #12131c;">
-                    <option value="upcoming">Status: Upcoming</option>
-                    <option value="live">Status: Live</option>
-                    <option value="finished">Status: Finished</option>
-                </select>
-                <input type="text" id="room-id" class="input-glass" placeholder="Room ID">
-                <input type="text" id="room-pass" class="input-glass" placeholder="Room Password">
-                <input type="number" id="entry-fee" class="input-glass" placeholder="Entry Fee">
-                <button onclick="createTournament()" class="btn-primary" style="background:var(--success); color:#fff; margin-bottom:15px;">Launch Tournament</button>
-
-                <hr style="border-color:var(--border); margin:15px 0;">
-                <h5 style="color:var(--primary); margin:5px 0; font-size:13px;">⚡ INSTANT KILL & PRIZE PAYOUT</h5>
-                <input type="text" id="p-ffuid" class="input-glass" placeholder="Player Free Fire UID">
-                <input type="number" id="p-prize" class="input-glass" placeholder="Prize Amount (₹)">
-                <input type="number" id="p-kills" class="input-glass" placeholder="Kills Scored">
-                <button onclick="processInstantPayout()" class="btn-primary" style="background:linear-gradient(135deg, #007bff, #0056b3);">Credit Instantly</button>
+            <div class="card profile-box" style="margin-top: 20px;">
+                <h4>Player Game Profile Setup</h4>
+                <input type="text" id="ign-input" placeholder="Free Fire IGN (Name)">
+                <input type="text" id="ffuid-input" placeholder="Free Fire UID">
+                <button id="save-profile-btn" class="btn-primary">Save Profile</button>
             </div>
+        </section>
+
+        <!-- 2. TOURNAMENT LIST VIEW -->
+        <section id="tournament-list-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')">
+                <i class="fa-solid fa-arrow-left"></i> <span id="category-title-header">Tournaments</span>
+            </div>
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="filterTab('Upcoming')">UPCOMING</button>
+                <button class="tab-btn" onclick="filterTab('Ongoing')">ONGOING</button>
+                <button class="tab-btn" onclick="filterTab('Finished')">RESULTS</button>
+            </div>
+            <div id="tournaments-container" class="tournaments-list"></div>
+        </section>
+
+        <!-- 3. WALLET VIEW (Deposited, Winning, Bonus) -->
+        <section id="wallet-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')">
+                <i class="fa-solid fa-arrow-left"></i> My Wallet
+            </div>
+            <div class="wallet-top-card">
+                <i class="fa-solid fa-coins" style="color: #f39c12; font-size: 28px;"></i>
+                <h1 id="wallet-main-balance">₹0</h1>
+                <p>Total Balance</p>
+            </div>
+            <div class="wallet-breakdown-grid">
+                <div class="w-box">
+                    <i class="fa-solid fa-coins"></i>
+                    <h4 id="wallet-deposited">₹0</h4>
+                    <small>Deposited</small>
+                </div>
+                <div class="w-box">
+                    <i class="fa-solid fa-trophy"></i>
+                    <h4 id="wallet-winning">₹0</h4>
+                    <small>Winning</small>
+                </div>
+                <div class="w-box">
+                    <i class="fa-solid fa-gift"></i>
+                    <h4 id="wallet-bonus">₹0</h4>
+                    <small>Bonus</small>
+                </div>
+            </div>
+            <div class="wallet-actions-grid">
+                <button class="w-action-btn" onclick="openAddCoinsModal()"><i class="fa-solid fa-plus-circle"></i> Add Coins</button>
+                <button class="w-action-btn" onclick="openWithdrawModal()"><i class="fa-solid fa-wallet"></i> Withdraw</button>
+            </div>
+        </section>
+
+        <!-- 4. PROFILE VIEW (Jaisa Screenshot me hai) -->
+        <section id="profile-view" class="view-section">
+            <div class="profile-header-card">
+                <div class="pro-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+                <h3 id="profile-username-text">Username : Gamer</h3>
+                <span class="kyc-badge"><i class="fa-solid fa-check-circle"></i> Kyc Verified</span>
+            </div>
+
+            <div class="profile-stats-grid">
+                <div><h4>5</h4><small>Matches Played</small></div>
+                <div><h4>0</h4><small>Total Kills</small></div>
+                <div><h4>0</h4><small>PlayCoin Won</small></div>
+            </div>
+
+            <div class="profile-menu-list">
+                <div class="menu-item" onclick="switchView('wallet-view')"><i class="fa-solid fa-wallet"></i> <span>My Wallet</span> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openDepositTelegram()"><i class="fa-solid fa-headset"></i> <span>Contact Support (Telegram)</span> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" id="logout-btn"><i class="fa-solid fa-power-off" style="color: #e74c3c;"></i> <span style="color: #e74c3c;">Logout</span> <i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+        </section>
+
+        <!-- 5. OFFER & RANKING PLACEHOLDERS -->
+        <section id="offer-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Offers & Rewards</div>
+            <p style="text-align:center; color:#888; margin-top:30px;">No active offers right now.</p>
+        </section>
+        <section id="ranking-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Top Killers Leaderboard</div>
+            <p style="text-align:center; color:#888; margin-top:30px;">Leaderboard data updating soon...</p>
+        </section>
+
+    </main>
+
+    <!-- ADD COINS / UPI PAYMENT MODAL -->
+    <div id="add-coins-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
+            <h3>Add Coins via UPI</h3>
+            <p style="color: #aaa; font-size: 13px; margin: 10px 0;">Pay using any UPI App (GPay, PhonePe, Paytm)</p>
+            <div class="upi-box">
+                <span id="upi-id-text">kinggkwrd@okicici</span>
+                <button onclick="copyUpiId()" class="copy-btn"><i class="fa-solid fa-copy"></i> Copy</button>
+            </div>
+            <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)">
+            <button class="btn-primary" onclick="submitDepositRequest()">Done, Send Screenshot on Telegram</button>
         </div>
     </div>
+
+    <!-- JOIN MATCH MODAL -->
+    <div id="join-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeJoinModal()">&times;</span>
+            <h3>Join Tournament</h3>
+            <p id="modal-match-title" style="color: #f39c12; margin-bottom: 10px;"></p>
+            <p>Entry Fee: <strong id="modal-entry-fee">₹0</strong></p>
+            <input type="text" id="join-ffuid" placeholder="Enter your Free Fire UID">
+            <button class="btn-primary" onclick="confirmJoinMatch()">Confirm & Join</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR (Jaisa Screenshot me hai) -->
+    <nav class="bottom-nav">
+        <a onclick="switchView('offer-view')" class="nav-item"><i class="fa-solid fa-percent"></i><span>Offer</span></a>
+        <a onclick="switchView('ranking-view')" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Ranking</span></a>
+        <a onclick="switchView('home-view')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Home</span></a>
+        <a onclick="switchView('wallet-view')" class="nav-item" id="nav-wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
+        <a onclick="switchView('profile-view')" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    </nav>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-    <!-- Main Logic Script -->
     <script src="script.js"></script>
 </body>
 </html>
