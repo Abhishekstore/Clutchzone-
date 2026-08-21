@@ -3,21 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClutchZone Test</title>
+    <title>ClutchZone Pro - Ultimate Esports Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #ff9900; --secondary: #007bff; --success: #2ecc71; --bg: #0a0b10; --card-bg: rgba(255, 255, 255, 0.05); }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #fff; margin: 0; padding: 0 0 80px 0; }
+        .glass { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(10, 11, 16, 0.85); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+        .wallet-pill { background: linear-gradient(90deg, #ff9900, #ffcc00); color: #000; padding: 5px 15px; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .container { padding: 15px; }
+        .stat-card { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; text-align: center; }
+        .stat-box small { color: #aaa; font-size: 11px; }
+        .stat-box div { font-size: 18px; font-weight: 700; }
+        .status-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 15px; }
+        .tab-btn { background: transparent; border: none; color: #aaa; padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: #000; }
+        .t-card { padding: 15px; margin-bottom: 15px; position: relative; }
+        .status-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; font-weight: 700; }
+        .badge-upcoming { background: var(--secondary); } .badge-live { background: var(--success); } .badge-finished { background: #555; }
+        button.btn-primary { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; }
+        input.input-glass, select.input-glass { width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 13px; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="logo">CLUTCHZONE PRO</div>
+        <div class="wallet-pill" onclick="addMoney()">₹<span id="balance">0</span> +</div>
+    </div>
+
+    <div class="container">
+        <!-- Auth Box -->
+        <div id="auth-box" class="glass" style="padding: 25px; text-align: center; margin-top: 40px;">
+            <h2 style="color:var(--primary);">Welcome Gamer</h2>
+            <p style="font-size:12px; color:#aaa;">Login or Register to start earning</p>
+            <input type="email" id="email" class="input-glass" placeholder="Email Address">
+            <input type="password" id="password" class="input-glass" placeholder="Password">
+            <button onclick="logIn()" class="btn-primary" style="margin-top: 10px;">Login</button>
+            <button onclick="signUp()" class="btn-primary" style="background:var(--secondary); color:#fff; margin-top: 8px;">Register</button>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="main-content" class="hidden">
+            
+            <!-- Stats -->
+            <div class="stat-card">
+                <div class="stat-box glass"><small>Winnings</small><div id="stat-winnings" style="color:var(--success);">₹0</div></div>
+                <div class="stat-box glass"><small>Total Kills</small><div id="stat-kills" style="color:var(--primary)">0</div></div>
+            </div>
+
+            <!-- Profile Setup -->
+            <div class="glass" style="padding: 15px; margin-bottom: 20px;">
+                <h5 style="margin:0 0 8px 0; font-size:14px; color:var(--secondary);">🎮 Game Profile (Required)</h5>
+                <input type="text" id="profile-ign" class="input-glass" placeholder="Free Fire In-Game Name">
+                <input type="text" id="profile-uid" class="input-glass" placeholder="Free Fire UID">
+                <button onclick="saveProfile()" class="btn-primary" style="padding: 8px; margin-top:5px; font-size:12px;">Save Profile</button>
+            </div>
+
+            <!-- Tournament 3 Columns/Tabs -->
+            <div class="status-tabs">
+                <button class="tab-btn active" onclick="switchTab('upcoming', this)">UPCOMING</button>
+                <button class="tab-btn" onclick="switchTab('live', this)">LIVE</button>
+                <button class="tab-btn" onclick="switchTab('finished', this)">FINISHED</button>
+            </div>
+
+            <div id="match-list"></div>
+
+            <!-- Global Leaderboard -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; color:var(--primary); font-size:14px;">👑 Top Killers Leaderboard</h5>
+                <div id="leaderboard-list"><p style="font-size:11px; color:#666;">Loading ranking...</p></div>
+            </div>
+
+            <!-- Winners Feed -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; color:var(--success); font-size:14px;">🏆 Recent Winners Feed</h5>
+                <div id="winners-list"><p style="font-size:11px; color:#666;">No recent winners yet.</p></div>
+            </div>
+
+            <!-- Withdrawal Section -->
+            <div class="glass" style="padding: 15px; margin-top: 20px; border: 1px solid var(--secondary);">
+                <h5 style="margin:0 0 5px 0; color:var(--secondary); font-size:14px;">💸 Withdraw Funds</h5>
+                <p style="font-size: 10px; color: #aaa; margin-bottom: 8px;">Minimum withdrawal limit is ₹80.</p>
+                <input type="number" id="w-amount" class="input-glass" placeholder="Amount (Min 80)">
+                <input type="text" id="w-upi" class="input-glass" placeholder="Enter UPI ID">
+                <button onclick="requestWithdrawal()" class="btn-primary" style="background:var(--secondary);">SUBMIT WITHDRAWAL</button>
+            </div>
+
+            <!-- Wallet Statement -->
+            <div class="glass" style="padding: 15px; margin-top: 20px;">
+                <h5 style="margin:0 0 10px 0; font-size:14px;">🧾 Wallet Transaction History</h5>
+                <div id="tx-history" style="max-height: 150px; overflow-y: auto;">
+                    <p style="font-size:11px; color:#666; text-align:center;">No transactions yet.</p>
+                </div>
+            </div>
+
+            <!-- Organizer Dashboard -->
+            <div id="organizer-panel" class="hidden glass" style="padding: 15px; border: 1px dashed var(--success); margin-top: 20px;">
+                <h4 style="color:var(--success); margin-top:0; font-size:15px;">🧑‍💼 Organizer Command Center</h4>
+                
+                <input type="text" id="match-title" class="input-glass" placeholder="Match Title (e.g. Solo Classic)">
+                <select id="match-status" class="input-glass" style="background: #1a1a1a;">
+                    <option value="upcoming">Status: Upcoming</option>
+                    <option value="live">Status: Live</option>
+                    <option value="finished">Status: Finished</option>
+                </select>
+                <input type="text" id="room-id" class="input-glass" placeholder="Room ID">
+                <input type="text" id="room-pass" class="input-glass" placeholder="Room Password">
+                <input type="number" id="entry-fee" class="input-glass" placeholder="Entry Fee">
+                <button onclick="createTournament()" class="btn-primary" style="background:var(--success); color:#fff; margin-bottom:15px;">Launch Tournament</button>
+
+                <hr style="border-color:rgba(255,255,255,0.1); margin:10px 0;">
+                <h5 style="color:var(--primary); margin:5px 0; font-size:13px;">⚡ Instant Kill & Prize Payout</h5>
+                <input type="text" id="p-ffuid" class="input-glass" placeholder="Player Free Fire UID">
+                <input type="number" id="p-prize" class="input-glass" placeholder="Prize Amount (₹)">
+                <input type="number" id="p-kills" class="input-glass" placeholder="Kills Scored">
+                <button onclick="processInstantPayout()" class="btn-primary" style="background:var(--secondary);">⚡ Credit Instantly</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-</head>
-<body style="background:#111; color:#fff; padding:20px; font-family:sans-serif;">
-    <h2>Firebase Debug Mode</h2>
-    <input type="email" id="email" placeholder="Email" style="display:block; width:100%; padding:10px; margin:10px 0;"><br>
-    <input type="password" id="password" placeholder="Password" style="display:block; width:100%; padding:10px; margin:10px 0;"><br>
-    <button onclick="testLogin()" style="padding:10px 20px; background:orange; font-weight:bold;">Test Login</button>
-    <button onclick="testSignup()" style="padding:10px 20px; background:green; color:#fff; font-weight:bold;">Test Signup</button>
 
     <script>
-        alert("1. Script load ho gaya!");
-
+        // --- ⚙️ APNA WAHI ASLI VERIFIED FIREBASE CONFIG YAHAN DALO ---
         const firebaseConfig = {
             apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
             authDomain: "ff-tournaments-af47a.firebaseapp.com",
@@ -26,36 +142,199 @@
             messagingSenderId: "238745686365",
             appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
         };
+        // ---------------------------------------------------------
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            alert("2. Firebase successfully initialize ho gaya!");
-        } catch (error) {
-            alert("❌ Firebase Init Error: " + error.message);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
+
+        let currentTab = 'upcoming';
+
+        function switchTab(status, btn) {
+            currentTab = status;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadMatches();
         }
 
-        const auth = firebase.auth();
-
-        function testLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            alert("Login button dabaya, email: " + e);
-            
-            auth.signInWithEmailAndPassword(e, p)
-                .then(() => alert("✅ Login Successful!"))
-                .catch(err => alert("❌ Login Error: " + err.message));
+        function loadMatches() {
+            db.collection('matches').where('status', '==', currentTab).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const m = doc.data();
+                    html += `
+                        <div class="glass t-card">
+                            <span class="status-badge badge-${currentTab}">${currentTab}</span>
+                            <h4 style="margin:0 0 5px 0; font-size:14px;">${m.title}</h4>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#aaa; margin-bottom:10px;">
+                                <span>Fee: ₹${m.entryFee || 0}</span>
+                                <span>Room: ${m.roomID || 'Pending'}</span>
+                            </div>
+                            <button class="btn-primary" onclick="alert('Room ID: ${m.roomID || 'N/A'} \\nPassword: ${m.roomPass || 'N/A'}')">
+                                ${currentTab === 'upcoming' ? 'JOIN MATCH' : 'VIEW DETAILS'}
+                            </button>
+                        </div>`;
+                });
+                document.getElementById('match-list').innerHTML = html || `<p style="text-align:center; color:#666; font-size:12px; padding:10px;">No ${currentTab} matches available.</p>`;
+            });
         }
 
-        function testSignup() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            alert("Signup button dabaya, email: " + e);
+        function loadLeaderboard() {
+            db.collection('users').orderBy('kills', 'desc').limit(5).onSnapshot(s => {
+                let html = ''; let rank = 1;
+                s.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px;">
+                        <span>#${rank++} <b>${d.ign || 'Gamer'}</b></span>
+                        <span style="color:var(--primary);">⚔️ ${d.kills || 0} Kills</span>
+                    </div>`;
+                });
+                document.getElementById('leaderboard-list').innerHTML = html || '<p style="font-size:11px; color:#666;">No ranking data yet.</p>';
+            });
+        }
 
-            auth.createUserWithEmailAndPassword(e, p)
-                .then(() => alert("✅ Signup Successful!"))
-                .catch(err => alert("❌ Signup Error: " + err.message));
+        function loadWinnersFeed() {
+            db.collection('winners').orderBy('timestamp', 'desc').limit(5).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const w = doc.data();
+                    html += `<div style="background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:6px; margin-bottom:5px; font-size:11px; border-left: 2px solid var(--success);">
+                        🏆 <b>${w.tournamentTitle}</b> — <span style="color:var(--primary);">${w.ign}</span> won <b style="color:var(--success);">₹${w.prize}</b>
+                    </div>`;
+                });
+                document.getElementById('winners-list').innerHTML = html || '<p style="font-size:11px; color:#666;">No recent winners.</p>';
+            });
+        }
+
+        function loadHistory(uid) {
+            db.collection('transactions').where('uid', '==', uid).orderBy('time', 'desc').limit(5).onSnapshot(s => {
+                let html = '';
+                s.forEach(doc => {
+                    const tx = doc.data();
+                    html += `
+                        <div class="history-item">
+                            <span>${tx.note}</span>
+                            <span style="color:${tx.type==='in'?'var(--success)':'var(--secondary)'}">${tx.type==='in'?'+':'-'}₹${tx.amt}</span>
+                        </div>`;
+                });
+                if(html) document.getElementById('tx-history').innerHTML = html;
+            });
+        }
+
+        function processInstantPayout() {
+            const ffuid = document.getElementById('p-ffuid').value.trim();
+            const prize = parseFloat(document.getElementById('p-prize').value) || 0;
+            const kills = parseInt(document.getElementById('p-kills').value) || 0;
+            const matchTitle = document.getElementById('match-title').value || "ClutchZone Tournament";
+
+            if(!ffuid) { alert("Enter Player FF UID!"); return; }
+
+            db.collection('users').where('ffUid', '==', ffuid).get().then(qs => {
+                if(qs.empty) { alert("User FF UID not found!"); return; }
+                qs.forEach(doc => {
+                    const userId = doc.id;
+                    const d = doc.data();
+                    db.collection('users').doc(userId).update({
+                        balance: (d.balance || 0) + prize,
+                        totalWinnings: (d.totalWinnings || 0) + prize,
+                        kills: (d.kills || 0) + kills
+                    }).then(() => {
+                        db.collection('transactions').add({ uid: userId, amt: prize, note: `Prize: ${matchTitle} (${kills} Kills)`, type: 'in', time: new Date() });
+                        if(prize > 0) {
+                            db.collection('winners').add({ tournamentTitle: matchTitle, ign: d.ign || 'Gamer', prize: prize, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                        }
+                        alert("✅ Credited successfully to player's wallet instantly!");
+                        document.getElementById('p-ffuid').value = '';
+                        document.getElementById('p-prize').value = '';
+                        document.getElementById('p-kills').value = '';
+                    });
+                });
+            });
+        }
+
+        function requestWithdrawal() {
+            const amt = parseInt(document.getElementById('w-amount').value);
+            const upi = document.getElementById('w-upi').value.trim();
+            const uid = auth.currentUser.uid;
+
+            if(amt < 80) { alert("Minimum withdrawal limit is ₹80!"); return; }
+            if(!upi) { alert("Enter your UPI ID!"); return; }
+
+            db.collection('users').doc(uid).get().then(doc => {
+                const bal = doc.data().balance || 0;
+                if(amt > bal) { alert("Insufficient balance!"); return; }
+
+                db.collection('users').doc(uid).update({ balance: bal - amt });
+                db.collection('withdrawals').add({ uid: uid, amount: amt, upi: upi, status: 'pending', time: new Date() });
+                db.collection('transactions').add({ uid: uid, amt: amt, note: 'Withdrawal Request', type: 'out', time: new Date() });
+
+                alert("✅ Withdrawal request submitted!");
+                document.getElementById('w-amount').value = '';
+                document.getElementById('w-upi').value = '';
+            });
+        }
+
+        function saveProfile() {
+            const ign = document.getElementById('profile-ign').value.trim();
+            const ffUid = document.getElementById('profile-uid').value.trim();
+            if(!ign || !ffUid) { alert("Fill both IGN and UID!"); return; }
+            db.collection('users').doc(auth.currentUser.uid).set({ ign: ign, ffUid: ffUid }, { merge: true }).then(() => alert("✅ Profile Saved!"));
+        }
+
+        function addMoney() {
+            window.open(`https://t.me/Abhifftournamenthub`, '_blank');
+        }
+
+        function createTournament() {
+            db.collection('matches').add({
+                title: document.getElementById('match-title').value,
+                status: document.getElementById('match-status').value,
+                roomID: document.getElementById('room-id').value,
+                roomPass: document.getElementById('room-pass').value,
+                entryFee: document.getElementById('entry-fee').value,
+                time: new Date()
+            }).then(() => alert("✅ Tournament Launched Successfully!"));
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                loadMatches();
+                loadLeaderboard();
+                loadWinnersFeed();
+                loadHistory(user.uid);
+                db.collection('users').doc(user.uid).onSnapshot(doc => {
+                    if(doc.exists) {
+                        const d = doc.data();
+                        document.getElementById('balance').innerText = d.balance || 0;
+                        document.getElementById('stat-winnings').innerText = '₹' + (d.totalWinnings || 0);
+                        document.getElementById('stat-kills').innerText = d.kills || 0;
+                        if(d.ign) document.getElementById('profile-ign').value = d.ign;
+                        if(d.ffUid) document.getElementById('profile-uid').value = d.ffUid;
+                        if(d.role === 'organizer') document.getElementById('organizer-panel').classList.remove('hidden');
+                    }
+                });
+            } else {
+                document.getElementById('auth-box').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+            }
+        });
+
+        function logIn() { 
+            const e = document.getElementById('email').value, p = document.getElementById('password').value;
+            if(!e || !p) { alert("Enter email and password!"); return; }
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert("Login Error: " + err.message)); 
+        }
+
+        function signUp() { 
+            const e = document.getElementById('email').value, p = document.getElementById('password').value;
+            if(!e || !p) { alert("Enter email and password!"); return; }
+            auth.createUserWithEmailAndPassword(e, p).then(res => {
+                db.collection('users').doc(res.user.uid).set({ balance: 0, kills: 0, totalWinnings: 0, role: 'player' });
+                alert("Account created successfully!");
+            }).catch(err => alert("Signup Error: " + err.message)); 
         }
     </script>
 </body>
 </html>
-
