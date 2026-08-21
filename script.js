@@ -47,7 +47,6 @@ function loadTournamentsForCategory(category, status) {
     if(!container) return;
     container.innerHTML = `<p style="text-align:center; color:#aaa; padding:20px;">Loading matches...</p>`;
 
-    // Sirf category ke base par data fetch karenge taaki index error na aaye
     db.collection('tournaments')
         .where('category', '==', category)
         .get()
@@ -63,13 +62,12 @@ function loadTournamentsForCategory(category, status) {
                 const match = doc.data();
                 const matchId = doc.id;
                 
-                // Status ko JavaScript ke andar filter karenge
                 if (match.status === status) {
                     matchFound = true;
                     
                     const now = new Date().getTime();
                     const startTime = match.startTime || 0;
-                    const tenMinutesBefore = startTime - (10 * 60 * 1000); // 10 minutes prior
+                    const tenMinutesBefore = startTime - (10 * 60 * 1000);
 
                     let roomSection = '';
                     if (startTime > 0) {
@@ -85,19 +83,26 @@ function loadTournamentsForCategory(category, status) {
                     }
 
                     container.innerHTML += `
-                        <div class="tournament-card">
-                            <div class="card-top-rules">
-                                <span>⚡ ${match.title || category}</span>
-                                <span class="match-id-tag">#${matchId.slice(-5)}</span>
+                        <div class="tournament-card" style="background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #334155;">
+                            <div class="card-top-rules" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; color: #f97316;">⚡ ${match.title || category}</span>
+                                <span class="match-id-tag" style="font-size: 11px; background: #334155; padding: 3px 8px; border-radius: 4px; color: #cbd5e1;">#${matchId.slice(-5)}</span>
                             </div>
+                            
+                            <div style="margin: 6px 0;">
+                                <span style="background: #0f172a; color: #38bdf8; font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid #0284c7;">🎮 ${match.subMode || category}</span>
+                            </div>
+
                             <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Starts: ${startTime ? new Date(startTime).toLocaleString() : 'Soon'}</p>
                             ${roomSection}
-                            <div class="card-details-grid" style="margin-top:10px;">
-                                <div><small>ENTRY</small><h4>₹${match.entryFee || 0}</h4></div>
-                                <div><small>PRIZE</small><h4>₹${match.prizePool || 3000}</h4></div>
-                                <div><small>PER KILL</small><h4>₹${match.perKill || 5}</h4></div>
+                            
+                            <div class="card-details-grid" style="display: flex; justify-content: space-between; margin-top: 10px; background: #0f172a; padding: 8px; border-radius: 6px;">
+                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">ENTRY</small><h4 style="color: #fff; font-size: 14px;">₹${match.entryFee || 0}</h4></div>
+                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">PRIZE</small><h4 style="color: #22c55e; font-size: 14px;">₹${match.prizePool || 0}</h4></div>
+                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">PER KILL</small><h4 style="color: #facc15; font-size: 14px;">₹${match.perKill || 0}</h4></div>
                             </div>
-                            <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})">JOIN MATCH</button>
+
+                            <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})" style="width: 100%; background: #f97316; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; margin-top: 10px; cursor: pointer;">JOIN MATCH</button>
                         </div>
                     `;
                 }
@@ -111,6 +116,7 @@ function loadTournamentsForCategory(category, status) {
             container.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Error: ${error.message}</p>`;
         });
 }
+
 
 function openJoinModal(matchId, title, entryFee) {
     selectedTournamentId = matchId;
