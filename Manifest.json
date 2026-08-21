@@ -9,7 +9,11 @@
   "background_color": "#0f172a",
   "theme_color": "#10b981",
   "description": "ClutchZone Free Fire Esports Tournament App - Join tournaments, win prizes, and track your matches.",
-  "categories": ["games", "sports", "entertainment"],
+  "categories": [
+    "games",
+    "sports",
+    "entertainment"
+  ],
   "prefer_related_applications": false,
   "icons": [
     {
