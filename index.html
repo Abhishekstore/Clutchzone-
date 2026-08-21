@@ -209,15 +209,21 @@
     <script src="script.js"></script>
 
     <script>
-        // 1. Check Login Status on Page Load
+                // 1. Check Login Status on Page Load & Set Username
         window.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app-container').style.display = 'block';
+                
+                // Saved name ko header mein set karein
+                const savedName = localStorage.getItem('userName');
+                if (savedName) {
+                    document.getElementById('user-display-name').textContent = savedName;
+                }
             }
         });
 
-        // 2. User Registration Function (Saves to Firebase Firestore)
+        // 2. User Registration Function (Saves Name & Updates Header)
         window.registerUser = function() {
             const name = document.getElementById('reg-name').value.trim();
             const ffUid = document.getElementById('reg-ffuid').value.trim();
@@ -238,6 +244,9 @@
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userName', name);
                 localStorage.setItem('userFfUid', ffUid);
+
+                // Turant header ka naam update karein
+                document.getElementById('user-display-name').textContent = name;
 
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app-container').style.display = 'block';
@@ -267,7 +276,7 @@
                     }
                     deferredPrompt = null;
                 } else {
-                    alert("App pehle se installed hai ya browser direct install support nahi kar raha!");
+                    alert("App install karne ke liye:\n1. Upar right corner mein 3 dots (...) par click karein.\n2. 'Add to Home Screen' par click karein!");
                 }
             });
         }
@@ -276,6 +285,7 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
+        
     </script>
 </body>
 </html>
