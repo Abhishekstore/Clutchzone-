@@ -45,112 +45,36 @@ function filterTab(status) {
 function loadTournamentsForCategory(category, status) {
     const container = document.getElementById('tournaments-container');
     if(!container) return;
-    container.innerHTML = `<p style="text-align:center; color:#aaa; padding:20px;">Loading matches...</p>`;
-
-    db.collection('tournaments')
-        .where('category', '==', category)
-        .get()
-        .then((snapshot) => {
-            container.innerHTML = '';
-            if (snapshot.empty) {
-                container.innerHTML = `<p style="text-align:center; color:#777; padding:20px;">No tournaments found.</p>`;
-                return;
-            }
-
-            let matchFound = false;
-            snapshot.forEach((doc) => {
-                const match = doc.data();
-                const matchId = doc.id;
+    container.innerHTML = `<p style="text-align:center;">Loading...</p>`;
+    db.collection('tournaments').where('category', '==', category).get().then((snapshot) => {
+        container.innerHTML = '';
+        snapshot.forEach((doc) => {
+            const match = doc.data();
+            const matchId = doc.id;
+            if (match.status === status) {
+                const now = new Date().getTime();
+                let roomSection = (now >= (match.startTime - 600000) && status !== 'Results') ? `<div style="color:#22c55e;">Room: ${match.roomId || 'Wait'}/Pass: ${match.roomPass || 'Wait'}</div>` : `<div style="color:#fbbf24;">Room unlocks 10 min before.</div>`;
                 
-                if (match.status === status) {
-                    matchFound = true;
-                    
-                    const now = new Date().getTime();
-                    const startTime = match.startTime || 0;
-                    const tenMinutesBefore = startTime - (10 * 60 * 1000);
-
-                    let roomSection = '';
-                    if (startTime > 0 && status !== 'Results') {
-                        if (now >= tenMinutesBefore) {
-                            roomSection = `
-                                <div style="background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #22c55e;">
-                                    <p style="margin:2px 0; color:#22c55e; font-size:13px;">Room ID: <strong>${match.roomId || 'Updating'}</strong></p>
-                                    <p style="margin:2px 0; color:#22c55e; font-size:13px;">Password: <strong>${match.roomPass || 'Updating'}</strong></p>
-                                </div>`;
-                        } else {
-                            roomSection = `<p style="color: #fbbf24; font-size: 11px; margin-top:5px;">🔒 Room ID unlocks 10 mins before match.</p>`;
-                        }
-                    }
-
-                    container.innerHTML += `
-                        <div class="tournament-card" style="background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #334155;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-weight: 600; color: #f97316;">⚡ ${match.title || category}</span>
-                                <span style="font-size: 11px; background: #334155; padding: 3px 8px; border-radius: 4px; color: #cbd5e1;">#${matchId.slice(-5)}</span>
-                            </div>
-                            
-                            <div style="margin: 6px 0;">
-                                <span style="background: #0f172a; color: #38bdf8; font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid #0284c7;">🎮 ${match.subMode || category}</span>
-                            </div>
-
-                            <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Starts: ${startTime ? new Date(startTime).toLocaleString() : 'Soon'}</p>
-                            ${roomSection}
-
-                            <div style="display: flex; justify-content: space-between; margin-top: 10px; background: #0f172a; padding: 8px; border-radius: 6px;">
-                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">ENTRY</small><h4 style="color: #fff; font-size: 14px;">₹${match.entryFee || 0}</h4></div>
-                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">PRIZE</small><h4 style="color: #22c55e; font-size: 14px;">₹${match.prizePool || 0}</h4></div>
-                                <div style="text-align: center;"><small style="font-size: 10px; color: #64748b;">PER KILL</small><h4 style="color: #facc15; font-size: 14px;">₹${match.perKill || 0}</h4></div>
-                            </div>
-
-                            ${status === 'Results' ? `
-                                <div style="background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #334155;">
-                                    <p style="color: #facc15; font-size: 12px; font-weight: 600; margin-bottom: 6px;">🏆 Match Leaderboard</p>
-                                    <div id="leaderboard-${matchId}" style="font-size: 12px; color: #cbd5e1;">
-                                        <p style="color: #64748b; font-size: 11px;">Loading results...</p>
-                                    </div>
-                                </div>
-                            ` : `
-                                <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})" style="width: 100%; background: #f97316; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; margin-top: 10px; cursor: pointer;">JOIN MATCH</button>
-                            `}
-                        </div>
-                    `;
-
-                    // Agar Results tab hai toh leaderboard fetch karein
-                    if (status === 'Results') {
-                        db.collection('results').where('matchId', '==', matchId).get().then(resSnap => {
-                            const lbContainer = document.getElementById(`leaderboard-${matchId}`);
-                            if (!lbContainer) return;
-                            if (resSnap.empty) {
-                                lbContainer.innerHTML = `<p style="color:#64748b; font-size:11px;">No results declared yet.</p>`;
-                                return;
-                            }
-                            let html = `<div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:11px; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:4px;">
-                                <span>FF UID</span><span>Kills</span><span>Earned</span>
-                            </div>`;
-                            resSnap.forEach(rDoc => {
-                                const r = rDoc.data();
-                                html += `<div style="display:flex; justify-content:space-between; padding:3px 0;">
-                                    <span>${r.ffuid}</span>
-                                    <span>${r.kills}</span>
-                                    <span style="color:#22c55e;">₹${r.prize}</span>
-                                </div>`;
-                            });
-                            lbContainer.innerHTML = html;
-                        });
-                    }
-                }
-            });
-
-            if (!matchFound) {
-                container.innerHTML = `<p style="text-align:center; color:#777; padding:20px;">No matches found for ${status}.</p>`;
+                container.innerHTML += `
+                    <div class="tournament-card" style="background:#1e293b; padding:15px; margin-bottom:10px; border-radius:10px;">
+                        <h3>${match.title}</h3>
+                        <p>Starts: ${new Date(match.startTime).toLocaleString()}</p>
+                        ${roomSection}
+                        <button onclick="openJoinModal('${matchId}', ${match.entryFee})" style="width:100%; padding:10px; background:#f97316; border:none; border-radius:5px; color:white;">JOIN MATCH</button>
+                    </div>`;
             }
-        })
-        .catch((error) => {
-            container.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Error: ${error.message}</p>`;
         });
+    });
 }
 
-
+function openJoinModal(matchId, entryFee) {
+    let ffuid = prompt("Enter Free Fire UID:");
+    if (!ffuid) return;
+    const ref = db.collection('tournaments').doc(matchId);
+    ref.get().then(doc => {
+        ref.update({ joinedCount: (doc.data().joinedCount || 0) + 1 }).then(() => alert("Joined!"));
+    });
+}
 
 function openJoinModal(matchId, title, entryFee) {
     selectedTournamentId = matchId;
