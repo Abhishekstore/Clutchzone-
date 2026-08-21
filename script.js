@@ -567,3 +567,40 @@ let depositInput = document.getElementById('deposit-amount');
 if (depositInput) {
     depositInput.addEventListener('input', updateUpiLink);
 }
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+// Shuru mein button chhupa do
+if (installBtn) {
+    installBtn.style.display = 'none';
+}
+
+// Browser jab allow karega ki app install ho sakti hai
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Browser ka automatic prompt roko
+    e.preventDefault();
+    // Prompt ko baad ke liye save karo
+    deferredPrompt = e;
+    
+    // Ab apna button dikhao
+    if (installBtn) {
+        installBtn.style.display = 'block';
+    }
+});
+
+// Jab user button par click kare
+if (installBtn) {
+    installBtn.addEventListener('click', (e) => {
+        if (deferredPrompt) {
+            // Install prompt dikhao
+            deferredPrompt.prompt();
+            // User ka choice check karo
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User ne app install kar li');
+                }
+                deferredPrompt = null;
+            });
+        }
+    });
+}
