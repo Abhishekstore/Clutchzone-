@@ -529,7 +529,6 @@ function logoutUser() {
         location.reload();
     }
 }
-
 // 1. Modal kholne aur band karne ke liye functions
 function openAddCoinsModal() {
     const modal = document.getElementById('add-coins-modal');
@@ -541,7 +540,7 @@ function closeAddCoinsModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// 2. UPI App kholne ke liye (Yahan backticks ` ka use hai)
+// 2. UPI App kholne ke liye
 function payWithUPI() {
     let amount = document.getElementById('deposit-amount').value;
     if (!amount || amount <= 0) {
@@ -549,7 +548,7 @@ function payWithUPI() {
         return;
     }
     let upiID = "kinggkwrd@okicici";
-    let upiUrl = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
+    let upiUrl = 'upi://pay?pa=' + upiID + '&pn=ClutchZone&am=' + amount + '&cu=INR';
     window.location.href = upiUrl;
 }
 
@@ -559,7 +558,7 @@ function updateUpiLink() {
     let upiID = "kinggkwrd@okicici";
     let btn = document.getElementById('upi-link-btn');
     if (btn) {
-        btn.href = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
+        btn.href = 'upi://pay?pa=' + upiID + '&pn=ClutchZone&am=' + amount + '&cu=INR';
     }
 }
 
