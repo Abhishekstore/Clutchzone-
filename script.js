@@ -468,3 +468,50 @@ function loadPassbook() {
         logTransaction(userPhone, 'Withdrawal', amount); // Transaction history mein dikhega
     });
 }
+// Modal kholne ke liye
+function openAddCoinsModal() {
+    const modal = document.getElementById('add-coins-modal');
+    if (modal) modal.style.display = 'block';
+}
+
+// Modal band karne ke liye
+function closeAddCoinsModal() {
+    const modal = document.getElementById('add-coins-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Deposit request submit karne ke liye
+function submitDepositRequest() {
+    let amount = Number(document.getElementById('deposit-amount').value);
+    let utr = document.getElementById('deposit-utr').value.trim();
+    let userPhone = localStorage.getItem('userPhone');
+
+    if (!amount || amount <= 0 || !utr) {
+        alert("Kripya sahi amount aur UTR / Transaction ID dalein!");
+        return;
+    }
+
+    if (!userPhone) {
+        alert("Pehle login karein!");
+        return;
+    }
+
+    // Firebase ke 'deposit-requests' collection mein save hoga
+    db.collection('deposit-requests').add({
+        userPhone: userPhone,
+        amount: amount,
+        utr: utr,
+        status: 'Pending',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("Payment request submit ho gayi! Admin verification ke baad aapke wallet mein paise add kar diye jayenge.");
+        closeAddCoinsModal();
+        
+        // Inputs khali kar dein
+        document.getElementById('deposit-amount').value = '';
+        document.getElementById('deposit-utr').value = '';
+    }).catch(err => {
+        alert("Error: " + err.message);
+    });
+}
+
