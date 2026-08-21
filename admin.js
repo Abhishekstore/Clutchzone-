@@ -94,3 +94,33 @@ function loadWeeklyPayout() {
         output.innerHTML = html;
     });
 }
+// --- Registered Users load karne ka naya code ---
+function loadRegisteredUsers() {
+  const userListDiv = document.getElementById('userList');
+  if (!userListDiv) return;
+
+  db.collection("users").get().then((querySnapshot) => {
+    let html = "<table border='1' style='width:100%; color:white; text-align:left; border-collapse: collapse; margin-top: 10px;'>";
+    html += "<tr style='background: #222;'><th style='padding:8px;'>Naam (Name)</th><th style='padding:8px;'>Free Fire UID</th><th style='padding:8px;'>Phone Number</th></tr>";
+    
+    let count = 0;
+    querySnapshot.forEach((doc) => {
+      let user = doc.data();
+      count++;
+      html += `<tr><td style='padding:8px;'>${user.name || 'N/A'}</td><td style='padding:8px;'>${user.ffUid || 'N/A'}</td><td style='padding:8px;'>${user.phone || 'N/A'}</td></tr>`;
+    });
+    
+    html += "</table>";
+    
+    if (count === 0) {
+      userListDiv.innerHTML = "<p>Abhi koi user register nahi hua hai.</p>";
+    } else {
+      userListDiv.innerHTML = html;
+    }
+  }).catch((error) => {
+    userListDiv.innerHTML = "Error loading users: " + error.message;
+  });
+}
+
+// Page load hote hi list automatically show ho jayegi
+document.addEventListener("DOMContentLoaded", loadRegisteredUsers);
