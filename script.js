@@ -224,14 +224,33 @@ if (saveProfileBtn) {
         if(!ignEl || !ffuidEl) return;
         const ign = ignEl.value.trim();
         const ffuid = ffuidEl.value.trim();
-        const user = auth.currentUser;
-        if (!user) { alert("User not logged in!"); return; }
+        
+    });// Check karein ki user localStorage mein logged in hai ya nahi
+const isLoggedIn = localStorage.getItem('isLoggedIn');
+if (isLoggedIn !== 'true') {
+    alert("User not logged in! Pehle Login karein.");
+    return;
+}
 
-        db.collection('users').doc(user.uid).set({ ign: ign, ffuid: ffuid, email: user.email }, { merge: true })
-        .then(() => {
-            alert("Profile Saved Successfully!");
-        });
-    });
+// User ki saved phone ID ko document ID ki tarah use karenge
+const userPhone = localStorage.getItem('savedPhone');
+if (!userPhone) {
+    alert("User data missing! Dobara login karein.");
+    return;
+}
+
+db.collection('users').doc(userPhone).set({ 
+    ign: ign, 
+    ffuid: ffuid, 
+    phone: userPhone 
+}, { merge: true })
+.then(() => {
+    alert("Profile Saved Successfully!");
+    // LocalStorage mein bhi save kar lenge
+    localStorage.setItem('savedFFName', ign);
+    localStorage.setItem('savedFFUid', ffuid);
+});
+
 }
 
 const logoutBtn = document.getElementById('logout-btn');
