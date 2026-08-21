@@ -8,16 +8,14 @@
   "description": "ClutchZone Free Fire Esports Tournament App",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192.png",
+      "src": "https://i.ibb.co/G3V06vK/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://via.placeholder.com/512x512.png",
+      "src": "https://i.ibb.co/4Zq2L0z/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
