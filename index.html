@@ -9,7 +9,8 @@
     <link rel="manifest" href="Manifest.json">
 </head>
 <body>
-        <!-- 🔐 LOGIN SCREEN -->
+
+    <!-- 🔐 LOGIN & REGISTRATION SCREEN -->
     <div id="auth-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;">
         <div style="background: #1e293b; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); text-align: center;">
             <h2 style="color: #38bdf8; margin-bottom: 10px;">🔥 ClutchZone Login</h2>
@@ -23,253 +24,231 @@
         </div>
     </div>
 
-    <!-- Main App Container Start -->
+    <!-- Main App Container Start (Hidden until logged in) -->
     <div id="main-app-container" style="display:none;">
 
-
-    <!-- TOP HEADER -->
-    <header class="app-header">
-        <div class="user-info">
-            <div class="avatar"><i class="fa-solid fa-fire"></i></div>
-            <div>
-                <span class="welcome-text">Welcome Back,</span>
-                <h4 id="user-display-name">Gamer</h4>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="wallet-badge" onclick="switchView('wallet-view')">
-                <i class="fa-solid fa-wallet"></i> <span id="wallet-balance">₹0</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN APP CONTAINER -->
-    <main class="app-container" style="padding-bottom: 70px;">
-
-        <!-- 1. HOME VIEW -->
-        <section id="home-view" class="view-section active">
-            <div class="promo-banner">
-                <div class="promo-text">
-                    <h3>OFFICIAL CHANNEL</h3>
-                    <p>Join Telegram for Room IDs & Updates</p>
-                </div>
-                <!-- Install Button -->
-<button id="install-btn" onclick="installPWA()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;">
-    📥 Install App
-</button>
-
-                <a href="https://t.me/Abhifftournamenthub" target="_blank" class="tg-btn"><i class="fa-brands fa-telegram"></i> Join</a>
-            </div>
-
-            <h3 class="section-title">EXCLUSIVE CATEGORIES</h3>
-            <div class="category-grid">
-                <div class="cat-card" onclick="openCategory('Full Map')">
-                    <div class="cat-img fullmap-bg"></div>
-                    <div class="cat-footer"><span>FULL MAP</span> <i class="fa-solid fa-play"></i></div>
-                </div>
-                <div class="cat-card" onclick="openCategory('Survival')">
-                    <div class="cat-img survival-bg"></div>
-                    <div class="cat-footer"><span>SURVIVAL</span> <i class="fa-solid fa-play"></i></div>
-                </div>
-                <div class="cat-card" onclick="openCategory('Clash Squad')">
-                    <div class="cat-img cs-bg"></div>
-                    <div class="cat-footer"><span>CLASH SQUAD</span> <i class="fa-solid fa-play"></i></div>
-                </div>
-                <div class="cat-card" onclick="openCategory('Lone Wolf')">
-                    <div class="cat-img lonewolf-bg"></div>
-                    <div class="cat-footer"><span>LONE WOLF</span> <i class="fa-solid fa-play"></i></div>
+        <!-- TOP HEADER -->
+        <header class="app-header">
+            <div class="user-info">
+                <div class="avatar"><i class="fa-solid fa-fire"></i></div>
+                <div>
+                    <span class="welcome-text">Welcome Back,</span>
+                    <h4 id="user-display-name">Gamer</h4>
                 </div>
             </div>
+            <div class="header-right">
+                <div class="wallet-badge" onclick="switchView('wallet-view')">
+                    <i class="fa-solid fa-wallet"></i> <span id="wallet-balance">₹0</span>
+                </div>
+            </div>
+        </header>
 
-            <div class="card profile-box" style="margin-top: 20px;">
-                <h4>Player Game Profile Setup</h4>
-                <input type="text" id="ign-input" placeholder="Free Fire IGN (Name)">
-                <input type="text" id="ffuid-input" placeholder="Free Fire UID">
-                <button id="save-profile-btn" class="btn-primary">Save Profile</button>
-            </div>
-        </section>
-
-        <!-- 2. TOURNAMENT LIST VIEW -->
-        <section id="tournament-list-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')">
-                <i class="fa-solid fa-arrow-left"></i> <span id="category-title-header">Tournaments</span>
-            </div>
-            <div class="tab-bar">
-                <button class="tab-btn active" onclick="filterTab('Upcoming')">UPCOMING</button>
-                <button class="tab-btn" onclick="filterTab('Ongoing')">ONGOING</button>
-                <button class="tab-btn" onclick="filterTab('Finished')">RESULTS</button>
-            </div>
-            <div id="tournaments-container" class="tournaments-list"></div>
-        </section>
-
-        <!-- 3. WALLET VIEW -->
-        <section id="wallet-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')">
-                <i class="fa-solid fa-arrow-left"></i> My Wallet
-            </div>
-            <div class="wallet-top-card">
-                <i class="fa-solid fa-coins" style="color: #f39c12; font-size: 28px;"></i>
-                <h1 id="wallet-main-balance">₹0</h1>
-                <p>Total Balance</p>
-            </div>
-            <div class="wallet-breakdown-grid">
-                <div class="w-box"><i class="fa-solid fa-coins"></i><h4 id="wallet-deposited">₹0</h4><small>Deposited</small></div>
-                <div class="w-box"><i class="fa-solid fa-trophy"></i><h4 id="wallet-winning">₹0</h4><small>Winning</small></div>
-                <div class="w-box"><i class="fa-solid fa-gift"></i><h4 id="wallet-bonus">₹0</h4><small>Bonus</small></div>
-            </div>
-            <div class="wallet-actions-grid">
-                <button class="w-action-btn" onclick="openAddCoinsModal()"><i class="fa-solid fa-plus-circle"></i> Add Coins</button>
-                <button class="w-action-btn" onclick="openWithdrawModal()"><i class="fa-solid fa-wallet"></i> Withdraw</button>
-            </div>
-        </section>
-
-        <!-- 4. PROFILE VIEW -->
-        <section id="profile-view" class="view-section">
-            <div class="profile-header-card">
-                <div class="pro-avatar"><i class="fa-solid fa-user-graduate"></i></div>
-                <h3 id="profile-username-text">Username : Gamer</h3>
-                <span class="kyc-badge"><i class="fa-solid fa-check-circle"></i> Kyc Verified</span>
-            </div>
-
-            <div class="profile-stats-grid">
-                <div><h4>5</h4><small>Matches Played</small></div>
-                <div><h4>0</h4><small>Total Kills</small></div>
-                <div><h4>0</h4><small>PlayCoin Won</small></div>
-            </div>
-
-            <div class="profile-menu-list">
-                <div class="menu-item" onclick="switchView('wallet-view')"><i class="fa-solid fa-wallet"></i> <span>My Wallet</span> <i class="fa-solid fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="openMyMatches()"><i class="fa-solid fa-gamepad"></i> <span>My Matches & Room ID</span> <i class="fa-solid fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="switchView('refer-view')"><i class="fa-solid fa-users"></i> <span>Refer & Earn</span> <i class="fa-solid fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="openDepositTelegram()"><i class="fa-solid fa-headset"></i> <span>Contact Support (Telegram)</span> <i class="fa-solid fa-chevron-right"></i></div>
-                <div class="menu-item" id="logout-btn"><i class="fa-solid fa-power-off" style="color: #e74c3c;"></i> <span style="color: #e74c3c;">Logout</span> <i class="fa-solid fa-chevron-right"></i></div>
-            </div>
-            <!-- Become a Host Section -->
-<div class="admin-container" style="background: #1e293b; border: 1px solid #f97316; margin-top: 20px;">
-    <h2 style="color: #f97316; text-align: center;">⚡ Become a Host</h2>
-    <p style="text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Host tournaments and earn 50% profit!</p>
-    
-    <div style="display: flex; gap: 10px;">
-        <button onclick="showPayment('1 Month', 250)" style="flex: 1; padding: 10px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer;">1 Month <br><strong>₹250</strong></button>
-        <button onclick="showPayment('3 Months', 650)" style="flex: 1; padding: 10px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer;">3 Months <br><strong>₹650</strong></button>
-    </div>
-</div>
-
-<!-- Payment Modal (Hidden Initially) -->
-<div id="payment-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; padding: 20px;">
-    <div style="background: #1e293b; max-width: 400px; margin: 50px auto; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #f97316;">
-        <h3 style="color: white;">Complete Payment</h3>
-        <p id="selected-plan-text" style="color: #94a3b8; margin: 10px 0;"></p>
-        
-        <!-- QR Code -->
-        <img src="qr.jpg" alt="QR Code" style="width: 200px; height: 200px; border-radius: 10px; margin: 10px 0;">
-        
-        <p style="color: #cbd5e1; margin-top: 10px;">UPI ID:</p>
-        <div style="background: #0f172a; padding: 10px; border-radius: 8px; font-weight: bold; color: #38bdf8; margin: 10px 0; border: 1px dashed #38bdf8;">
-            kinggkwrd@okicici
-        </div>
-        
-        <p style="font-size: 12px; color: #ef4444;">*Payment karne ke baad screenshot owner ko WhatsApp par bhej dein.</p>
-        
-        <button onclick="document.getElementById('payment-modal').style.display='none'" style="margin-top: 20px; width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 8px;">Close</button>
-    </div>
-</div>
-
-<script>
-    function showPayment(plan, price) {
-        document.getElementById('selected-plan-text').textContent = `Pay ₹${price} for ${plan}`;
-        document.getElementById('payment-modal').style.display = 'block';
-    }
-</script>
+        <!-- MAIN APP CONTAINER -->
+        <main class="app-container" style="padding-bottom: 70px;">
             
-        </section>
-
-        <!-- 5. MY MATCHES VIEW (Room ID / Password) -->
-        <section id="my-matches-view" class="view-section">
-            <div class="back-nav" onclick="switchView('profile-view')"><i class="fa-solid fa-arrow-left"></i> My Joined Matches</div>
-            <div id="my-matches-container"></div>
-        </section>
-
-        <!-- 6. REFER & EARN VIEW -->
-        <section id="refer-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Refer & Earn</div>
-            <div class="refer-banner">
-                <i class="fa-solid fa-gift refer-icon"></i>
-                <h3>Invite Friends & Earn ₹10</h3>
-                <p>Get ₹10 in your wallet bonus when your friend joins their first match using your referral code!</p>
-                <div class="upi-box" style="margin-top: 15px;">
-                    <span id="referral-code-text">CLUTCH2026</span>
-                    <button onclick="copyReferralCode()" class="copy-btn"><i class="fa-solid fa-copy"></i> Copy Code</button>
+            <!-- 1. HOME VIEW -->
+            <section id="home-view" class="view-section active">
+                <div class="promo-banner">
+                    <div class="promo-text">
+                        <h3>OFFICIAL CHANNEL</h3>
+                        <p>Join Telegram for Room IDs & Updates</p>
+                    </div>
                 </div>
+                
+                <!-- Install Button -->
+                <button id="install-btn" style="background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
+                    📲 Install App Now
+                </button>
+
+                <div style="margin-bottom: 15px;">
+                    <a href="https://t.me/Abhifftournamenthub" target="_blank" class="tg-btn" style="display:block; text-align:center; background:#0088cc; color:white; padding:10px; border-radius:8px; text-decoration:none; font-weight:bold;">Join Telegram</a>
+                </div>
+
+                <h3 class="section-title">EXCLUSIVE CATEGORIES</h3>
+                <div class="category-grid">
+                    <div class="cat-card" onclick="openCategory('Full Map')">
+                        <div class="cat-img fullmap-bg"></div>
+                        <div class="cat-footer"><span>FULL MAP</span></div>
+                    </div>
+                    <div class="cat-card" onclick="openCategory('Survival')">
+                        <div class="cat-img survival-bg"></div>
+                        <div class="cat-footer"><span>SURVIVAL</span></div>
+                    </div>
+                    <div class="cat-card" onclick="openCategory('Clash Squad')">
+                        <div class="cat-img cs-bg"></div>
+                        <div class="cat-footer"><span>CLASH SQUAD</span></div>
+                    </div>
+                    <div class="cat-card" onclick="openCategory('Lone Wolf')">
+                        <div class="cat-img lonewolf-bg"></div>
+                        <div class="cat-footer"><span>LONE WOLF</span></div>
+                    </div>
+                </div>
+
+                <div class="card profile-box" style="margin-top: 20px;">
+                    <h4>Player Game Profile Setup</h4>
+                    <input type="text" id="ign-input" placeholder="Free Fire IGN (Name)" style="width:100%; padding:10px; margin-bottom:10px;">
+                    <input type="text" id="ffuid-input" placeholder="Free Fire UID" style="width:100%; padding:10px; margin-bottom:10px;">
+                    <button id="save-profile-btn" class="btn-primary" style="width:100%; padding:10px;">Save Profile</button>
+                </div>
+            </section>
+
+            <!-- 2. TOURNAMENT LIST VIEW -->
+            <section id="tournament-list-view" class="view-section">
+                <div class="back-nav" onclick="switchView('home-view')">
+                    <i class="fa-solid fa-arrow-left"></i> <span id="category-title-header">Tournaments</span>
+                </div>
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="filterTab('Upcoming')">UPCOMING</button>
+                    <button class="tab-btn" onclick="filterTab('Ongoing')">ONGOING</button>
+                    <button class="tab-btn" onclick="filterTab('Finished')">RESULTS</button>
+                </div>
+                <div id="tournaments-container" class="tournaments-list"></div>
+            </section>
+
+            <!-- 3. WALLET VIEW -->
+            <section id="wallet-view" class="view-section">
+                <div class="back-nav" onclick="switchView('home-view')">
+                    <i class="fa-solid fa-arrow-left"></i> My Wallet
+                </div>
+                <div class="wallet-top-card" style="text-align:center; padding:20px;">
+                    <i class="fa-solid fa-coins" style="color: #f39c12; font-size: 28px;"></i>
+                    <h1 id="wallet-main-balance">₹0</h1>
+                    <p>Total Balance</p>
+                </div>
+                <div class="wallet-actions-grid" style="display:flex; gap:10px;">
+                    <button class="w-action-btn" onclick="openAddCoinsModal()" style="flex:1; padding:12px;">Add Money</button>
+                    <button class="w-action-btn" onclick="openWithdrawModal()" style="flex:1; padding:12px;">Withdraw</button>
+                </div>
+            </section>
+
+            <!-- 4. PROFILE VIEW -->
+            <section id="profile-view" class="view-section">
+                <div class="profile-header-card" style="text-align:center; padding:20px;">
+                    <div class="pro-avatar"><i class="fa-solid fa-user-graduate" style="font-size:30px;"></i></div>
+                    <h3 id="profile-username-text">Username : Gamer</h3>
+                </div>
+                <div class="profile-stats-grid" style="display:flex; justify-content:space-around; text-align:center; margin-bottom:20px;">
+                    <div><h4>5</h4><small>Matches Played</small></div>
+                    <div><h4>0</h4><small>Total Kills</small></div>
+                    <div><h4>0</h4><small>PlayCoin Won</small></div>
+                </div>
+                <div class="profile-menu-list">
+                    <div class="menu-item" onclick="switchView('wallet-view')">My Wallet</div>
+                    <div class="menu-item" onclick="openMyMatches()">My Matches</div>
+                    <div class="menu-item" onclick="switchView('refer-view')">Refer & Earn</div>
+                    <div class="menu-item" onclick="openDepositTelegram()">Support</div>
+                </div>
+            </section>
+
+            <!-- 5. MY MATCHES VIEW -->
+            <section id="my-matches-view" class="view-section">
+                <div class="back-nav" onclick="switchView('profile-view')"><i class="fa-solid fa-arrow-left"></i> My Matches</div>
+                <div id="my-matches-container"></div>
+            </section>
+
+            <!-- 6. REFER & EARN VIEW -->
+            <section id="refer-view" class="view-section">
+                <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Refer & Earn</div>
+                <div class="refer-banner" style="text-align:center; padding:20px;">
+                    <h3>Invite Friends & Earn ₹10</h3>
+                </div>
+            </section>
+
+            <!-- 7. OFFER & RANKING VIEW -->
+            <section id="offer-view" class="view-section">
+                <div class="back-nav" onclick="switchView('home-view')"></div>
+            </section>
+            <section id="ranking-view" class="view-section">
+                <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div>
+                <div class="leaderboard-list">
+                    <div class="lead-item"><span>🥇 1. LegendAbhi</span><strong>45 Kills</strong></div>
+                    <div class="lead-item"><span>🥈 2. ViperOp</span><strong>38 Kills</strong></div>
+                    <div class="lead-item"><span>🥉 3. KillerX</span><strong>30 Kills</strong></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ADD COINS MODAL -->
+        <div id="add-coins-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
+                <h3>Add Coins via UPI</h3>
+                <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)" style="width:100%; padding:10px; margin:10px 0;">
+                <button class="btn-primary" style="background:#22c55e; margin-bottom:10px; width:100%; padding:10px;">Pay Now</button>
+                <button class="btn-primary" onclick="submitDepositRequest()" style="width:100%; padding:10px;">2. Done? Send Screenshot</button>
             </div>
-        </section>
-
-        <!-- 7. OFFER & RANKING (Top Killers) -->
-        <section id="offer-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Offers & Rewards</div>
-            <p style="text-align:center; color:#888; margin-top:30px;">No active offers right now.</p>
-        </section>
-
-        <section id="ranking-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Top Killers Leaderboard</div>
-            <div class="leaderboard-list">
-                <div class="lead-item"><span>🥇 1. LegendAbhi</span> <strong>45 Kills</strong></div>
-                <div class="lead-item"><span>🥈 2. ViperOp</span> <strong>38 Kills</strong></div>
-                <div class="lead-item"><span>🥉 3. KillerX</span> <strong>30 Kills</strong></div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ADD COINS MODAL -->
-<div id="add-coins-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
-        <h3>Add Coins via UPI</h3>
-        <p style="color: #fbbf24; font-size: 13px; margin: 10px 0; font-weight: bold;">🎁 Offer: Deposit ₹150+ & get ₹10 Bonus!</p>
-        
-        <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)">
-        
-        <!-- Pay Now Button (Direct UPI App open karega) -->
-        <button class="btn-primary" style="background:#22c55e; margin-bottom:10px;" onclick="initiateUpiPayment()">
-            <i class="fa-solid fa-bolt"></i> Pay Now (Auto Open UPI)
-        </button>
-
-        <!-- Telegram Screenshot Button -->
-        <button class="btn-primary" onclick="submitDepositRequest()">
-            <i class="fa-brands fa-telegram"></i> 2. Done? Send Screenshot
-        </button>
-    </div>
-</div>
-    
-
-    <!-- JOIN MATCH MODAL -->
-    <div id="join-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeJoinModal()">&times;</span>
-            <h3>Join Tournament</h3>
-            <p id="modal-match-title" style="color: #f39c12; margin-bottom: 10px;"></p>
-            <p>Entry Fee: <strong id="modal-entry-fee">₹0</strong></p>
-            <input type="text" id="join-ffuid" placeholder="Enter your Free Fire UID">
-            <button class="btn-primary" onclick="confirmJoinMatch()">Confirm & Join</button>
         </div>
-    </div>
 
-    <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="bottom-nav">
-        <a onclick="switchView('offer-view')" class="nav-item" id="nav-offer"><i class="fa-solid fa-percent"></i><span>Offer</span></a>
-        <a onclick="switchView('ranking-view')" class="nav-item" id="nav-ranking"><i class="fa-solid fa-trophy"></i><span>Ranking</span></a>
-        <a onclick="switchView('home-view')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Home</span></a>
-        <a onclick="switchView('wallet-view')" class="nav-item" id="nav-wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
-        <a onclick="switchView('profile-view')" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-    </nav>
+        <!-- JOIN MATCH MODAL -->
+        <div id="join-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeJoinModal()">&times;</span>
+                <h3>Join Tournament</h3>
+                <p id="modal-match-title" style="color: #f39c12; margin-bottom: 10px;"></p>
+                <p>Entry Fee: <strong id="modal-entry-fee">₹0</strong></p>
+                <input type="text" id="join-ffuid" placeholder="Enter your Free Fire UID" style="width:100%; padding:10px; margin:10px 0;">
+                <button class="btn-primary" onclick="confirmJoinMatch()" style="width:100%; padding:10px;">Confirm & Join</button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="bottom-nav">
+            <a onclick="switchView('offer-view')" class="nav-item" id="nav-offer">Offer</a>
+            <a onclick="switchView('ranking-view')" class="nav-item" id="nav-ranking">Ranking</a>
+            <a onclick="switchView('home-view')" class="nav-item active" id="nav-home">Home</a>
+            <a onclick="switchView('wallet-view')" class="nav-item" id="nav-wallet">Wallet</a>
+            <a onclick="switchView('profile-view')" class="nav-item" id="nav-profile">Profile</a>
+        </nav>
+
+    </div> <!-- Main App Container End -->
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
+
     <script>
+        // 1. Check Login Status on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app-container').style.display = 'block';
+            }
+        });
+
+        // 2. User Registration Function (Saves to Firebase Firestore)
+        window.registerUser = function() {
+            const name = document.getElementById('reg-name').value.trim();
+            const ffUid = document.getElementById('reg-ffuid').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+
+            if (!name || !ffUid || !phone) {
+                alert("Kripya sabhi details bharein!");
+                return;
+            }
+
+            db.collection("users").add({
+                name: name,
+                ffUid: ffUid,
+                phone: phone,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', name);
+                localStorage.setItem('userFfUid', ffUid);
+
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app-container').style.display = 'block';
+                alert("Registration Successful! Welcome to ClutchZone.");
+            })
+            .catch((error) => {
+                alert("Error: " + error.message);
+            });
+        };
+
+        // 3. Direct PWA Install Prompt Logic
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
 
@@ -278,23 +257,25 @@
             deferredPrompt = e;
         });
 
+        if (installBtn) {
             installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.style.display = 'none';
-            }
-            deferredPrompt = null;
-        } else {
-            alert("App pehle se installed hai ya aapka browser direct install support nahi kar raha!");
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                } else {
+                    alert("App pehle se installed hai ya browser direct install support nahi kar raha!");
+                }
+            });
         }
-    });
 
+        // 4. Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
     </script>
-
 </body>
 </html>
