@@ -3,95 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Tournament Hub</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ClutchZone - Admin & Organizer Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #0f172a; color: #fff; font-family: sans-serif; padding: 20px; }
-        .admin-container { max-width: 500px; margin: auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h2 { color: #38bdf8; text-align: center; margin-bottom: 20px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 15px; }
+        .admin-container { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
+        h2 { text-align: center; color: #f97316; margin-bottom: 20px; font-size: 22px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
-        .btn-admin { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
-        .btn-admin:hover { background: #1d4ed8; }
-        .divider { margin: 30px 0; border: 0; border-top: 1px solid #334155; }
+        label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: border 0.2s; }
+        input:focus, select:focus { border-color: #f97316; }
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        .btn-submit:active { opacity: 0.8; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="margin:0;"><i class="fa-solid fa-shield-halved"></i> Admin Control</h3>
-        <a href="index.html" style="color: #38bdf8; text-decoration: none; font-size: 14px;">Back to App</a>
+    <div class="admin-container">
+        <h2>⚡ Create Tournament Panel</h2>
+        
+        <div class="form-group">
+            <label>Tournament Title</label>
+            <input type="text" id="tournament-title" placeholder="e.g., Daily Custom War #1">
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Game Category</label>
+                <select id="tournament-category" onchange="updateSubModes()">
+                    <option value="Full Map">Full Map (Max 48)</option>
+                    <option value="Survival">Survival (Max 48)</option>
+                    <option value="Clash Squad">Clash Squad</option>
+                    <option value="Lone Wolf">Lone Wolf</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sub-Mode / Format</label>
+                <select id="tournament-submode">
+                    <!-- Dynamic Options -->
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Entry Fee (₹)</label>
+                <input type="number" id="tournament-entry" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Prize Pool (₹)</label>
+                <input type="number" id="tournament-prize" placeholder="3000">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Per Kill (₹)</label>
+                <input type="number" id="tournament-perkill" placeholder="5">
+            </div>
+            <div class="form-group">
+                <label>Start Date & Time</label>
+                <input type="datetime-local" id="tournament-time">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="createTournament()">🚀 Launch Tournament</button>
     </div>
 
-    <!-- 1. LAUNCH TOURNAMENT -->
-    <h2>⚡ Launch Tournament</h2>
-    <div class="form-group">
-        <label>Match Title</label>
-        <input type="text" id="admin-title" placeholder="e.g. Full Map Solo Custom">
-    </div>
-    
-    <!-- Category Dropdown -->
-    <div class="form-group">
-        <label>Select Category</label>
-        <select id="admin-category">
-            <option value="Full Map">Full Map</option>
-            <option value="Survival">Survival</option>
-            <option value="Clash Squad">Clash Squad</option>
-            <option value="Lone Wolf">Lone Wolf</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Status</label>
-        <select id="admin-status">
-            <option value="Upcoming">Upcoming</option>
-            <option value="Ongoing">Ongoing</option>
-            <option value="Finished">Finished</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Room ID</label>
-        <input type="text" id="admin-room-id" placeholder="Enter Room ID">
-    </div>
-    <div class="form-group">
-        <label>Room Password</label>
-        <input type="text" id="admin-room-password" placeholder="Enter Password">
-    </div>
-    <div class="form-group">
-        <label>Entry Fee (₹)</label>
-        <input type="number" id="admin-entry-fee" placeholder="0 for Free">
-    </div>
-    <div class="form-group">
-        <label>Match Start Date & Time</label>
-        <input type="datetime-local" id="admin-match-time">
-    </div>
-    <button class="btn-admin" id="launch-tournament-btn">Launch Tournament</button>
-
-    <hr class="divider">
-
-    <!-- 2. INSTANT PRIZE / KILL PAYOUT -->
-    <h2>🎯 Instant Payout / Credits</h2>
-    <div class="form-group">
-        <label>Player Free Fire UID</label>
-        <input type="text" id="admin-ffuid" placeholder="Enter User FF UID">
-    </div>
-    <div class="form-group">
-        <label>Prize / Winning Amount (₹)</label>
-        <input type="number" id="admin-prize" placeholder="Amount to add in wallet">
-    </div>
-    <div class="form-group">
-        <label>Kills Scored</label>
-        <input type="number" id="admin-kills" placeholder="Total kills">
-    </div>
-    <button class="btn-admin" style="background: #16a34a;" id="credit-instantly-btn">Credit Instantly</button>
-</div>
-
-<!-- Firebase Scripts -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="admin.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>
