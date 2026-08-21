@@ -1,6 +1,6 @@
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
+    apiKey: "",
     authDomain: "ff-tournaments.firebaseapp.com",
     projectId: "ff-tournaments",
     storageBucket: "ff-tournaments.appspot.com",
@@ -11,11 +11,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 1. Launch Tournament Logic with Auto-Time
+// 1. Launch Tournament Logic with Category & Auto-Time
 const launchBtn = document.getElementById('launch-tournament-btn');
 if (launchBtn) {
     launchBtn.addEventListener('click', () => {
         const title = document.getElementById('admin-title').value.trim();
+        const category = document.getElementById('admin-category').value; // Dropdown value
         const status = document.getElementById('admin-status').value;
         const roomId = document.getElementById('admin-room-id').value.trim();
         const roomPass = document.getElementById('admin-room-password').value.trim();
@@ -31,18 +32,19 @@ if (launchBtn) {
 
         db.collection('tournaments').add({
             title: title,
+            category: category, // Saves user selected category
             status: status,
             roomId: roomId,
             roomPass: roomPass,
             entryFee: entryFee,
-            startTime: matchTimestamp, // Time milliseconds mein save hoga
+            startTime: matchTimestamp,
             prizePool: 3000,
             perKill: 5,
             map: "Bermuda",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(() => {
-            alert("Tournament Launched Successfully! 🚀 Room ID will auto-show 10 mins before start.");
+            alert("Tournament Launched Successfully! 🚀");
             // Clear fields
             document.getElementById('admin-title').value = '';
             document.getElementById('admin-room-id').value = '';
@@ -68,7 +70,6 @@ if (creditBtn) {
             return;
         }
 
-        // Firestore se user find karna jiska ye FF UID ho
         db.collection('users').where('ffuid', '==', ffuid).get()
         .then((querySnapshot) => {
             if (querySnapshot.empty) {
@@ -82,7 +83,6 @@ if (creditBtn) {
                 const currentWallet = userData.wallet || 0;
                 const newBalance = currentWallet + prizeAmount;
 
-                // User ke wallet me paise add karna
                 db.collection('users').doc(userId).update({
                     wallet: newBalance
                 })
