@@ -315,5 +315,24 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('display-username').textContent = savedName;
     }
 });
+function openHosting() {
+    // Check karein ki user subscribed hai ya nahi
+    const isSubscribed = localStorage.getItem('isHostingSubscribed');
+    
+    if (isSubscribed === 'true') {
+        window.location.href = "YOUR_HOSTING_LINK_HERE"; // Apni hosting ka link yahan dalein
+    } else {
+        document.getElementById('hosting-modal').style.display = 'flex';
+    }
+}
+
+function buyPlan(amount) {
+    alert("Payment ke liye Admin se contact karein! (Simulated)");
+    // Payment confirm hone ke baad subscription set kar rahe hain
+    localStorage.setItem('isHostingSubscribed', 'true');
+    document.getElementById('hosting-modal').style.display = 'none';
+    window.location.href = "YOUR_HOSTING_LINK_HERE"; // Payment ke baad direct khulega
+}
+
 
 
