@@ -367,3 +367,44 @@ function loadUserData() {
 window.addEventListener('DOMContentLoaded', () => {
     loadUserData();
 });
+function openMyMatches() {
+    // 1. View switch karke 'my-matches-view' dikhao
+    if (typeof switchView === 'function') {
+        switchView('my-matches-view');
+    }
+
+    const container = document.getElementById('my-matches-container');
+    if (!container) return;
+
+    container.innerHTML = "<p style='color:white; text-align:center; padding:20px;'>Loading matches...</p>";
+
+    // User ka phone number jo login ke waqt save hota hai
+    let currentUserPhone = localStorage.getItem('userPhone'); 
+
+    if (!currentUserPhone) {
+        container.innerHTML = "<p style='color:red; text-align:center;'>Please login first!</p>";
+        return;
+    }
+
+    db.collection('participants').where('userId', '==', currentUserPhone).get().then(snapshot => {
+        if (snapshot.empty) {
+            container.innerHTML = "<p style='color:white; text-align:center; padding:20px;'>Aapne abhi tak koi tournament join nahi kiya hai.</p>";
+            return;
+        }
+
+        let html = "<h3 style='color:#f97316; margin-bottom:15px; text-align:center;'>🎮 My Joined Tournaments</h3>";
+        snapshot.forEach(doc => {
+            let data = doc.data();
+            let timeText = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Recent';
+            
+            html += `<div style="background:#1e293b; padding:15px; margin-bottom:12px; border-radius:8px; color:white; border: 1px solid #334155;">
+                <p style="margin-bottom:5px;"><b>Match ID:</b> <span style="color:#38bdf8;">${data.matchId}</span></p>
+                <p style="font-size:12px; color:#94a3b8;">Joined At: ${timeText}</p>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }).catch(err => {
+        container.innerHTML = "<p style='color:red; text-align:center;'>Error: " + err.message + "</p>";
+    });
+}
+
