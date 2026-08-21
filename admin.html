@@ -50,7 +50,17 @@
         <button class="btn-submit" onclick="submitResult()" style="background: #22c55e; margin-bottom: 10px;">✅ Save Result</button>
         <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569;">🏁 Mark Match Completed</button>
     </div>
-
+    <!-- Room ID & Password Update Panel -->
+    <div class="admin-container" style="margin-top: 20px;">
+        <h2>🔑 Update Room ID & Password</h2>
+        <div class="form-group"><label>Match ID (Doc ID)</label><input type="text" id="room-match-id" placeholder="Paste Match ID here"></div>
+        <div class="row">
+            <div class="form-group"><label>Room ID</label><input type="text" id="room-id-val" placeholder="e.g. 12345678"></div>
+            <div class="form-group"><label>Room Password</label><input type="text" id="room-pass-val" placeholder="e.g. ff123"></div>
+        </div>
+        <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8; color: #0f172a;">📢 Publish Room Details</button>
+    </div>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="admin.js"></script>
