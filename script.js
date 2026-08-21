@@ -47,9 +47,9 @@ function loadTournamentsForCategory(category, status) {
     if(!container) return;
     container.innerHTML = `<p style="text-align:center; color:#aaa; padding:20px;">Loading matches...</p>`;
 
+    // Sirf category ke base par data fetch karenge taaki index error na aaye
     db.collection('tournaments')
         .where('category', '==', category)
-        .where('status', '==', status)
         .get()
         .then((snapshot) => {
             container.innerHTML = '';
@@ -57,46 +57,58 @@ function loadTournamentsForCategory(category, status) {
                 container.innerHTML = `<p style="text-align:center; color:#777; padding:20px;">No tournaments available right now.</p>`;
                 return;
             }
+
+            let matchFound = false;
             snapshot.forEach((doc) => {
                 const match = doc.data();
                 const matchId = doc.id;
                 
-                const now = new Date().getTime();
-                const startTime = match.startTime || 0;
-                const tenMinutesBefore = startTime - (10 * 60 * 1000); // 10 minutes prior
+                // Status ko JavaScript ke andar filter karenge
+                if (match.status === status) {
+                    matchFound = true;
+                    
+                    const now = new Date().getTime();
+                    const startTime = match.startTime || 0;
+                    const tenMinutesBefore = startTime - (10 * 60 * 1000); // 10 minutes prior
 
-                let roomSection = '';
-                if (startTime > 0) {
-                    if (now >= tenMinutesBefore) {
-                        // Unlocks Room ID & Password
-                        roomSection = `
-                            <div style="background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #22c55e;">
-                                <p style="margin:2px 0; color:#22c55e; font-size:13px;">Room ID: <strong>${match.roomId || 'Updating'}</strong></p>
-                                <p style="margin:2px 0; color:#22c55e; font-size:13px;">Password: <strong>${match.roomPass || 'Updating'}</strong></p>
-                            </div>`;
-                    } else {
-                        // Locked state message
-                        roomSection = `<p style="color: #fbbf24; font-size: 11px; margin-top:5px;">🔒 Room ID unlocks 10 mins before match.</p>`;
+                    let roomSection = '';
+                    if (startTime > 0) {
+                        if (now >= tenMinutesBefore) {
+                            roomSection = `
+                                <div style="background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #22c55e;">
+                                    <p style="margin:2px 0; color:#22c55e; font-size:13px;">Room ID: <strong>${match.roomId || 'Updating'}</strong></p>
+                                    <p style="margin:2px 0; color:#22c55e; font-size:13px;">Password: <strong>${match.roomPass || 'Updating'}</strong></p>
+                                </div>`;
+                        } else {
+                            roomSection = `<p style="color: #fbbf24; font-size: 11px; margin-top:5px;">🔒 Room ID unlocks 10 mins before match.</p>`;
+                        }
                     }
-                }
 
-                container.innerHTML += `
-                    <div class="tournament-card">
-                        <div class="card-top-rules">
-                            <span>⚡ ${match.title || category}</span>
-                            <span class="match-id-tag">#${matchId.slice(-5)}</span>
+                    container.innerHTML += `
+                        <div class="tournament-card">
+                            <div class="card-top-rules">
+                                <span>⚡ ${match.title || category}</span>
+                                <span class="match-id-tag">#${matchId.slice(-5)}</span>
+                            </div>
+                            <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Starts: ${startTime ? new Date(startTime).toLocaleString() : 'Soon'}</p>
+                            ${roomSection}
+                            <div class="card-details-grid" style="margin-top:10px;">
+                                <div><small>ENTRY</small><h4>₹${match.entryFee || 0}</h4></div>
+                                <div><small>PRIZE</small><h4>₹${match.prizePool || 3000}</h4></div>
+                                <div><small>PER KILL</small><h4>₹${match.perKill || 5}</h4></div>
+                            </div>
+                            <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})">JOIN MATCH</button>
                         </div>
-                        <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Starts: ${startTime ? new Date(startTime).toLocaleString() : 'Soon'}</p>
-                        ${roomSection}
-                        <div class="card-details-grid" style="margin-top:10px;">
-                            <div><small>ENTRY</small><h4>₹${match.entryFee || 0}</h4></div>
-                            <div><small>PRIZE</small><h4>₹${match.prizePool || 3000}</h4></div>
-                            <div><small>PER KILL</small><h4>₹${match.perKill || 5}</h4></div>
-                        </div>
-                        <button class="btn-join" onclick="openJoinModal('${matchId}', '${match.title || category}', ${match.entryFee || 0})">JOIN MATCH</button>
-                    </div>
-                `;
+                    `;
+                }
             });
+
+            if (!matchFound) {
+                container.innerHTML = `<p style="text-align:center; color:#777; padding:20px;">No matches found for ${status}.</p>`;
+            }
+        })
+        .catch((error) => {
+            container.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Error: ${error.message}</p>`;
         });
 }
 
