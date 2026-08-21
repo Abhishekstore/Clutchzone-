@@ -79,7 +79,7 @@
             <div id="tournaments-container" class="tournaments-list"></div>
         </section>
 
-        <!-- 3. WALLET VIEW (Deposited, Winning, Bonus) -->
+        <!-- 3. WALLET VIEW -->
         <section id="wallet-view" class="view-section">
             <div class="back-nav" onclick="switchView('home-view')">
                 <i class="fa-solid fa-arrow-left"></i> My Wallet
@@ -112,7 +112,7 @@
             </div>
         </section>
 
-        <!-- 4. PROFILE VIEW (Jaisa Screenshot me hai) -->
+        <!-- 4. PROFILE VIEW -->
         <section id="profile-view" class="view-section">
             <div class="profile-header-card">
                 <div class="pro-avatar"><i class="fa-solid fa-user-graduate"></i></div>
@@ -133,7 +133,7 @@
             </div>
         </section>
 
-        <!-- 5. OFFER & RANKING PLACEHOLDERS -->
+        <!-- 5. OFFER & RANKING -->
         <section id="offer-view" class="view-section">
             <div class="back-nav" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i> Offers & Rewards</div>
             <p style="text-align:center; color:#888; margin-top:30px;">No active offers right now.</p>
@@ -145,7 +145,7 @@
 
     </main>
 
-    <!-- ADD COINS / UPI PAYMENT MODAL -->
+    <!-- ADD COINS MODAL -->
     <div id="add-coins-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
@@ -172,10 +172,10 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION BAR (Jaisa Screenshot me hai) -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
-        <a onclick="switchView('offer-view')" class="nav-item"><i class="fa-solid fa-percent"></i><span>Offer</span></a>
-        <a onclick="switchView('ranking-view')" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Ranking</span></a>
+        <a onclick="switchView('offer-view')" class="nav-item" id="nav-offer"><i class="fa-solid fa-percent"></i><span>Offer</span></a>
+        <a onclick="switchView('ranking-view')" class="nav-item" id="nav-ranking"><i class="fa-solid fa-trophy"></i><span>Ranking</span></a>
         <a onclick="switchView('home-view')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Home</span></a>
         <a onclick="switchView('wallet-view')" class="nav-item" id="nav-wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
         <a onclick="switchView('profile-view')" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
