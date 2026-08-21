@@ -161,19 +161,26 @@
     </main>
 
     <!-- ADD COINS MODAL -->
-    <div id="add-coins-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
-            <h3>Add Coins via UPI</h3>
-            <p style="color: #aaa; font-size: 13px; margin: 10px 0;">Pay using any UPI App (GPay, PhonePe, Paytm)</p>
-            <div class="upi-box">
-                <span id="upi-id-text">kinggkwrd@okicici</span>
-                <button onclick="copyUpiId()" class="copy-btn"><i class="fa-solid fa-copy"></i> Copy</button>
-            </div>
-            <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)">
-            <button class="btn-primary" onclick="submitDepositRequest()">Done, Send Screenshot on Telegram</button>
-        </div>
+<div id="add-coins-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAddCoinsModal()">&times;</span>
+        <h3>Add Coins via UPI</h3>
+        <p style="color: #fbbf24; font-size: 13px; margin: 10px 0; font-weight: bold;">🎁 Offer: Deposit ₹150+ & get ₹10 Bonus!</p>
+        
+        <input type="number" id="deposit-amount" placeholder="Enter amount paid (₹)">
+        
+        <!-- Pay Now Button (Direct UPI App open karega) -->
+        <button class="btn-primary" style="background:#22c55e; margin-bottom:10px;" onclick="initiateUpiPayment()">
+            <i class="fa-solid fa-bolt"></i> Pay Now (Auto Open UPI)
+        </button>
+
+        <!-- Telegram Screenshot Button -->
+        <button class="btn-primary" onclick="submitDepositRequest()">
+            <i class="fa-brands fa-telegram"></i> 2. Done? Send Screenshot
+        </button>
     </div>
+</div>
+    
 
     <!-- JOIN MATCH MODAL -->
     <div id="join-modal" class="modal">
