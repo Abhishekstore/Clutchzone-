@@ -1,6 +1,6 @@
 // --- ⚙️ APNA ASLI FIREBASE CONFIG YAHAN DALO (SIRF EK BAAR) ---
 const firebaseConfig = {
-    apiKey: "APNA_ASLI_API_KEY_YAHAN_DALO",
+    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
     authDomain: "ff-tournaments-af47a.firebaseapp.com",
     projectId: "ff-tournaments-af47a",
     storageBucket: "ff-tournaments-af47a.firebasestorage.app",
