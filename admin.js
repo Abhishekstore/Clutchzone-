@@ -1,6 +1,6 @@
 // Firebase Configuration (Sahi Project ID ke sath)
 const firebaseConfig = {
-    apiKey: "AIzaSyAljghtyv0FGNiccgcI-JjUunyvZvVLJ8",
+    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
     authDomain: "ff-tournaments-af47a.firebaseapp.com",
     projectId: "ff-tournaments-af47a",
     storageBucket: "ff-tournaments-af47a.appspot.com",
