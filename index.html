@@ -428,6 +428,15 @@
         <button onclick="closeAddCoinsModal()" style="width:95%; padding:10px; background:#e74c3c; border:none; color:white; border-radius:5px; margin-top:8px; cursor:pointer;">Close</button>
     </div>
 </div>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then((reg) => console.log('Service Worker registered!'))
+        .catch((err) => console.log('Service Worker registration failed: ', err));
+    });
+  }
+    </script>
     
 </body>
 </html>
