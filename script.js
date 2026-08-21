@@ -530,3 +530,20 @@ function logoutUser() {
     }
 }
 
+// Modal kholne ke liye function
+function openAddCoinsModal() {
+    const modal = document.getElementById('add-coins-modal');
+    if (modal) modal.style.display = 'block';
+}
+
+// Amount daal kar UPI app (GPay/PhonePe/Paytm) kholne ke liye
+function payWithUPI() {
+    let amount = document.getElementById('deposit-amount').value;
+    if (!amount || amount <= 0) {
+        alert("Kripya pehle sahi amount dalein!");
+        return;
+    }
+    let upiID = "kinggkwrd@okicici"; // Aapki UPI ID
+    let upiUrl = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
+    window.location.href = upiUrl;
+}
