@@ -547,3 +547,16 @@ function payWithUPI() {
     let upiUrl = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
     window.location.href = upiUrl;
 }
+// Amount type karte hi UPI link update karne ke liye
+function updateUpiLink() {
+    let amount = document.getElementById('deposit-amount').value || "1";
+    let upiID = "kinggkwrd@okicici";
+    let btn = document.getElementById('upi-link-btn');
+    if(btn) {
+        btn.href = `upi://pay?pa=${upiID}&pn=ClutchZone&am=${amount}&cu=INR`;
+    }
+}
+
+// Amount input field par oninput event jodne ke liye
+document.getElementById('deposit-amount').addEventListener('input', updateUpiLink);
+
