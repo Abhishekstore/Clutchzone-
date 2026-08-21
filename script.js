@@ -308,4 +308,12 @@ window.loginUser = function() {
         alert("Galat Phone Number ya Password! Pehle Register karein.");
     }
 };
+// Page load hote hi naam update karne ke liye
+window.addEventListener('DOMContentLoaded', () => {
+    const savedName = localStorage.getItem('savedName');
+    if (savedName) {
+        document.getElementById('display-username').textContent = savedName;
+    }
+});
+
 
