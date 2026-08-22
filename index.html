@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esports Gaming App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="user-info">
+            <div class="avatar"><i class="fas fa-fire"></i></div>
+            <div>
+                <div class="welcome-text">Welcome Back,</div>
+                <strong>Abhi.Primex</strong>
+            </div>
+        </div>
+        <div class="wallet-badge" onclick="switchView('wallet-view')">
+            <i class="fas fa-wallet" style="color: #ffa502;"></i> ₹<span id="user-balance">11</span>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <!-- HOME VIEW -->
+        <div id="home-view" class="view-section active">
+            <div class="section-title">EXCLUSIVE CATEGORIES</div>
+            <div class="category-grid">
+                <div class="cat-card" onclick="openCategory('Full Map')">
+                    <div class="cat-img"><i class="fas fa-map-marked-alt fa-2x" style="color:#ffa502;"></i></div>
+                    <div class="cat-footer"><span>FULL MAP</span><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Survival')">
+                    <div class="cat-img"><i class="fas fa-shield-alt fa-2x" style="color:#ffa502;"></i></div>
+                    <div class="cat-footer"><span>SURVIVAL</span><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Clash Squad')">
+                    <div class="cat-img"><i class="fas fa-users fa-2x" style="color:#ffa502;"></i></div>
+                    <div class="cat-footer"><span>CLASH SQUAD</span><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="cat-card" onclick="openCategory('Lone Wolf')">
+                    <div class="cat-img"><i class="fas fa-user-ninja fa-2x" style="color:#ffa502;"></i></div>
+                    <div class="cat-footer"><span>LONE WOLF</span><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OFFER VIEW -->
+        <div id="offer-view" class="view-section">
+            <h2 style="color: #ffa502; margin-bottom: 15px;">Offers & Rewards</h2>
+            <div class="card">
+                <h3>🔥 Special Deposit Bonus</h3>
+                <p style="color: #aaa; font-size: 13px; margin: 5px 0 10px 0;">Get 10% extra on your first coin addition!</p>
+                <button class="btn-primary" onclick="switchView('add-coins-view')">Claim Offer</button>
+            </div>
+        </div>
+
+        <!-- RANKING VIEW -->
+        <div id="ranking-view" class="view-section">
+            <h2 style="color: #ffa502; margin-bottom: 15px;">Leaderboard</h2>
+            <div class="leaderboard-list">
+                <div class="lead-item"><span>1. Gamer_King</span> <strong>🪙 2500</strong></div>
+                <div class="lead-item"><span>2. Killer007</span> <strong>🪙 1800</strong></div>
+                <div class="lead-item"><span>3. Abhi.Primex</span> <strong>🪙 1150</strong></div>
+            </div>
+        </div>
+
+        <!-- WALLET VIEW -->
+        <div id="wallet-view" class="view-section">
+            <div class="back-nav" onclick="switchView('home-view')"><i class="fas fa-arrow-left"></i> My Wallet</div>
+            <div class="wallet-top-card">
+                <small style="color: #aaa;">Total Balance</small>
+                <h1>🪙 <span id="wallet-total-coins">11</span></h1>
+            </div>
+            <div class="wallet-breakdown-grid">
+                <div class="w-box"><i class="fas fa-coins"></i><hd>11</hd><small>Deposited</small></div>
+                <div class="w-box"><i class="fas fa-trophy"></i><hd>0</hd><small>Winning</small></div>
+                <div class="w-box"><i class="fas fa-gift"></i><hd>0</hd><small>Bonus</small></div>
+            </div>
+            <div class="wallet-actions-grid">
+                <button class="e-action-btn" onclick="switchView('add-coins-view')"><i class="fas fa-plus-circle"></i> Add Coins</button>
+                <button class="e-action-btn" onclick="switchView('withdraw-view')"><i class="fas fa-arrow-circle-down"></i> Withdraw Coins</button>
+                <button class="e-action-btn" onclick="switchView('transactions-view')"><i class="fas fa-history"></i> Transactions</button>
+            </div>
+        </div>
+
+        <!-- ADD COINS SUB-VIEW -->
+        <div id="add-coins-view" class="view-section">
+            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Add Coins</div>
+            <div class="card">
+                <p>Enter Coins to Add:</p>
+                <input type="number" placeholder="e.g. 100">
+                <button class="btn-primary" onclick="alert('Proceeding to Payment Gateway...')">Proceed to Pay</button>
+            </div>
+        </div>
+
+        <!-- WITHDRAW SUB-VIEW -->
+        <div id="withdraw-view" class="view-section">
+            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Withdraw Coins</div>
+            <div class="card">
+                <p>Enter UPI ID:</p>
+                <input type="text" placeholder="username@upi">
+                <p style="margin-top:10px;">Withdrawal Amount:</p>
+                <input type="number" placeholder="Min 50 coins">
+                <button class="btn-primary" style="margin-top:15px;" onclick="alert('Withdrawal request submitted!')">Request Withdrawal</button>
+            </div>
+        </div>
+
+        <!-- TRANSACTIONS SUB-VIEW -->
+        <div id="transactions-view" class="view-section">
+            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Transactions History</div>
+            <div class="card" style="text-align: center; color: #aaa;">
+                <p>No recent transactions found.</p>
+            </div>
+        </div>
+
+        <!-- PROFILE VIEW -->
+        <div id="profile-view" class="view-section">
+            <div class="profile-header-card">
+                <div class="pro-avatar"><i class="fas fa-user-graduate"></i></div>
+                <h3 style="color:#fff;">Username : Gamer</h3>
+                <span class="kyc-badge"><i class="fas fa-check-circle"></i> Verified Player</span>
+            </div>
+
+            <div class="profile-stats-grid">
+                <div><h4>5</h4><small>Matches Played</small></div>
+                <div><h4>0</h4><small>Total Kills</small></div>
+                <div><h4>0</h4><small>PlayCoin Won</small></div>
+            </div>
+
+            <div class="profile-menu-list">
+                <div class="menu-item" onclick="switchView('wallet-view')"><i class="fas fa-wallet"></i><span>My Wallet</span><i class="fas fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchView('matches-view')"><i class="fas fa-gamepad"></i><span>My Matches</span><i class="fas fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchView('refer-view')"><i class="fas fa-share-alt"></i><span>Refer & Earn</span><i class="fas fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchView('support-view')"><i class="fas fa-headset"></i><span>Support</span><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+
+        <!-- MATCHES SUB-VIEW -->
+        <div id="matches-view" class="view-section">
+            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> My Matches</div>
+            <div class="card"><p style="color:#aaa;">You have played 5 custom room matches.</p></div>
+        </div>
+
+        <!-- REFER SUB-VIEW -->
+        <div id="refer-view" class="view-section">
+            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> Refer & Earn</div>
+            <div class="refer-banner">
+                <div class="refer-icon"><i class="fas fa-users"></i></div>
+                <h3>Invite Friends & Earn</h3>
+                <p>Share your referral link and get coins per join.</p>
+                <button class="btn-primary" style="margin-top:15px;" onclick="alert('Referral link copied!')">Copy Invite Link</button>
+            </div>
+        </div>
+
+        <!-- SUPPORT SUB-VIEW -->
+        <div id="support-view" class="view-section">
+            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> Support</div>
+            <div class="card">
+                <p style="margin-bottom: 10px;">Need help? Contact us on Telegram:</p>
+                <a href="#" class="tg-btn"><i class="fab fa-telegram"></i> Join Support Channel</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FIXED BOTTOM NAVIGATION BAR -->
+    <nav class="tab-bar">
+        <button class="tab-btn" id="nav-offer" onclick="switchView('offer-view')"><i class="fas fa-percentage"></i>Offer</button>
+        <button class="tab-btn" id="nav-ranking" onclick="switchView('ranking-view')"><i class="fas fa-trophy"></i>Ranking</button>
+        <button class="tab-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fas fa-home"></i>Home</button>
+        <button class="tab-btn" id="nav-wallet" onclick="switchView('wallet-view')"><i class="fas fa-wallet"></i>Wallet</button>
+        <button class="tab-btn" id="nav-profile" onclick="switchView('profile-view')"><i class="fas fa-user"></i>Profile</button>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
