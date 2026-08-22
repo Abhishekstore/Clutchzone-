@@ -190,7 +190,7 @@ window.selectThisSlot = function(slotNum, tournamentId, title, entryFee) {
 
 // 3. Payment & Player Details Screen
 function showPaymentScreen(tournamentId, title, entryFee, slotNum) {
-    let userWalletBalance = 11; // Aapke app ke wallet se sync ho jayega
+    let userWalletBalance = (window.currentUser && window.currentUser.dep_balance) || Number(localStorage.getItem('dep_balance')) || 0;
     let modalHTML = `
     <div id="payment-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a0033; z-index:10001; overflow-y:auto; padding:20px; color:white; font-family:sans-serif;">
         <div style="display:flex; align-items:center; margin-bottom:20px;">
