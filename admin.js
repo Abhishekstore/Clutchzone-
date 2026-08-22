@@ -8,12 +8,10 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// Smart updateSubMode jo alag-alag IDs ko bhi pakad lega
+// Smart updateSubMode function
 function updateSubMode() {
-    // Yahan hum multiple IDs check kar rahe hain taaki galti na ho
-    const categoryElement = document.getElementById('tournament-category') || document.getElementById('category') || document.getElementById('admin-category');
-    const subModeSelect = document.getElementById('tournament-submode') || document.getElementById('submode') || document.getElementById('admin-submode');
+    const categoryElement = document.getElementById('tournament-category') || document.getElementById('category');
+    const subModeSelect = document.getElementById('tournament-submode') || document.getElementById('submode');
     
     if (!categoryElement || !subModeSelect) return;
     
@@ -31,7 +29,7 @@ function updateSubMode() {
     }
 }
 
-// Automatic trigger for admin panel
+// Automatic trigger
 document.addEventListener('change', function(e) {
     if (e.target && (e.target.id === 'tournament-category' || e.target.id === 'category')) {
         updateSubMode();
@@ -40,16 +38,6 @@ document.addEventListener('change', function(e) {
 
 window.addEventListener('load', updateSubMode);
 
-
-// Category change hone par automatic update karne ke liye Event Listener
-document.addEventListener('change', function(e) {
-    if (e.target && e.target.id === 'tournament-category') {
-        updateSubMode();
-    }
-});
-
-// Page khulte hi sahi default options dikhane ke liye
-window.addEventListener('load', updateSubMode);
 
 function createTournament() {
     const hostCode = document.getElementById('host-code').value.trim();
