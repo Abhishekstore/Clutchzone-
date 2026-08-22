@@ -11,6 +11,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+// Page load hote hi check karein ki user logged-in hai ya nahi
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        const authScreen = document.getElementById('auth-screen');
+        if (authScreen) authScreen.style.display = 'none';
+    }
+});
 
 
 let currentCategory = 'Full Map';
