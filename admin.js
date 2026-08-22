@@ -337,6 +337,8 @@ function updateSubMode() {
     const category = document.getElementById('tournament-category').value;
     const subModeSelect = document.getElementById('tournament-submode');
     
+    if (!subModeSelect) return;
+    
     subModeSelect.innerHTML = '';
     
     if (category === 'Full Map') {
