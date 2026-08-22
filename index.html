@@ -344,6 +344,63 @@
                 alert("Error: " + error.message);
             });
         };
+            // 3. Tab Switch Function (Login / Register toggle)
+    window.switchAuthTab = function(tab) {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginBtn = document.getElementById('tab-login-btn');
+        const regBtn = document.getElementById('tab-reg-btn');
+
+        if (tab === 'login') {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            loginBtn.style.background = '#ffa502';
+            loginBtn.style.color = '#000';
+            regBtn.style.background = 'transparent';
+            regBtn.style.color = '#fff';
+        } else {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            regBtn.style.background = '#ffa502';
+            regBtn.style.color = '#000';
+            loginBtn.style.background = 'transparent';
+            loginBtn.style.color = '#fff';
+        }
+    };
+
+    // 4. Login Function
+    window.loginUser = function() {
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!username || !password) {
+            alert("Kripya Phone number aur Password bharein!");
+            return;
+        }
+
+        db.collection("users").where("phone", "==", username).get()
+        .then((querySnapshot) => {
+            let foundName = username;
+            if (!querySnapshot.empty) {
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.name) foundName = data.name;
+                });
+            }
+            
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', foundName);
+            alert("Login Successful! Welcome back.");
+            location.reload();
+        })
+        .catch((error) => {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', username);
+            alert("Login Successful!");
+            location.reload();
+        });
+    };
+
     </script>
 
 </body>
