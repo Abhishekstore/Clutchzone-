@@ -66,82 +66,82 @@
     </script>
 
     </script>
-<div id="tournaments-section" class="admin-section" style="display: block;">
-    
-    <div class="admin-container">
-        <h2>⚡ Create Tournament</h2>
-        <!-- Baaki ka aapka purana code waisa hi rahega -->
+    <!-- 1. TOURNAMENTS SECTION -->
+    <div id="tournaments-section" class="admin-section" style="display: block;">
+        <div class="admin-container">
+            <h2>⚡ Create Tournament</h2>
+            <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
+            <div class="row">
+                <div class="form-group"><label>Category</label><select id="tournament-category" onchange="updateSubMode()"></select></div>
+                <div class="form-group"><label>Sub-Mode</label><select id="tournament-submode"></select></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Entry (₹)</label><input type="number" id="tournament-entry" placeholder="0"></div>
+                <div class="form-group"><label>Prize (₹)</label><input type="number" id="tournament-prize" placeholder="0"></div>
+                <div class="form-group"><label>Kill (₹)</label><input type="number" id="tournament-perkill" placeholder="0"></div>
+            </div>
+            <div class="form-group"><label>Start Date/Time</label><input type="datetime-local" id="tournament-time"></div>
+            <button class="btn-submit" onclick="createTournament()">🚀 Launch Tournament</button>
+        </div>
 
-    <div class="admin-container">
-        <h2>⚡ Create Tournament</h2>
-        <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
-        <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
-        <div class="row">
-            <div class="form-group"><label>Category</label><select id="tournament-category" onchange="updateSubModes()"><option value="Full Map">Full Map</option><option value="Survival">Survival</option><option value="Clash Squad">Clash Squad</option><option value="Lone Wolf">Lone Wolf</option></select></div>
-            <div class="form-group"><label>Sub-Mode</label><select id="tournament-submode"></select></div>
+        <div class="admin-container">
+            <h2>🔑 Update Room ID</h2>
+            <div class="form-group"><label>Match ID</label><input type="text" id="room-match-id" placeholder="Match ID"></div>
+            <div class="row">
+                <div class="form-group"><label>Room ID</label><input type="text" id="room-id-val" placeholder="12345678"></div>
+                <div class="form-group"><label>Password</label><input type="text" id="room-pass-val" placeholder="Password"></div>
+            </div>
+            <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8; color: #0f172a;">🔑 Update Room Details</button>
         </div>
-        <div class="row">
-            <div class="form-group"><label>Entry (₹)</label><input type="number" id="tournament-entry" placeholder="0"></div>
-            <div class="form-group"><label>Prize (₹)</label><input type="number" id="tournament-prize" placeholder="0"></div>
-            <div class="form-group"><label>Kill (₹)</label><input type="number" id="tournament-perkill" placeholder="0"></div>
+
+        <div class="admin-container">
+            <h2>🏆 Declare Results</h2>
+            <div class="form-group"><label>Match ID</label><input type="text" id="res-match-id" placeholder="Match ID"></div>
+            <div class="form-group"><label>Player FF UID</label><input type="text" id="res-player-uid" placeholder="UID"></div>
+            <div class="row">
+                <div class="form-group"><label>Kills</label><input type="number" id="res-kills" placeholder="0"></div>
+                <div class="form-group"><label>Earnings (₹)</label><input type="number" id="res-prize" placeholder="0"></div>
+            </div>
+            <button class="btn-submit" onclick="submitResult()" style="background: #2ec55e;">✅ Save Result</button>
+            <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569; margin-top: 10px;">🏁 Mark Match Complete</button>
         </div>
-        <div class="form-group"><label>Start Date/Time</label><input type="datetime-local" id="tournament-time"></div>
-        <button class="btn-submit" onclick="createTournament()">🚀 Launch Tournament</button>
+
+        <div class="admin-container" style="background: #1e293b; border: 1px solid #38bdf8;">
+            <h2 style="color: #38bdf8;">👥 Manage Host Plans</h2>
+            <div class="form-group"><label>Host Code</label><input type="text" id="manage-host-code" placeholder="e.g. HOST001"></div>
+            <div class="form-group"><label>Select Plan</label>
+                <select id="manage-plan-type">
+                    <option value="250">₹250 - 1 Month Plan</option>
+                    <option value="650">₹650 - 3 Months Plan</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="saveHostPlan()" style="background: #38bdf8; color: #0f172a;">💾 Activate / Extend Host</button>
+        </div>
     </div>
 
-    <div class="admin-container">
-        <h2>🔑 Update Room ID</h2>
-        <div class="form-group"><label>Match ID</label><input type="text" id="room-match-id" placeholder="Match ID"></div>
-        <div class="row">
-            <div class="form-group"><label>Room ID</label><input type="text" id="room-id-val" placeholder="12345678"></div>
-            <div class="form-group"><label>Password</label><input type="text" id="room-pass-val" placeholder="Pass"></div>
+    <!-- 2. PAYOUT SECTION -->
+    <div id="payout-section" class="admin-section" style="display: none;">
+        <div class="admin-container" style="background: #312e81;">
+            <h2 style="color: #fbbf24;">💰 Saturday Payout Dashboard</h2>
+            <div class="form-group">
+                <label>Enter Host Code</label>
+                <input type="text" id="filter-host-code" placeholder="eg. HOST001">
+            </div>
+            <button class="btn-submit" onclick="loadWeeklyPayout()" style="background: #e11d48;">📊 Calculate Payout</button>
+            <div id="financial-output" style="color: white; margin-top: 15px; font-size: 13px;"></div>
         </div>
-        <button class="btn-submit" onclick="updateRoomCredentials()" style="background: #38bdf8; color: #0f172a;">📢 Publish Room Details</button>
     </div>
 
-    <div class="admin-container">
-        <h2>🏆 Declare Results</h2>
-        <div class="form-group"><label>Match ID</label><input type="text" id="res-match-id" placeholder="Match ID"></div>
-        <div class="form-group"><label>Player FF UID</label><input type="text" id="res-player-uid" placeholder="UID"></div>
-        <div class="row">
-            <div class="form-group"><label>Kills</label><input type="number" id="res-kills" placeholder="0"></div>
-            <div class="form-group"><label>Earnings (₹)</label><input type="number" id="res-prize" placeholder="0"></div>
-        </div>
-        <button class="btn-submit" onclick="submitResult()" style="background: #22c55e;">✅ Save Result</button>
-        <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569; margin-top: 10px;">🏁 Mark Match Completed</button>
-    </div>
-
-    <!-- Manage Host Subscriptions & Plans (Owner Only) -->
-    <div class="admin-container" style="background: #1e293b; border: 1px solid #38bdf8;">
-        <h2 style="color: #38bdf8;">👥 Manage Host Plans</h2>
-        <div class="form-group"><label>Host Code</label><input type="text" id="manage-host-code" placeholder="e.g. HOST001"></div>
-        <div class="form-group"><label>Select Plan</label>
-            <select id="manage-plan-type">
-                <option value="250">₹250 - 1 Month Plan</option>
-                <option value="650">₹650 - 3 Months Plan</option>
-            </select>
-        </div>
-        <button class="btn-submit" onclick="saveHostPlan()" style="background: #38bdf8; color: #0f172a;">💾 Activate / Extend Host Plan</button>
-    </div>
-
-    <!-- Saturday Payout Dashboard (Owner Only) -->
-        <div id="payout-section" class="admin-section" style="display: none;">
-    <div class="admin-container" style="background: #312e81;">
-        <h2 style="color: #fbbf24;">💰 Saturday Payout Dashboard</h2>
-        <div class="form-group"><label>Enter Host Code</label><input type="text" id="filter-host-code" placeholder="e.g. HOST001"></div>
-        <button class="btn-submit" onclick="loadWeeklyPayout()" style="background: #e11d48;">📊 Calculate Payout</button>
-        <div id="financial-output" style="color:white; margin-top:15px; font-size:13px;"></div>
-    </div>
-            
-    <!-- 1. USERS SECTION -->
-    <div id="users-section" class="admin-section">
+    <!-- 3. USERS SECTION -->
+    <div id="users-section" class="admin-section" style="display: none;">
         <div class="admin-container" style="background: #1e293b; margin-top: 20px;">
             <h2 style="color: #38bdf8;">👥 Registered Users List</h2>
             <div id="userList" style="color: white; margin-top: 15px;">Loading users...</div>
         </div>
     </div>
 
-    <!-- 2. DEPOSIT SECTION -->
+    <!-- 4. DEPOSIT SECTION -->
     <div id="deposit-section" class="admin-section" style="display: none;">
         <div class="admin-container" style="border: 1px solid #f97316; margin-top: 20px;">
             <h2 style="color: #f97316;">💳 Deposit Management</h2>
@@ -149,14 +149,14 @@
             <div id="pending-deposits-list" style="margin-top: 10px;">
                 <p style="color: #aaa; font-size: 13px;">No pending deposits.</p>
             </div>
-            <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Deposit History (Approved / Rejected)</h3>
+            <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Deposit History</h3>
             <div id="deposit-history-list" style="margin-top: 10px;">
                 <p style="color: #aaa; font-size: 13px;">No history available.</p>
             </div>
         </div>
     </div>
 
-    <!-- 3. WITHDRAWAL SECTION -->
+    <!-- 5. WITHDRAWAL SECTION -->
     <div id="withdrawal-section" class="admin-section" style="display: none;">
         <div class="admin-container" style="border: 1px solid #38bdf8; margin-top: 20px;">
             <h2 style="color: #38bdf8;">💸 Withdrawal Management</h2>
@@ -164,7 +164,7 @@
             <div id="pending-withdrawals-list" style="margin-top: 10px;">
                 <p style="color: #aaa; font-size: 13px;">No pending withdrawals.</p>
             </div>
-            <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Withdrawal History (Approved / Rejected)</h3>
+            <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Withdrawal History</h3>
             <div id="withdrawal-history-list" style="margin-top: 10px;">
                 <p style="color: #aaa; font-size: 13px;">No history available.</p>
             </div>
@@ -172,16 +172,10 @@
     </div>
 
     <!-- BOTTOM NAVIGATION BAR -->
-
-     <div class="bottom-nav">
-    <button class="nav-btn active" onclick="switchSection('tournaments-section', this)">Tourney</button>
-    <button class="nav-btn" onclick="switchSection('payout-section', this)">Payout</button>
-    <button class="nav-btn" onclick="switchSection('users-section', this)">Users</button>
-    <button class="nav-btn" onclick="switchSection('deposit-section', this)">Deposit</button>
-    <button class="nav-btn" onclick="switchSection('withdrawal-section', this)">Withdraw</button>
-</div>
-       
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="admin.js"></script>
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchSection('tournaments-section', this)">Tourney</button>
+        <button class="nav-btn" onclick="switchSection('payout-section', this)">Payout</button>
+        <button class="nav-btn" onclick="switchSection('users-section', this)">Users</button>
+        <button class="nav-btn" onclick="switchSection('deposit-section', this)">Deposit</button>
+        <button class="nav-btn" onclick="switchSection('withdrawal-section', this)">Withdraw</button>
+    </div>
