@@ -1,3 +1,63 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
+    authDomain: "ff-tournaments-af47a.firebaseapp.com",
+    projectId: "ff-tournaments-af47a",
+    storageBucket: "ff-tournaments-af47a.appspot.com",
+    messagingSenderId: "238745686365",
+    appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function updateSubMode() {
+    const categoryElement = document.getElementById('tournament-category');
+    const subModeSelect = document.getElementById('tournament-submode');
+    if (!categoryElement || !subModeSelect) return;
+    
+    const category = categoryElement.value;
+    subModeSelect.innerHTML = '';
+    
+    if (category === 'Full Map') {
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Duos)">Duo (24 Duos)</option><option value="Squad (12 Squads)">Squad (12 Squads)</option>';
+    } else if (category === 'Survival') {
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option>';
+    } else if (category === 'CS') {
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option><option value="4vs4">4vs4</option><option value="6vs6">6vs6</option>';
+    } else if (category === 'Lone Wolf') {
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option>';
+    }
+}
+
+function createTournament() {
+    const hostCode = document.getElementById('host-code').value.trim();
+    if (!hostCode) { alert("Enter Host Code!"); return; }
+    
+    db.collection('tournaments').add({
+        hostCode: hostCode,
+        title: document.getElementById('tournament-title').value,
+        category: document.getElementById('tournament-category').value,
+        subMode: document.getElementById('tournament-submode').value,
+        entryFee: Number(document.getElementById('tournament-entry').value),
+        prizePool: Number(document.getElementById('tournament-prize').value),
+        perKill: Number(document.getElementById('tournament-perkill').value),
+        startTime: new Date(document.getElementById('tournament-time').value).getTime(),
+        status: 'Upcoming',
+        joinedCount: 0
+    }).then(() => { 
+        alert("Tournament Created Successfully!"); 
+        location.reload(); 
+    }).catch(err => {
+        alert("Error: " + err.message);
+    });
+}
+
+function updateRoomCredentials() {
+    const matchId = document.getElementById('room-match-id').value.trim();
+    db.collection('tournaments').doc(matchId).update({
+        roomId: document.getElementById('room-id-val').value.trim(),
+        roomPass: document.getElementById('room-pass-val').value.trim()
+    }).then(() => alert("Room Updated!"));
+}
 // Firebase aur Baaki Core Functions
 function submitResult() {
     const matchIdInput = document.getElementById('res-match-id');
