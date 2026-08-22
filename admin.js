@@ -334,11 +334,12 @@ function switchSection(sectionId, btn) {
     }
 }
 function updateSubMode() {
-    const category = document.getElementById('tournament-category').value;
+    const categoryElement = document.getElementById('tournament-category');
     const subModeSelect = document.getElementById('tournament-submode');
     
-    if (!subModeSelect) return;
+    if (!categoryElement || !subModeSelect) return;
     
+    const category = categoryElement.value;
     subModeSelect.innerHTML = '';
     
     if (category === 'Full Map') {
