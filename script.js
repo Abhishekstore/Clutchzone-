@@ -84,21 +84,61 @@ function showTournamentListModal(categoryName, querySnapshot) {
 }
 if (d.status === 'Completed') return;
         
-        modalHTML += `
-        <div style="background:#222; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:15px; color:white;">
-            <h3 style="margin:0 0 10px 0; color:#fff;">${d.title || 'Custom Room Tournament'}</h3>
-            <div style="display:flex; justify-content:space-between; font-size:14px; color:#ccc; margin-bottom:12px;">
-                <span>💰 Entry: ₹${d.entryFee || 0}</span>
-                <span>🏆 Prize: ₹${d.prizePool || 0}</span>
-                <span>🔥 Per Kill: ₹${d.perKill || 4}</span>
+            modalHTML += `
+        <div style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:15px; color:white; font-family:sans-serif;">
+            
+            <!-- Top Banner Box -->
+            <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:10px; text-align:center; padding:10px; box-sizing:border-box;">
+                <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Custom Room Tournament'}</span>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px; color:#aaa; margin-bottom:15px;">
-                <span>Map: ${d.map || 'Bermuda'}</span>
-                <span>Type: ${d.subMode || 'Solo'}</span>
+
+            <!-- Logo & Subtitle Section -->
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:#ff9800; display:flex; align-items:center; justify-content:center; font-weight:bold; color:black; font-size:13px; border:2px solid #ffeb3b; flex-shrink:0;">P24</div>
+                <div>
+                    <div style="font-size:14px; font-weight:bold; color:#fff;">${d.title || 'Tournament'}</div>
+                    <div style="font-size:11px; color:#aaa;">Gun Attributes Off • Paid Match</div>
+                </div>
             </div>
-            <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || 0})" style="width:100%; background:#ff9800; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:16px; cursor:pointer;">JOIN MATCH</button>
-        </div>`;
-    });
+
+            <!-- Entry Fee, Prize Pool, Per Kill - Separate Boxes -->
+            <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; text-align:center; margin-bottom:12px; border:1px solid #383838;">
+                <div style="flex:1;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">👑 ENTRY</div>
+                    <div style="font-size:14px; color:#00e676; font-weight:bold; margin-top:3px;">₹${d.entryFee || 0}</div>
+                </div>
+                <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
+                    <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prizePool || 0}</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🪙 KILL</div>
+                    <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 4}</div>
+                </div>
+            </div>
+
+            <!-- Time, Type, Map Section -->
+            <div style="display:flex; justify-content:space-between; text-align:center; font-size:12px; margin-bottom:12px; padding:0 4px;">
+                <div style="flex:1; text-align:left;">
+                    <div style="color:#aaa; font-size:10px;">TIME</div>
+                    <div style="color:#ffeb3b; font-weight:bold; font-size:11px; margin-top:2px;">${d.startTime ? new Date(d.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ' (' + new Date(d.startTime).toLocaleDateString() + ')' : 'TBD'}</div>
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <div style="color:#aaa; font-size:10px;">TYPE</div>
+                    <div style="color:#fff; font-weight:bold; font-size:11px; margin-top:2px;">${d.subMode || 'Solo'}</div>
+                </div>
+                <div style="flex:1; text-align:right;">
+                    <div style="color:#aaa; font-size:10px;">MAP</div>
+                    <div style="color:#fff; font-weight:bold; font-size:11px; margin-top:2px;">${d.map || 'Bermuda'}</div>
+                </div>
+            </div>
+
+            <!-- Join Button -->
+            <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee})" style="width:100%; background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">JOIN MATCH</button>
+        </div>
+    `;
+});
+
 
     modalHTML += `</div></div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
