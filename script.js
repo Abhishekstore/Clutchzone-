@@ -350,11 +350,69 @@ window.processUpiPayment = function() {
     window.location.href = upiUrl;
 };
 
+window.openWithdrawalModal = function() {
+    showCustomModal("Withdrawal Request", `
+        <div style="font-size:13px; color:#ccc;">
+            <p style="margin-top:0; color:#aaa; font-size:12px;">Apni winnings withdraw karne ke liye details bharein:</p>
+            
+            <div style="margin-bottom:12px;">
+                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">Withdrawal Amount (₹)</label>
+                <input type="number" id="withdrawAmount" placeholder="e.g. 100" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
+            </div>
 
+            <div style="margin-bottom:12px;">
+                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">UPI ID / UPI Number</label>
+                <input type="text" id="withdrawUpi" placeholder="e.g. username@paytm" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
+            </div>
 
-window.openWithdrawModal = function() {
-    alert("Opening Withdrawal Window...");
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">Account Holder Name</label>
+                <input type="text" id="withdrawName" placeholder="Enter your full name" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
+            </div>
+
+            <button onclick="submitWithdrawalRequest()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;">
+                Submit Request
+            </button>
+        </div>
+    `);
 };
+
+window.submitWithdrawalRequest = function() {
+    const amount = document.getElementById('withdrawAmount').value.trim();
+    const upiId = document.getElementById('withdrawUpi').value.trim();
+    const name = document.getElementById('withdrawName').value.trim();
+
+    if (!amount || amount <= 0) {
+        alert("Kripya sahi withdrawal amount daal dein!");
+        return;
+    }
+    if (!upiId) {
+        alert("Kripya apni UPI ID daal dein!");
+        return;
+    }
+    if (!name) {
+        alert("Kripya apna naam daal dein!");
+        return;
+    }
+
+    // Firebase mein withdrawal request save karna
+    db.collection('withdrawals').add({
+        amount: amount,
+        upiId: upiId,
+        name: name,
+        status: 'Pending',
+        createdAt: new Date()
+    }).then(() => {
+        alert("Withdrawal request successfully submit ho gayi hai! Jaldi hi payment process kar di jayegi.");
+        let modal = document.getElementById('custom-action-modal');
+        if (modal) modal.remove();
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+};
+
+
+
 
 window.openTransactions = function() {
     alert("Opening Transaction History...");
