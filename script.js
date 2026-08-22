@@ -194,7 +194,6 @@ function addCoins(amount) {
     alert(`Successfully added 🪙 ${amount} to your wallet!`);
     switchView('wallet-view');
 }
-
 function requestWithdrawal(upiId, amount) {
     amount = parseInt(amount);
     if(!upiId || !upiId.includes('@')) {
@@ -210,7 +209,7 @@ function requestWithdrawal(upiId, amount) {
         return;
     }
 
-    // Deduct from winning/deposited
+    // Deduct balance temporarily
     if(appState.balance.winning >= amount) {
         appState.balance.winning -= amount;
     } else {
@@ -218,21 +217,25 @@ function requestWithdrawal(upiId, amount) {
         appState.balance.winning = 0;
         appState.balance.deposited -= rem;
     }
+    appState.balance.total = appState.balance.deposited + appState.balance.winning;
 
-    appState.balance.total = appState.balance.deposited + appState.balance.winning + appState.balance.bonus;
-
-    appState.transactions.unshift({
-        type: 'Withdrawal to ' + upiId,
-        amount: -amount,
-        date: new Date().toLocaleDateString(),
-        status: 'Processing'
+    // Save pending withdrawal for Admin Panel
+    let pendingWithdrawals = JSON.parse(localStorage.getItem('esports_pending_withdrawals')) || [];
+    pendingWithdrawals.unshift({
+        upiId: upiId,
+        amount: amount,
+        date: new Date().toLocaleString(),
+        status: 'Pending'
     });
+    localStorage.setItem('esports_pending_withdrawals', JSON.stringify(pendingWithdrawals));
 
     saveData();
     updateUIValues();
     alert('Withdrawal request submitted successfully! UPI: ' + upiId);
     switchView('wallet-view');
 }
+
+
 function submitPaymentProof() {
     const amount = document.getElementById('coin-amount-input').value;
     const utr = document.getElementById('utr-input').value.trim();
