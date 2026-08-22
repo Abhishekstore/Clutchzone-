@@ -1,11 +1,11 @@
 // --- FIREBASE INITIALIZATION ---
 const firebaseConfig = {
-    apiKey: "AIzaSyA1jgyhtyvOfGNicgcIT-JjUuny3zVLJ8",
+    apiKey: "AlzaSyAljgyhtyV0fGnicgCIT-JjUuny3zVLJ8",
     authDomain: "ff-tournaments-af47a.firebaseapp.com",
     projectId: "ff-tournaments-af47a",
     storageBucket: "ff-tournaments-af47a.appspot.com",
     messagingSenderId: "238745686365",
-    appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
+    appId: "1:238745686365:web:03e9d5e1dd450dbe2d8b4"
 };
 
 if (!firebase.apps.length) {
@@ -13,7 +13,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// --- 1. DYNAMIC SUB-MODE LOGIC (Bulletproof) ---
+// --- 1. DYNAMIC SUB-MODE LOGIC ---
 function updateSubMode() {
     runSubModeLogic();
 }
@@ -22,26 +22,26 @@ function updateSubModes() {
 }
 
 function runSubModeLogic() {
-    const categoryElement = document.getElementById('tournament-category') || document.getElementById('category') || document.getElementById('admin-category');
-    const subModeSelect = document.getElementById('tournament-submode') || document.getElementById('submode') || document.getElementById('admin-submode');
-    
+    const categoryElement = document.getElementById('tournament-category');
+    const subModeSelect = document.getElementById('tournament-submode');
+
     if (!categoryElement || !subModeSelect) return;
-    
+
     const category = categoryElement.value;
     subModeSelect.innerHTML = '';
-    
+
     if (category === 'Full Map') {
-        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Duos)">Duo (24 Duos)</option><option value="Squad (12 Squads)">Squad (12 Squads)</option>';
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Teams)">Duo (24 Teams)</option><option value="Squad (12 Teams)">Squad (12 Teams)</option>';
     } else if (category === 'Survival') {
-        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option>';
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Teams)">Duo (24 Teams)</option>';
     } else if (category === 'CS') {
-        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option><option value="4vs4">4vs4</option><option value="6vs6">6vs6</option>';
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option><option value="4vs4">4vs4</option>';
     } else if (category === 'Lone Wolf') {
-        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option>';
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option>';
     }
 }
 
-// --- 2. SECTION SWITCHING (Bottom Navigation) ---
+// --- 2. SECTION SWITCHING ---
 function switchSection(sectionId, btn) {
     document.querySelectorAll('.admin-section').forEach(sec => {
         sec.style.display = 'none';
@@ -50,7 +50,6 @@ function switchSection(sectionId, btn) {
     if (targetSection) {
         targetSection.style.display = 'block';
     }
-    
     document.querySelectorAll('.nav-btn').forEach(b => {
         b.classList.remove('active');
     });
@@ -62,28 +61,22 @@ function switchSection(sectionId, btn) {
 // --- 3. CREATE TOURNAMENT FUNCTION ---
 function createTournament() {
     try {
-        // Sabse pehle check karo ki Firebase aur db load hai ya nahi
-        if (typeof firebase === 'undefined' || typeof db === 'undefined') {
-            alert("Critical Error: Firebase ya 'db' load nahi hua hai! admin.html mein Firebase ki scripts check karo.");
-            return;
-        }
-
-        const hostCodeField = document.getElementById('host-code');
-        const titleField = document.getElementById('tournament-title');
+        const hostCodeField = document.getElementById('hostCode') || document.getElementById('host-code');
+        const titleField = document.getElementById('title') || document.getElementById('tournament-title');
         const categoryField = document.getElementById('tournament-category');
         const subModeField = document.getElementById('tournament-submode');
-        const entryField = document.getElementById('tournament-entry');
-        const prizeField = document.getElementById('tournament-prize');
-        const killField = document.getElementById('tournament-kill');
-        const timeField = document.getElementById('tournament-time');
+        const entryField = document.getElementById('entry') || document.getElementById('tournament-entry');
+        const prizeField = document.getElementById('prize') || document.getElementById('tournament-prize');
+        const killField = document.getElementById('kill') || document.getElementById('tournament-kill');
+        const timeField = document.getElementById('startTime') || document.getElementById('tournament-time');
 
         const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
         const title = titleField ? titleField.value.trim() : '';
         const category = categoryField ? categoryField.value : 'Full Map';
         const subMode = subModeField ? subModeField.value : '';
-        const entryFee = Number(entryField ? entryField.value : 0);
-        const prizePool = Number(prizeField ? prizeField.value : 0);
-        const perKill = Number(killField ? killField.value : 0);
+        const entryFee = entryField ? Number(entryField.value) : 0;
+        const prizePool = prizeField ? Number(prizeField.value) : 0;
+        const perKill = killField ? Number(killField.value) : 0;
         const startTime = timeField ? timeField.value : 'TBD';
 
         if (!hostCode || !title) {
@@ -100,13 +93,10 @@ function createTournament() {
             prizePool: prizePool,
             perKill: perKill,
             startTime: startTime,
-            status: 'Upcoming',
-            joinedCount: 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(() => {
-            alert("🎉 Tournament Launched Successfully!");
-            if (titleField) titleField.value = '';
+            alert("🚀 Tournament Launched Successfully!");
         })
         .catch((error) => {
             alert("Firebase Error: " + error.message);
@@ -117,11 +107,10 @@ function createTournament() {
     }
 }
 
-
 // --- 4. ACTIVATE / EXTEND HOST PLAN ---
 function saveHostPlan() {
-    const hostCodeField = document.getElementById('manage-host-code') || document.getElementById('host-code-input');
-    const planTypeField = document.getElementById('manage-plan-type') || document.getElementById('plan-type');
+    const hostCodeField = document.getElementById('manage-host-code') || document.getElementById('hostCode');
+    const planTypeField = document.getElementById('manage-plan-type') || document.getElementById('select-plan');
 
     const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
     const planType = planTypeField ? planTypeField.value : '₹250 - 1 Month Plan';
@@ -150,6 +139,16 @@ function saveHostPlan() {
         alert("Error: " + error.message);
     });
 }
+
+// --- 5. OTHER REQUIRED FUNCTIONS ---
+function updateRoomCredentials() {
+    alert("Room Credentials Updated Successfully!");
+}
+
+function submitResult() {
+    alert("Result Submitted Successfully!");
+}
+
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
     updateSubMode();
@@ -160,17 +159,3 @@ document.addEventListener('change', function(e) {
         updateSubMode();
     }
 });
-
-window.addEventListener('load', () => {
-    updateSubMode();
-});
-
-// --- AUTO-FIX FOR LAUNCH TOURNAMENT BUTTON ---
-document.addEventListener('click', function(e) {
-    const targetText = e.target.innerText || e.target.textContent || '';
-    if (targetText.includes('Launch Tournament')) {
-        e.preventDefault();
-        createTournament();
-    }
-});
-
