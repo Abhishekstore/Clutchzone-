@@ -298,7 +298,7 @@ function showMyContestsModal(statusType, contests) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-// --- UPI ADD MONEY SYSTEM ---
+// --- COMPLETE ADD MONEY & UPI PAYMENT SYSTEM ---
 
 window.openAddCoinsModal = function() {
     let existingModal = document.getElementById('add-money-modal');
@@ -318,7 +318,7 @@ window.openAddCoinsModal = function() {
             </div>
 
             <div style="background:#262626; padding:10px; border-radius:6px; font-size:12px; color:#aaa; margin-bottom:15px;">
-                💡 Button dabate hi aapke phone ke UPI apps khul jayenge. Apna PIN daal kar payment complete karein.
+                💡 Pay karne ke baad wapas aakar confirmation button dabayein taaki coins add ho sakein.
             </div>
 
             <button onclick="processUpiPayment()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:15px; cursor:pointer;">
@@ -331,24 +331,95 @@ window.openAddCoinsModal = function() {
 };
 
 window.processUpiPayment = function() {
-    const amount = document.getElementById('walletAmountInput').value;
-    
+    const amount = parseInt(document.getElementById('walletAmountInput').value);
     if (!amount || amount <= 0) {
         alert("Kripya sahi amount enter karein!");
         return;
     }
 
-    // ⚠️ IMPORTANT: Yahan apni asli UPI ID daal dena (jaise yourname@paytm, yourname@ybl, etc.)
-    const merchantUpiID = "kinggkwrd@okicici"; 
+    const merchantUpiID = "kinggkurd@okicici"; // Aapki UPI ID
     const merchantName = "Clutchzone";
     const transactionNote = "Wallet Deposit";
 
-    // UPI Intent URL generate karna
     const upiUrl = `upi://pay?pa=${merchantUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
-
-    // User ke phone ke UPI apps par redirect karna
+    
+    // UPI App kholna
     window.location.href = upiUrl;
+
+    // 1.5 seconds baad confirmation popup dikhana
+    setTimeout(() => {
+        showPaymentConfirmation(amount);
+    }, 1500);
 };
+
+function showPaymentConfirmation(amount) {
+    let existing = document.getElementById('pay-confirm-modal');
+    if (existing) existing.remove();
+
+    let confirmHTML = `
+    <div id="pay-confirm-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10003; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
+        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:330px; text-align:center;">
+            <h3 style="color:#ff9800; margin-top:0;">Payment Status</h3>
+            <p style="font-size:13px; color:#ccc;">Kya aapne ₹${amount} ka payment successfully complete kar diya hai?</p>
+            
+            <button onclick="creditWalletCoins(${amount})" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; margin-bottom:10px; cursor:pointer; font-size:14px;">
+                Haan, Payment Successful Ho Gayi
+            </button>
+            <button onclick="document.getElementById('pay-confirm-modal').remove()" style="width:100%; background:#ff4444; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                Cancel / Nahi Hui
+            </button>
+        </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', confirmHTML);
+}
+
+window.creditWalletCoins = function(amount) {
+    let currentDep = parseInt(localStorage.getItem('dep_balance')) || 0;
+    let newDep = currentDep + amount;
+    
+    // LocalStorage mein save karna taaki turant UI par dikhe
+    localStorage.setItem('dep_balance', newDep);
+    updateWalletUI();
+
+    // User ka naam lena taaki admin ko deposit list me pata chale
+    let username = document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User";
+
+    // Firebase database ke transactions collection mein bhejna (Admin panel ke liye)
+    db.collection('transactions').add({
+        username: username,
+        type: 'Deposit',
+        amount: amount,
+        status: 'Success',
+        createdAt: new Date()
+    }).catch(err => console.log(err));
+
+    // Modals band karna
+    let modal1 = document.getElementById('pay-confirm-modal');
+    if (modal1) modal1.remove();
+    let modal2 = document.getElementById('add-money-modal');
+    if (modal2) modal2.remove();
+
+    alert(`🎉 Badhai ho! ₹${amount} aapke wallet mein successfully add ho gaye hain.`);
+};
+
+window.updateWalletUI = function() {
+    let dep = parseInt(localStorage.getItem('dep_balance')) || 0;
+    let win = parseInt(localStorage.getItem('win_balance')) || 0;
+    let bon = parseInt(localStorage.getItem('bon_balance')) || 0;
+    let total = dep + win + bon;
+
+    if(document.getElementById('dep-bal')) document.getElementById('dep-bal').innerText = dep;
+    if(document.getElementById('win-bal')) document.getElementById('win-bal').innerText = win;
+    if(document.getElementById('bon-bal')) document.getElementById('bon-bal').innerText = bon;
+    if(document.getElementById('wallet-total-balance')) document.getElementById('wallet-total-balance').innerText = total;
+};
+
+// Page load hone par wallet update karne ke liye
+document.addEventListener("DOMContentLoaded", () => {
+    updateWalletUI();
+});
+
 
 window.openWithdrawalModal = function() {
     showCustomModal("Withdrawal Request", `
