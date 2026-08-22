@@ -102,7 +102,36 @@
     <h2 style="color: #38bdf8;">👥 Registered Users List</h2>
     <div id="userList" style="color: white; margin-top: 15px;">Loading users...</div>
 </div>
-    
+        <!-- DEPOSITS MANAGEMENT SECTION -->
+    <div class="admin-container" style="border: 1px solid #f97316; margin-top: 20px;">
+        <h2 style="color: #f97316;">💳 Deposit Management</h2>
+        
+        <h3 style="color: #38bdf8; margin-top: 15px; font-size: 15px;">⏳ Pending Deposits</h3>
+        <div id="pending-deposits-list" style="margin-top: 10px;">
+            <p style="color: #aaa; font-size: 13px;">No pending deposits.</p>
+        </div>
+
+        <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Deposit History (Approved / Rejected)</h3>
+        <div id="deposit-history-list" style="margin-top: 10px;">
+            <p style="color: #aaa; font-size: 13px;">No history available.</p>
+        </div>
+    </div>
+
+    <!-- WITHDRAWAL MANAGEMENT SECTION -->
+    <div class="admin-container" style="border: 1px solid #38bdf8; margin-top: 20px;">
+        <h2 style="color: #38bdf8;">💸 Withdrawal Management</h2>
+        
+        <h3 style="color: #f97316; margin-top: 15px; font-size: 15px;">⏳ Pending Withdrawals</h3>
+        <div id="pending-withdrawals-list" style="margin-top: 10px;">
+            <p style="color: #aaa; font-size: 13px;">No pending withdrawals.</p>
+        </div>
+
+        <h3 style="color: #2ecc71; margin-top: 20px; font-size: 15px;">📜 Withdrawal History (Approved / Rejected)</h3>
+        <div id="withdrawal-history-list" style="margin-top: 10px;">
+            <p style="color: #aaa; font-size: 13px;">No history available.</p>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="admin.js"></script>
