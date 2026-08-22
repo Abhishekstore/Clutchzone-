@@ -316,7 +316,7 @@ window.loginUser = function() {
             if (authScreen) authScreen.style.display = 'none';
 
             alert("Login Successful!");
-            switchView('home-view');
+            location.reload();
         } else {
             alert("Galat Password! Kripya dobara koshish karein.");
         }
