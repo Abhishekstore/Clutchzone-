@@ -250,6 +250,65 @@
   }
   const db = firebase.firestore();
 </script>
+<!-- Admin Host Plan Requests Section -->
+<div style="background: #161616; padding: 15px; border-radius: 10px; margin: 20px; color: #fff; border: 1px solid #333;">
+    <h3 style="color: #00e676; margin-top: 0;">👑 Host Plan Requests & Approval</h3>
+    <div id="admin-host-list"></div>
+</div>
+
+<script>
+    function loadHostRequests() {
+        let listDiv = document.getElementById('admin-host-list');
+        if(!listDiv) return;
+        let requests = JSON.parse(localStorage.getItem('hostRequests')) || [];
+        
+        if(requests.length === 0) {
+            listDiv.innerHTML = "<p style='color: #888; font-size: 13px;'>No pending host requests.</p>";
+            return;
+        }
+
+        let html = "";
+        requests.forEach((req, index) => {
+            html += `<div style="background: #222; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; border: 1px solid #444;">
+                <b>Plan:</b> ${req.plan} (₹${req.amount})<br>
+                <b>User:</b> ${req.user || 'User'}<br>
+                <b>UTR:</b> <span style="color: #00e676; font-weight: bold;">${req.utr}</span><br>
+                <input type="text" id="admin-host-code-${index}" placeholder="Enter Host ID (e.g. HOST101)" style="margin-top: 8px; padding: 8px; width: 100%; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box;"><br>
+                <button onclick="approveHostId(${index})" style="background: #00e676; color: #000; border: none; padding: 8px 14px; font-weight: bold; border-radius: 4px; margin-top: 8px; cursor: pointer;">Approve & Send ID</button>
+            </div>`;
+        });
+        listDiv.innerHTML = html;
+    }
+
+    function approveHostId(index) {
+        let requests = JSON.parse(localStorage.getItem('hostRequests')) || [];
+        let hostId = document.getElementById(`admin-host-code-${index}`).value.trim();
+
+        if(!hostId) {
+            alert("Pehle Host ID enter karein!");
+            return;
+        }
+
+        let req = requests[index];
+        let expiryTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000); // 30 Days validity
+
+        db.collection("hosts").doc(hostId).set({
+            planName: req.plan,
+            expiryDate: expiryTime,
+            user: req.user || "User",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            requests.splice(index, 1);
+            localStorage.setItem('hostRequests', JSON.stringify(requests));
+            alert("Host Approved Successfully! Assigned ID: " + hostId);
+            loadHostRequests();
+        }).catch((error) => {
+            alert("Error: " + error.message);
+        });
+    }
+
+    loadHostRequests();
+</script>
 
 <script src="admin.js?v=2"></script>
 </body>
