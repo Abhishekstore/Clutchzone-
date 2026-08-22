@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Host - Plans</title>
+    <style>
+        body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .plan-card { background: #161616; border: 1px solid #333; border-radius: 12px; padding: 16px; margin-bottom: 15px; }
+        .plan-card h3 { color: #00e676; margin: 0 0 5px 0; }
+        .btn { background: #00e676; color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; width: 100%; cursor: pointer; margin-top: 10px; font-size: 15px; }
+        .input-field { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 6px; margin-top: 8px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align: center;">👑 Choose Host Plan</h2>
+    
+    <!-- Plan 1 -->
+    <div class="plan-card">
+        <h3>Pro Host Plan</h3>
+        <p style="color: #aaa; font-size: 13px;">Price: ₹299 / Month (Host unlimited custom matches)</p>
+        <button class="btn" onclick="payWithUPI('Pro Host', 299)">Pay ₹299 via UPI App</button>
+    </div>
+
+    <!-- Plan 2 (Agar aur plan rakhna ho) -->
+    <div class="plan-card">
+        <h3>VIP Host Plan</h3>
+        <p style="color: #aaa; font-size: 13px;">Price: ₹599 / 3 Months</p>
+        <button class="btn" onclick="payWithUPI('VIP Host', 599)">Pay ₹599 via UPI App</button>
+    </div>
+
+    <!-- UTR Submission Section (Payment ke baad UTR daalne ke liye) -->
+    <div id="utr-section" style="display:none; margin-top: 20px; background: #161616; padding: 16px; border-radius: 12px; border: 1px solid #00e676;">
+        <h3 id="selected-plan-title" style="color: #00e676; margin-top:0;">Submit Payment UTR</h3>
+        <p style="font-size: 13px; color: #ccc;">Payment karne ke baad jo 12-digit ka UTR / Transaction ID mila hai, use yahan dalein:</p>
+        
+        <input type="text" id="utr-input" class="input-field" placeholder="Enter 12-digit UTR / Transaction ID">
+        <button class="btn" onclick="submitHostRequest()" style="background: #ff9800; color: #000;">Submit UTR for Approval</button>
+    </div>
+
+    <script>
+        // ⚠️ Yahan apna asli UPI ID daalein (Jisme payment aayega)
+        const MY_UPI_ID = "kinggkwrd@okicici"; 
+        const MERCHANT_NAME = "Clutchzone";
+
+        let chosenPlan = "";
+        let planPrice = 0;
+
+        function payWithUPI(planName, price) {
+            chosenPlan = planName;
+            planPrice = price;
+
+            // UPI Intent Link (Jaise Add Money mein hota hai)
+            let upiLink = `upi://pay?pa=${MY_UPI_ID}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${price}&cu=INR&tn=${encodeURIComponent(planName + ' Host Plan')}`;
+            
+            // UPI app par redirect karega
+            window.location.href = upiLink;
+
+            // Redirect hone ke baad UTR box dikha dena taaki user wapas aakar UTR daal sake
+            setTimeout(() => {
+                document.getElementById('selected-plan-title').innerText = `Submit UTR for ${planName} (₹${price})`;
+                document.getElementById('utr-section').style.display = 'block';
+            }, 1000);
+        }
+
+        function submitHostRequest() {
+            let utr = document.getElementById('utr-input').value.trim();
+            if(!utr) {
+                alert("Please enter UTR number!");
+                return;
+            }
+
+            let hostRequests = JSON.parse(localStorage.getItem('hostRequests')) || [];
+            hostRequests.push({
+                user: "User_" + Math.floor(Math.random()*1000),
+                plan: chosenPlan,
+                amount: planPrice,
+                utr: utr,
+                status: "Pending",
+                date: new Date().toLocaleString()
+            });
+            localStorage.setItem('hostRequests', JSON.stringify(hostRequests));
+
+            alert("Host request submitted successfully! Admin will verify your UTR soon.");
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
