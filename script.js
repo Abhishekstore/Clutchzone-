@@ -303,23 +303,24 @@ window.loginUser = function() {
             const userData = doc.data();
             
             // Check karein ki password match ho raha hai ya nahi
-            if (userData.password === password) {
-                // Session save kar lenge taki baaki app ko pata chale user logged in hai
-                localStorage.setItem('userPhone', phone);
-                localStorage.setItem('savedPhone', phone);
-                localStorage.setItem('savedName', userData.name || 'Gamer');
-                localStorage.setItem('savedFFUID', userData.ffuid || '');
-                localStorage.setItem('isLoggedIn', 'true');
+                    if (userData.password === password) {
+            // Session save kar lenge
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('savedPhone', phone);
+            localStorage.setItem('savedName', userData.name || 'Gamer');
+            localStorage.setItem('savedFFUID', userData.ffuid || '');
+            localStorage.setItem('isLoggedIn', 'true');
 
-                // Auth screen chupayein
-                const authScreen = document.getElementById('auth-screen');
-                if (authScreen) authScreen.style.display = 'none';
+            // Auth screen chupayein
+            const authScreen = document.getElementById('auth-screen');
+            if (authScreen) authScreen.style.display = 'none';
 
-                alert("Login Successful!");
-                location.reload(); // Page refresh karke app chalu kar dega
-            } else {
-                alert("Galat Password! Kripya dobara koshish karein.");
-            }
+            alert("Login Successful!");
+            switchView('home-view');
+        } else {
+            alert("Galat Password! Kripya dobara koshish karein.");
+        }
+
         } else {
             alert("Yeh Phone Number registered nahi hai! Pehle Register karein.");
         }
