@@ -68,9 +68,22 @@
             <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
             <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
             <div class="row">
-                <div class="form-group"><label>Category</label><select id="tournament-category" onchange="updateSubMode()"></select></div>
-                <div class="form-group"><label>Sub-Mode</label><select id="tournament-submode"></select></div>
-            </div>
+    <div class="form-group"><label>Category</label>
+        <select id="tournament-category" onchange="updateSubMode()">
+            <option value="Full Map">Full Map</option>
+            <option value="Clash Squad">Clash Squad</option>
+            <option value="Custom">Custom</option>
+        </select>
+    </div>
+    <div class="form-group"><label>Sub-Mode</label>
+        <select id="tournament-submode">
+            <option value="Solo">Solo</option>
+            <option value="Duo">Duo</option>
+            <option value="Squad">Squad</option>
+        </select>
+    </div>
+</div>
+
             <div class="row">
                 <div class="form-group"><label>Entry (₹)</label><input type="number" id="tournament-entry" placeholder="0"></div>
                 <div class="form-group"><label>Prize (₹)</label><input type="number" id="tournament-prize" placeholder="0"></div>
