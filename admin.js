@@ -339,27 +339,27 @@ function updateSubMode() {
     
     subModeSelect.innerHTML = '';
     
-    if (category === 'Full Map' || category === 'Survival') {
+    if (category === 'Full Map') {
         subModeSelect.innerHTML = `
             <option value="Solo (48 Players)">Solo (48 Players)</option>
             <option value="Duo (24 Duos)">Duo (24 Duos)</option>
             <option value="Squad (12 Squads)">Squad (12 Squads)</option>
         `;
+    } else if (category === 'Survival') {
+        subModeSelect.innerHTML = `
+            <option value="Solo (48 Players)">Solo (48 Players)</option>
+        `;
     } else if (category === 'CS') {
         subModeSelect.innerHTML = `
-            <option value="1v1">1v1</option>
-            <option value="2v2">2v2</option>
-            <option value="4v4">4v4</option>
-            <option value="6v6">6v6</option>
+            <option value="1vs1">1vs1</option>
+            <option value="2vs2">2vs2</option>
+            <option value="4vs4">4vs4</option>
+            <option value="6vs6">6vs6</option>
         `;
     } else if (category === 'Lone Wolf') {
         subModeSelect.innerHTML = `
-            <option value="1v1">1v1</option>
-            <option value="2v2">2v2</option>
-        `;
-    } else {
-        subModeSelect.innerHTML = `
-            <option value="Custom">Custom</option>
+            <option value="1vs1">1vs1</option>
+            <option value="2vs2">2vs2</option>
         `;
     }
 }
