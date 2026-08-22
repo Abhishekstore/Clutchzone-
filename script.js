@@ -298,7 +298,7 @@ function showMyContestsModal(statusType, contests) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-// --- COMBINED UPI APP & QR CODE DEPOSIT SYSTEM ---
+// --- SECURE QR CODE & UTR DEPOSIT SYSTEM ---
 
 window.openAddCoinsModal = function() {
     let existingModal = document.getElementById('add-money-modal');
@@ -308,27 +308,33 @@ window.openAddCoinsModal = function() {
     <div id="add-money-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px; overflow-y:auto;">
         <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.5); text-align:center;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="color:#ff9800; margin:0;">Add Money to Wallet</h3>
+                <h3 style="color:#ff9800; margin:0;">Add Money via QR</h3>
                 <button onclick="document.getElementById('add-money-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">X</button>
             </div>
             
-            <div style="margin-bottom:12px; text-align:left;">
-                <label style="font-size:12px; color:#ccc;">Enter Amount (₹):</label>
-                <input type="number" id="walletAmountInput" placeholder="e.g. 100" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-            </div>
-
-            <!-- QR Code Display -->
-            <p style="font-size:11px; color:#aaa; margin-bottom:5px;">Ya is QR Code ko kisi aur phone se scan karein:</p>
+            <p style="font-size:12px; color:#ccc; margin-bottom:8px;">Is QR Code ko kisi bhi UPI app se scan karke payment karein:</p>
+            
+            <!-- Aapka QR Code Image -->
             <div style="background:white; padding:8px; border-radius:8px; display:inline-block; margin-bottom:8px;">
-                <img src="24455.jpg" alt="QR Code" style="width:140px; height:140px; object-fit:contain;">
+                <img src="24455.jpg" alt="QR Code" style="width:150px; height:150px; object-fit:contain;">
             </div>
             
             <div style="background:#262626; padding:6px; border-radius:6px; font-size:12px; color:#00e676; margin-bottom:12px; font-weight:bold;">
                 UPI ID: kinggkwrrd@okicici
             </div>
 
-            <button onclick="processUpiPayment()" style="width:100%; background:#00e676; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">
-                Pay via UPI App
+            <div style="margin-bottom:10px; text-align:left;">
+                <label style="font-size:12px; color:#ccc;">Enter Paid Amount (₹):</label>
+                <input type="number" id="depositAmount" placeholder="e.g. 100" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+            </div>
+
+            <div style="margin-bottom:15px; text-align:left;">
+                <label style="font-size:12px; color:#ccc;">Enter 12-digit UTR / Ref Number:</label>
+                <input type="text" id="depositUtr" placeholder="e.g. 4321XXXXXXXX" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+            </div>
+
+            <button onclick="submitDepositRequest()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">
+                Submit Deposit Request
             </button>
         </div>
     </div>`;
@@ -336,73 +342,34 @@ window.openAddCoinsModal = function() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-window.processUpiPayment = function() {
-    const amount = parseInt(document.getElementById('walletAmountInput').value);
+window.submitDepositRequest = function() {
+    const amount = parseInt(document.getElementById('depositAmount').value);
+    const utr = document.getElementById('depositUtr').value.trim();
+    
     if (!amount || amount <= 0) {
         alert("Kripya sahi amount enter karein!");
         return;
     }
-
-    const merchantUpiID = "kinggkwrrd@okicici"; 
-    const merchantName = "Clutchzone";
-    const transactionNote = "Wallet Deposit";
-
-    const upiUrl = `upi://pay?pa=${merchantUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
-    
-    // UPI App kholna
-    window.location.href = upiUrl;
-
-    // 1.5 seconds baad confirmation popup dikhana
-    setTimeout(() => {
-        showPaymentConfirmation(amount);
-    }, 1500);
-};
-
-function showPaymentConfirmation(amount) {
-    let existing = document.getElementById('pay-confirm-modal');
-    if (existing) existing.remove();
-
-    let confirmHTML = `
-    <div id="pay-confirm-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10003; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:330px; text-align:center;">
-            <h3 style="color:#ff9800; margin-top:0;">Payment Status</h3>
-            <p style="font-size:13px; color:#ccc;">Kya aapne ₹${amount} ka payment successfully complete kar diya hai?</p>
-            
-            <button onclick="creditWalletCoins(${amount})" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; margin-bottom:10px; cursor:pointer; font-size:14px;">
-                Haan, Payment Successful Ho Gayi
-            </button>
-            <button onclick="document.getElementById('pay-confirm-modal').remove()" style="width:100%; background:#ff4444; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                Cancel / Nahi Hui
-            </button>
-        </div>
-    </div>`;
-
-    document.body.insertAdjacentHTML('beforeend', confirmHTML);
-}
-
-window.creditWalletCoins = function(amount) {
-    let currentDep = parseInt(localStorage.getItem('dep_balance')) || 0;
-    let newDep = currentDep + amount;
-    
-    localStorage.setItem('dep_balance', newDep);
-    updateWalletUI();
+    if (!utr || utr.length < 8) {
+        alert("Kripya valid 12-digit UTR / Transaction ID enter karein!");
+        return;
+    }
 
     let username = document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User";
 
-    db.collection('transactions').add({
+    db.collection('deposits').add({
         username: username,
-        type: 'Deposit',
         amount: amount,
-        status: 'Success',
+        utr: utr,
+        status: 'Pending',
         createdAt: new Date()
-    }).catch(err => console.log(err));
-
-    let modal1 = document.getElementById('pay-confirm-modal');
-    if (modal1) modal1.remove();
-    let modal2 = document.getElementById('add-money-modal');
-    if (modal2) modal2.remove();
-
-    alert(`🎉 Badhai ho! ₹${amount} aapke wallet mein successfully add ho gaye hain.`);
+    }).then(() => {
+        alert("✅ Aapki deposit request admin ke paas bhej di gayi hai! Payment verify hone ke baad coins add kar diye jayenge.");
+        document.getElementById('add-money-modal').remove();
+    }).catch(err => {
+        console.log(err);
+        alert("Kuch error ho gaya, dobara try karein.");
+    });
 };
 
 window.updateWalletUI = function() {
@@ -414,74 +381,12 @@ window.updateWalletUI = function() {
     if(document.getElementById('dep-bal')) document.getElementById('dep-bal').innerText = dep;
     if(document.getElementById('win-bal')) document.getElementById('win-bal').innerText = win;
     if(document.getElementById('bon-bal')) document.getElementById('bon-bal').innerText = bon;
-    if(document.getElementById('wallet-total-balance')) document.getElementById('wallet-total-balance').innerText = total;
-};
-
-
-function showPaymentConfirmation(amount) {
-    let existing = document.getElementById('pay-confirm-modal');
-    if (existing) existing.remove();
-
-    let confirmHTML = `
-    <div id="pay-confirm-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10003; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:330px; text-align:center;">
-            <h3 style="color:#ff9800; margin-top:0;">Payment Status</h3>
-            <p style="font-size:13px; color:#ccc;">Kya aapne ₹${amount} ka payment successfully complete kar diya hai?</p>
-            
-            <button onclick="creditWalletCoins(${amount})" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; margin-bottom:10px; cursor:pointer; font-size:14px;">
-                Haan, Payment Successful Ho Gayi
-            </button>
-            <button onclick="document.getElementById('pay-confirm-modal').remove()" style="width:100%; background:#ff4444; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                Cancel / Nahi Hui
-            </button>
-        </div>
-    </div>`;
-
-    document.body.insertAdjacentHTML('beforeend', confirmHTML);
-}
-
-window.creditWalletCoins = function(amount) {
-    let currentDep = parseInt(localStorage.getItem('dep_balance')) || 0;
-    let newDep = currentDep + amount;
     
-    // LocalStorage mein save karna taaki turant UI par dikhe
-    localStorage.setItem('dep_balance', newDep);
-    updateWalletUI();
-
-    // User ka naam lena taaki admin ko deposit list me pata chale
-    let username = document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User";
-
-    // Firebase database ke transactions collection mein bhejna (Admin panel ke liye)
-    db.collection('transactions').add({
-        username: username,
-        type: 'Deposit',
-        amount: amount,
-        status: 'Success',
-        createdAt: new Date()
-    }).catch(err => console.log(err));
-
-    // Modals band karna
-    let modal1 = document.getElementById('pay-confirm-modal');
-    if (modal1) modal1.remove();
-    let modal2 = document.getElementById('add-money-modal');
-    if (modal2) modal2.remove();
-
-    alert(`🎉 Badhai ho! ₹${amount} aapke wallet mein successfully add ho gaye hain.`);
-};
-
-window.updateWalletUI = function() {
-    let dep = parseInt(localStorage.getItem('dep_balance')) || 0;
-    let win = parseInt(localStorage.getItem('win_balance')) || 0;
-    let bon = parseInt(localStorage.getItem('bon_balance')) || 0;
-    let total = dep + win + bon;
-
-    if(document.getElementById('dep-bal')) document.getElementById('dep-bal').innerText = dep;
-    if(document.getElementById('win-bal')) document.getElementById('win-bal').innerText = win;
-    if(document.getElementById('bon-bal')) document.getElementById('bon-bal').innerText = bon;
     if(document.getElementById('wallet-total-balance')) document.getElementById('wallet-total-balance').innerText = total;
+    if(document.getElementById('balance')) document.getElementById('balance').innerText = total;
+    if(document.getElementById('user-balance')) document.getElementById('user-balance').innerText = total;
 };
 
-// Page load hone par wallet update karne ke liye
 document.addEventListener("DOMContentLoaded", () => {
     updateWalletUI();
 });
