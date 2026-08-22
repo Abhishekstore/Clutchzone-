@@ -151,3 +151,12 @@ document.addEventListener('change', function(e) {
 window.addEventListener('load', () => {
     updateSubMode();
 });
+
+// --- AUTO-FIX FOR LAUNCH TOURNAMENT BUTTON ---
+document.addEventListener('click', function(e) {
+    const targetText = e.target.innerText || e.target.textContent || '';
+    if (targetText.includes('Launch Tournament')) {
+        e.preventDefault();
+        createTournament();
+    }
+});
