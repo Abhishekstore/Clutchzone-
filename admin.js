@@ -28,6 +28,16 @@ function updateSubMode() {
     }
 }
 
+// Category change hone par automatic update karne ke liye Event Listener
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'tournament-category') {
+        updateSubMode();
+    }
+});
+
+// Page khulte hi sahi default options dikhane ke liye
+window.addEventListener('load', updateSubMode);
+
 function createTournament() {
     const hostCode = document.getElementById('host-code').value.trim();
     if (!hostCode) { alert("Enter Host Code!"); return; }
