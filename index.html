@@ -3,200 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Esports Gaming App</title>
+    <title>PLAYT24 - Tournaments</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="dark-theme">
 
     <!-- TOP HEADER -->
     <header class="app-header">
         <div class="user-info">
-            <div class="avatar"><i class="fas fa-fire"></i></div>
+            <div class="logo-icon"><i class="fa-solid fa-fire"></i></div>
             <div>
-                <div class="welcome-text">Welcome Back,</div>
-                <strong>Abhi.Primex</strong>
+                <span class="welcome-text">Welcome Back,</span>
+                <h3 id="username-display">Abhi.Primex</h3>
             </div>
         </div>
-        <div class="wallet-badge" onclick="switchView('wallet-view')">
-            <i class="fas fa-wallet" style="color: #ffa502;"></i> ₹<span id="user-balance">11</span>
+        <div class="header-right">
+            <div class="wallet-pill" onclick="switchTab('wallet')">
+                <i class="fa-solid fa-wallet"></i> <span id="user-balance">₹ 11</span>
+            </div>
         </div>
     </header>
 
-    <div class="app-container">
+    <!-- MAIN APP CONTAINER -->
+    <main class="container">
 
-        <!-- HOME VIEW -->
-        <div id="home-view" class="view-section active">
-            <div class="section-title">EXCLUSIVE CATEGORIES</div>
-            <div class="category-grid">
-                <div class="cat-card" onclick="openCategory('Full Map')">
-                    <div class="cat-img"><i class="fas fa-map-marked-alt fa-2x" style="color:#ffa502;"></i></div>
-                    <div class="cat-footer"><span>FULL MAP</span><i class="fas fa-chevron-right"></i></div>
+        <!-- HOME TAB (Default View) -->
+        <div id="home-tab" class="app-tab-content active">
+            
+            <!-- ANNOUNCEMENT BANNER -->
+            <div class="announcement-bar">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>OW OFFICIAL RULES 🚀</span>
+                <span class="cli-badge">CLI</span>
+            </div>
+
+            <!-- TOP QUICK NAVIGATION BUTTONS (Image 2 style) -->
+            <div class="quick-nav-grid">
+                <div class="quick-btn" onclick="switchTab('profile')">
+                    <div class="q-icon red-bg"><i class="fa-solid fa-user"></i></div>
+                    <span>My Profile</span>
                 </div>
-                <div class="cat-card" onclick="openCategory('Survival')">
-                    <div class="cat-img"><i class="fas fa-shield-alt fa-2x" style="color:#ffa502;"></i></div>
-                    <div class="cat-footer"><span>SURVIVAL</span><i class="fas fa-chevron-right"></i></div>
+                <div class="quick-btn" onclick="switchTab('wallet')">
+                    <div class="q-icon red-bg"><i class="fa-solid fa-wallet"></i></div>
+                    <span>My Wallet</span>
                 </div>
-                <div class="cat-card" onclick="openCategory('Clash Squad')">
-                    <div class="cat-img"><i class="fas fa-users fa-2x" style="color:#ffa502;"></i></div>
-                    <div class="cat-footer"><span>CLASH SQUAD</span><i class="fas fa-chevron-right"></i></div>
+                <div class="quick-btn" onclick="openTopPlayers()">
+                    <div class="q-icon red-bg"><i class="fa-solid fa-trophy"></i></div>
+                    <span>Top Player</span>
                 </div>
-                <div class="cat-card" onclick="openCategory('Lone Wolf')">
-                    <div class="cat-img"><i class="fas fa-user-ninja fa-2x" style="color:#ffa502;"></i></div>
-                    <div class="cat-footer"><span>LONE WOLF</span><i class="fas fa-chevron-right"></i></div>
+                <div class="quick-btn" onclick="openSupport()">
+                    <div class="q-icon red-bg"><i class="fa-solid fa-headset"></i></div>
+                    <span>Contact Us</span>
                 </div>
             </div>
-        </div>
-        </div> <!-- ye home-view ka closing div hai -->
 
-        <!-- CATEGORY DETAIL VIEW (Yahan paste karna hai) -->
-        <div id="category-detail-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')"><i class="fas fa-arrow-left"></i> <span id="category-title">Tournaments</span></div>
-            <div class="card" style="text-align: center; padding: 30px;">
-                <h3 id="category-name-heading" style="color: #ffa502; margin-bottom: 10px;">Category</h3>
-                <p style="color: #aaa; font-size: 13px;">No active custom rooms found for this category right now. Check back later!</p>
+            <!-- HOW TO USE DROPDOWN BANNER -->
+            <div class="help-banner" onclick="toggleHelp()">
+                <span><i class="fa-solid fa-circle-question"></i> How to Use Our App</span>
+                <i class="fa-solid fa-chevron-down"></i>
             </div>
-        </div>
 
-        <!-- OFFER VIEW -->
-    
-        <!-- OFFER VIEW -->
-        <div id="offer-view" class="view-section">
-            <h2 style="color: #ffa502; margin-bottom: 15px;">Offers & Rewards</h2>
-            <div class="card">
-                <h3>🔥 Special Deposit Bonus</h3>
-                <p style="color: #aaa; font-size: 13px; margin: 5px 0 10px 0;">Get 10% extra on your first coin addition!</p>
-                <button class="btn-primary" onclick="switchView('add-coins-view')">Claim Offer</button>
+            <!-- EXCLUSIVE CATEGORIES SECTION -->
+            <div class="section-title-box">
+                <h3>EXCLUSIVE <span class="live-tag">LIVE</span></h3>
+                <p>Big Winnings For All</p>
             </div>
-        </div>
 
-        <!-- RANKING VIEW -->
-        <div id="ranking-view" class="view-section">
-            <h2 style="color: #ffa502; margin-bottom: 15px;">Leaderboard</h2>
-            <div class="leaderboard-list">
-                <div class="lead-item"><span>1. Gamer_King</span> <strong>🪙 2500</strong></div>
-                <div class="lead-item"><span>2. Killer007</span> <strong>🪙 1800</strong></div>
-                <div class="lead-item"><span>3. Abhi.Primex</span> <strong>🪙 1150</strong></div>
+            <div class="exclusive-grid">
+                <div class="exc-card" onclick="openCategory('Full Map')">
+                    <div class="exc-icon"><i class="fa-solid fa-map"></i></div>
+                    <div class="exc-info">
+                        <h4>FULL MAP</h4>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="exc-card" onclick="openCategory('Survival')">
+                    <div class="exc-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="exc-info">
+                        <h4>SURVIVAL</h4>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="exc-card" onclick="openCategory('Clash Squad')">
+                    <div class="exc-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="exc-info">
+                        <h4>CLASH SQUAD</h4>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="exc-card" onclick="openCategory('Lone Wolf')">
+                    <div class="exc-icon"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div class="exc-info">
+                        <h4>LONE WOLF</h4>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
             </div>
+
+            <!-- MY CONTESTS SECTION (Image 3 style) -->
+            <div class="section-title-box mt-20">
+                <h3>MY CONTESTS <i class="fa-solid fa-circle-check text-green"></i></h3>
+                <p>Your Tournaments Journey</p>
+            </div>
+
+            <div class="contests-status-grid">
+                <div class="contest-status-card" onclick="filterContests('Ongoing')">
+                    <div class="cs-icon red-text"><i class="fa-solid fa-rotate"></i></div>
+                    <span>Ongoing</span>
+                </div>
+                <div class="contest-status-card" onclick="filterContests('Upcoming')">
+                    <div class="cs-icon orange-text"><i class="fa-solid fa-calendar-days"></i></div>
+                    <span>Upcoming</span>
+                </div>
+                <div class="contest-status-card" onclick="filterContests('Completed')">
+                    <div class="cs-icon red-text"><i class="fa-solid fa-trophy"></i></div>
+                    <span>Completed</span>
+                </div>
+            </div>
+
+            <!-- RECENT WITHDRAWALS / ACTIVITY TICKER -->
+            <div class="activity-ticker">
+                <div class="ticker-item">
+                    <div class="t-coin">₹</div>
+                    <div><strong>Wa***m K.</strong><br><small>Withdrawal successful — <strong>₹100</strong></small></div>
+                </div>
+                <div class="ticker-item">
+                    <div class="t-coin">₹</div>
+                    <div><strong>Tu***r P.</strong><br><small>Withdrawal successful — <strong>₹300</strong></small></div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- WALLET VIEW -->
-        <div id="wallet-view" class="view-section">
-            <div class="back-nav" onclick="switchView('home-view')"><i class="fas fa-arrow-left"></i> My Wallet</div>
-            <div class="wallet-top-card">
-                <small style="color: #aaa;">Total Balance</small>
-                <h1>🪙 <span id="wallet-total-coins">11</span></h1>
+        <!-- WALLET TAB -->
+        <div id="wallet-tab" class="app-tab-content" style="display:none;">
+            <div class="wallet-header-card">
+                <div class="big-coin-icon">🪙</div>
+                <h1 id="wallet-total-balance">11</h1>
             </div>
             <div class="wallet-breakdown-grid">
-                <div class="w-box"><i class="fas fa-coins"></i><hd>11</hd><small>Deposited</small></div>
-                <div class="w-box"><i class="fas fa-trophy"></i><hd>0</hd><small>Winning</small></div>
-                <div class="w-box"><i class="fas fa-gift"></i><hd>0</hd><small>Bonus</small></div>
+                <div class="wb-box">
+                    <span>🪙 <strong id="dep-bal">11</strong></span>
+                    <small>Deposited</small>
+                </div>
+                <div class="wb-box">
+                    <span>🪙 <strong id="win-bal">0</strong></span>
+                    <small>Winning</small>
+                </div>
+                <div class="wb-box">
+                    <span>🪙 <strong id="bon-bal">0</strong></span>
+                    <small>Bonus</small>
+                </div>
             </div>
             <div class="wallet-actions-grid">
-                <button class="e-action-btn" onclick="switchView('add-coins-view')"><i class="fas fa-plus-circle"></i> Add Coins</button>
-                <button class="e-action-btn" onclick="switchView('withdraw-view')"><i class="fas fa-arrow-circle-down"></i> Withdraw Coins</button>
-                <button class="e-action-btn" onclick="switchView('transactions-view')"><i class="fas fa-history"></i> Transactions</button>
+                <button class="wallet-action-btn" onclick="openAddCoinsModal()">
+                    <i class="fa-solid fa-wallet"></i> Add Coins
+                </button>
+                <button class="wallet-action-btn" onclick="openWithdrawModal()">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Withdraw Coins
+                </button>
+                <button class="wallet-action-btn" onclick="openTransactions()">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Transactions
+                </button>
             </div>
+            <!-- NOTE: Aapka existing UPI payment code yahan seamlessly attach rahega -->
         </div>
 
-                <!-- ADD COINS SUB-VIEW -->
-        <div id="add-coins-view" class="view-section">
-            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Add Coins</div>
-            
-            <!-- Step 1: Pay via UPI -->
-            <div class="card">
-                <p>Enter Coins to Add (Min 10):</p>
-                <input type="number" id="coin-amount-input" placeholder="e.g. 100">
-                <button class="btn-primary" onclick="openUpiApp()">1. Open UPI App & Pay</button>
+        <!-- PROFILE TAB -->
+        <div id="profile-tab" class="app-tab-content" style="display:none;">
+            <div class="profile-card-top">
+                <div class="profile-avatar">👦</div>
+                <h3>Username : <span id="profile-username">Abhishek</span></h3>
+                <span class="kyc-badge">Kyc Verified</span>
             </div>
 
-            <!-- Step 2: Submit UTR / Proof -->
-            <div class="card" style="margin-top: 15px;">
-                <h4 style="color: #ffa502; margin-bottom: 10px; font-size: 14px;">Payment Done? Submit UTR:</h4>
-                <p style="font-size: 12px; color: #aaa; margin-bottom: 8px;">Payment karne ke baad yahan Transaction ID (UTR) daalein:</p>
-                <input type="text" id="utr-input" placeholder="Enter 12-digit UTR Number">
-                <button class="btn-primary" style="background: #2ecc71; color: #fff; margin-top: 10px;" onclick="submitPaymentProof()">2. Submit Payment Proof</button>
-            </div>
-        </div>
-
-        <!-- WITHDRAW SUB-VIEW -->
-        <div id="withdraw-view" class="view-section">
-            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Withdraw Coins</div>
-            <div class="card">
-                <p>Enter UPI ID:</p>
-                <input type="text" placeholder="username@upi">
-                <p style="margin-top:10px;">Withdrawal Amount:</p>
-                <input type="number" placeholder="Min 50 coins">
-                <button class="btn-primary" style="margin-top:15px;" onclick="alert('Withdrawal request submitted!')">Request Withdrawal</button>
-            </div>
-        </div>
-
-        <!-- TRANSACTIONS SUB-VIEW -->
-        <div id="transactions-view" class="view-section">
-            <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Transactions History</div>
-            <div class="card" style="text-align: center; color: #aaa;">
-                <p>No recent transactions found.</p>
-            </div>
-        </div>
-
-        <!-- PROFILE VIEW -->
-        <div id="profile-view" class="view-section">
-            <div class="profile-header-card">
-                <div class="pro-avatar"><i class="fas fa-user-graduate"></i></div>
-                <h3 style="color:#fff;">Username : Gamer</h3>
-                <span class="kyc-badge"><i class="fas fa-check-circle"></i> Verified Player</span>
-            </div>
-
-            <div class="profile-stats-grid">
+            <div class="profile-stats-box">
                 <div><h4>5</h4><small>Matches Played</small></div>
                 <div><h4>0</h4><small>Total Kills</small></div>
                 <div><h4>0</h4><small>PlayCoin Won</small></div>
             </div>
 
             <div class="profile-menu-list">
-                <div class="menu-item" onclick="switchView('wallet-view')"><i class="fas fa-wallet"></i><span>My Wallet</span><i class="fas fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="switchView('matches-view')"><i class="fas fa-gamepad"></i><span>My Matches</span><i class="fas fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="switchView('refer-view')"><i class="fas fa-share-alt"></i><span>Refer & Earn</span><i class="fas fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="switchView('support-view')"><i class="fas fa-headset"></i><span>Support</span><i class="fas fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchTab('profile')"><i class="fa-solid fa-user"></i> My Profile <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="switchTab('wallet')"><i class="fa-solid fa-wallet"></i> My Wallet <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openStatics()"><i class="fa-solid fa-chart-column"></i> My Statics <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openTopPlayers()"><i class="fa-solid fa-trophy"></i> Top Players <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openRefer()"><i class="fa-solid fa-user-plus"></i> Refer & Earn <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openNotifications()"><i class="fa-solid fa-bell"></i> Notifications <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openSupport()"><i class="fa-solid fa-headset"></i> Contact Us <i class="fa-solid fa-chevron-right"></i></div>
+                
+                <!-- Toggles -->
+                <div class="menu-item toggle-item">
+                    <span><i class="fa-solid fa-bell-slash"></i> Importance Notice</span>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+                <div class="menu-item toggle-item">
+                    <span><i class="fa-solid fa-music"></i> Music</span>
+                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                </div>
+
+                <div class="menu-item" onclick="openFAQ()"><i class="fa-solid fa-circle-question"></i> FAQ <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openAbout()"><i class="fa-solid fa-circle-info"></i> About Us <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openPrivacy()"><i class="fa-solid fa-lock"></i> Privacy Policy <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item" onclick="openTerms()"><i class="fa-solid fa-shield"></i> Terms & Conditions <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="menu-item logout-item" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout <i class="fa-solid fa-chevron-right"></i></div>
             </div>
+            <p class="app-version">App Version: v1.11</p>
         </div>
 
-        <!-- MATCHES SUB-VIEW -->
-        <div id="matches-view" class="view-section">
-            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> My Matches</div>
-            <div class="card"><p style="color:#aaa;">You have played 5 custom room matches.</p></div>
+    </main>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="switchTab('offer')">
+            <i class="fa-solid fa-percent"></i>
+            <span>Offer</span>
         </div>
-
-        <!-- REFER SUB-VIEW -->
-        <div id="refer-view" class="view-section">
-            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> Refer & Earn</div>
-            <div class="refer-banner">
-                <div class="refer-icon"><i class="fas fa-users"></i></div>
-                <h3>Invite Friends & Earn</h3>
-                <p>Share your referral link and get coins per join.</p>
-                <button class="btn-primary" style="margin-top:15px;" onclick="alert('Referral link copied!')">Copy Invite Link</button>
-            </div>
+        <div class="nav-item" onclick="switchTab('ranking')">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Ranking</span>
         </div>
-
-        <!-- SUPPORT SUB-VIEW -->
-        <div id="support-view" class="view-section">
-            <div class="back-nav" onclick="switchView('profile-view')"><i class="fas fa-arrow-left"></i> Support</div>
-            <div class="card">
-                <p style="margin-bottom: 10px;">Need help? Contact us on Telegram:</p>
-                <a href="#" class="tg-btn"><i class="fab fa-telegram"></i> Join Support Channel</a>
-            </div>
+        <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
         </div>
-
-    </div>
-
-    <!-- FIXED BOTTOM NAVIGATION BAR -->
-    <nav class="tab-bar">
-        <button class="tab-btn" id="nav-offer" onclick="switchView('offer-view')"><i class="fas fa-percentage"></i>Offer</button>
-        <button class="tab-btn" id="nav-ranking" onclick="switchView('ranking-view')"><i class="fas fa-trophy"></i>Ranking</button>
-        <button class="tab-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fas fa-home"></i>Home</button>
-        <button class="tab-btn" id="nav-wallet" onclick="switchView('wallet-view')"><i class="fas fa-wallet"></i>Wallet</button>
-        <button class="tab-btn" id="nav-profile" onclick="switchView('profile-view')"><i class="fas fa-user"></i>Profile</button>
+        <div class="nav-item" onclick="switchTab('wallet')" id="nav-wallet">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Wallet</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Profile</span>
+        </div>
     </nav>
+
+    <!-- FLOATING SUPPORT BUTTON -->
+    <div class="floating-support" onclick="openSupport()">
+        <i class="fa-solid fa-headset"></i>
+    </div>
 
     <script src="script.js"></script>
 </body>
