@@ -314,19 +314,28 @@
 
     <script>
                 window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        const authScreen = document.getElementById('auth-screen');
-        if (authScreen) authScreen.style.display = 'none';
+    const authScreen = document.getElementById('auth-screen');
+    const mainApp = document.getElementById('main-app-container');
 
-        const mainApp = document.getElementById('main-app-container');
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        if (authScreen) authScreen.style.display = 'none';
         if (mainApp) mainApp.style.display = 'block';
 
-        // Yahan home-view active karne ka code joda hai
         const homeView = document.getElementById('home-view');
         if (homeView) {
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
             homeView.classList.add('active');
         }
+
+        const savedName = localStorage.getItem('userName') || localStorage.getItem('savedName') || 'Gamer';
+        const displayNameEl = document.getElementById('user-display-name');
+        if (displayNameEl) displayNameEl.textContent = savedName;
+    } else {
+        if (authScreen) authScreen.style.display = 'block';
+        if (mainApp) mainApp.style.display = 'none';
+    }
+});
+
 
         const savedName = localStorage.getItem('userName') || localStorage.getItem('savedName') || 'Gamer';
         const displayNameEl = document.getElementById('user-display-name');
