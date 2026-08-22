@@ -138,38 +138,32 @@
         </div>
 
         <!-- WALLET TAB -->
-        <div id="wallet-tab" class="app-tab-content" style="display:none;">
-            <div class="wallet-header-card">
-                <div class="big-coin-icon">🪙</div>
-                <h1 id="wallet-total-balance">11</h1>
-            </div>
-            <div class="wallet-breakdown-grid">
-                <div class="wb-box">
-                    <span>🪙 <strong id="dep-bal">11</strong></span>
-                    <small>Deposited</small>
-                </div>
-                <div class="wb-box">
-                    <span>🪙 <strong id="win-bal">0</strong></span>
-                    <small>Winning</small>
-                </div>
-                <div class="wb-box">
-                    <span>🪙 <strong id="bon-bal">0</strong></span>
-                    <small>Bonus</small>
-                </div>
-            </div>
-            <div class="wallet-actions-grid">
-                <button class="wallet-action-btn" onclick="openAddCoinsModal()">
-                    <i class="fa-solid fa-wallet"></i> Add Coins
-                </button>
-                <button class="wallet-action-btn" onclick="openWithdrawModal()">
-                    <i class="fa-solid fa-money-bill-transfer"></i> Withdraw Coins
-                </button>
-                <button class="wallet-action-btn" onclick="openTransactions()">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Transactions
-                </button>
-            </div>
-            <!-- NOTE: Aapka existing UPI payment code yahan seamlessly attach rahega -->
+<div id="wallet-tab" class="app-tab-content" style="display:none;">
+    <div class="wallet-header-card">
+        <div class="big-coin-icon">🪙</div>
+        <h1 id="wallet-total-balance">0</h1>
+    </div>
+    <div class="wallet-breakdown-grid">
+        <div class="wb-box">
+            <span>🪙 <strong id="dep-bal">0</strong></span>
+            <small>Deposited</small>
         </div>
+        <div class="wb-box">
+            <span>🪙 <strong id="win-bal">0</strong></span>
+            <small>Winning</small>
+        </div>
+        <div class="wb-box">
+            <span>🪙 <strong id="bon-bal">0</strong></span>
+            <small>Bonus</small>
+        </div>
+    </div>
+    <div class="wallet-actions-grid">
+        <button class="wallet-action-btn" onclick="openAddCoinsModal()"><i class="fa-solid fa-wallet"></i> Add Coins</button>
+        <button class="wallet-action-btn" onclick="openWithdrawalModal()"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw Coins</button>
+        <button class="wallet-action-btn" onclick="openTransactions()"><i class="fa-solid fa-clock-rotate-left"></i> Transactions</button>
+    </div>
+</div>
+
 
         <!-- PROFILE TAB -->
         <div id="profile-tab" class="app-tab-content" style="display:none;">
