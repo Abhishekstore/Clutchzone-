@@ -36,30 +36,32 @@ window.switchTab = function(tabName) {
     }
 };
 
-// 3. CATEGORY CLICK HANDLER (Full Map, Survival, Clash Squad, Lone Wolf)
+// 3. CATEGORY CLICK HANDLER & DEBUGGING
 window.openCategory = function(catName) {
     localStorage.setItem('selectedCategory', catName);
-    loadTournamentsForCategory(catName);
-};
-
-// 4. FETCH TOURNAMENTS FROM FIRESTORE (Database check)
-function loadTournamentsForCategory(categoryName) {
-    db.collection('tournaments')
-        .where('category', '==', categoryName)
-        .where('active', '==', true)
-        .get()
+    
+    db.collection('tournaments').get()
         .then((querySnapshot) => {
             let count = querySnapshot.size;
             if (count === 0) {
-                alert("No active custom rooms found for " + categoryName + " right now. Check back later!");
+                alert("Database bilkul khali hai! Admin panel se koi tournament save hi nahi hua.");
             } else {
-                alert("Found " + count + " active tournament(s) for " + categoryName + "!");
+                let text = "📦 Database mein kul " + count + " tournament(s) hain:\n\n";
+                querySnapshot.forEach((doc) => {
+                    let d = doc.data();
+                    text += `🔹 Title: ${d.title || d.name || 'N/A'}\n`;
+                    text += `📂 Category Field: ${d.category || d.map || d.gameType || 'Not Found'}\n`;
+                    text += `💰 Entry: ₹${d.entryFee || d.entry || 0}\n-------------------\n`;
+                });
+                alert(text);
             }
         })
         .catch((error) => {
-            console.error("Error fetching tournaments: ", error);
+            console.error("Error: ", error);
+            alert("Error: " + error.message);
         });
-}
+};
+
 
 // 5. PROFILE, WALLET & HELPER BUTTON ACTIONS
 window.openTopPlayers = function() {
