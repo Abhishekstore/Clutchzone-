@@ -93,26 +93,28 @@ window.createTournament = function() {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        const hostCodeField = document.getElementById('hostCode') || document.getElementById('manage-host-code');
-        const titleField = document.getElementById('title');
-        const categoryField = document.getElementById('tournament-category');
-        const subModeField = document.getElementById('tournament-submode');
-        const entryField = document.getElementById('entry');
-        const prizeField = document.getElementById('prize');
-        const killField = document.getElementById('kill');
-        const timeField = document.getElementById('startTime');
+        // Saare possible IDs ka backup rakha hai taaki element miss na ho
+        const hostCodeField = document.getElementById('hostCode') || document.getElementById('manage-host-code') || document.getElementById('host-code');
+        const titleField = document.getElementById('title') || document.getElementById('match-title') || document.getElementById('tournament-title');
+        const categoryField = document.getElementById('tournament-category') || document.getElementById('category');
+        const subModeField = document.getElementById('tournament-submode') || document.getElementById('subMode');
+        const entryField = document.getElementById('entry') || document.getElementById('entryFee');
+        const prizeField = document.getElementById('prize') || document.getElementById('prizePool');
+        const killField = document.getElementById('kill') || document.getElementById('perKill');
+        const timeField = document.getElementById('startTime') || document.getElementById('start-time');
 
         const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
         const title = titleField ? titleField.value.trim() : '';
         const category = categoryField ? categoryField.value : 'Full Map';
-        const subMode = subModeField ? subModeField.value : '';
+        const subMode = subModeField ? subModeField.value : 'Solo';
         const entryFee = entryField ? Number(entryField.value) : 0;
         const prizePool = prizeField ? Number(prizeField.value) : 0;
         const perKill = killField ? Number(killField.value) : 0;
         const startTime = timeField ? timeField.value : '';
 
+        // Agar phir bhi khali milega toh alert mein bata dega
         if (!hostCode || !title) {
-            alert("Please enter Host Code and Title!");
+            alert("Please enter Host Code and Title! (Aapne jo bhara wo read nahi hua)");
             return;
         }
 
@@ -137,7 +139,6 @@ window.createTournament = function() {
         alert("Error: " + err.message);
     }
 };
-
 
 // --- 5. SAVE HOST PLAN ---
 window.saveHostPlan = function() {
