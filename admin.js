@@ -1,12 +1,14 @@
-// --- FIREBASE INITIALIZATION ---
-const firebaseConfig = {
-    apiKey: "AlzaSyAljgyhtyV0fGnicgCIT-JjUuny3zVLJ8",
-    authDomain: "ff-tournaments-af47a.firebaseapp.com",
-    projectId: "ff-tournaments-af47a",
-    storageBucket: "ff-tournaments-af47a.appspot.com",
-    messagingSenderId: "238745686365",
-    appId: "1:238745686365:web:03e9d5e1dd450dbe2d8b4"
-};
+// --- FIREBASE INITIALIZATION SAFE CHECK ---
+if (typeof firebaseConfig === 'undefined') {
+    var firebaseConfig = {
+        apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
+        authDomain: "ff-tournaments-af47a.firebaseapp.com",
+        projectId: "ff-tournaments-af47a",
+        storageBucket: "ff-tournaments-af47a.appspot.com",
+        messagingSenderId: "238745686365",
+        appId: "1:238745686365:web:03e9d5e1dd450dbe2d8b4"
+    };
+}
 
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -93,6 +95,7 @@ function createTournament() {
             prizePool: prizePool,
             perKill: perKill,
             startTime: startTime,
+            status: 'Upcoming',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(() => {
@@ -140,13 +143,76 @@ function saveHostPlan() {
     });
 }
 
-// --- 5. OTHER REQUIRED FUNCTIONS ---
+// --- 5. UPDATE ROOM CREDENTIALS ---
 function updateRoomCredentials() {
-    alert("Room Credentials Updated Successfully!");
+    const matchIdInput = document.querySelector('#room-section input') || document.querySelector('input[placeholder*="Match ID"]');
+    const matchId = matchIdInput ? matchIdInput.value.trim() : '';
+
+    if (!matchId) {
+        alert("Please enter Match ID!");
+        return;
+    }
+
+    db.collection('tournaments').doc(matchId).set({
+        roomIdUpdated: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).then(() => {
+        alert("🔑 Room Credentials Updated Successfully in Database!");
+    }).catch((err) => {
+        alert("Error updating room: " + err.message);
+    });
 }
 
+// --- 6. SUBMIT RESULT ---
 function submitResult() {
-    alert("Result Submitted Successfully!");
+    const inputs = document.querySelectorAll('input');
+    let matchId = '', uid = '', kills = 0, earnings = 0;
+
+    // Inputs ko automatically detect karna
+    inputs.forEach(input => {
+        const placeholder = (input.placeholder || '').toLowerCase();
+        if (placeholder.includes('match')) matchId = input.value.trim();
+        if (placeholder.includes('uid') || placeholder.includes('player')) uid = input.value.trim();
+        if (placeholder.includes('kill')) kills = Number(input.value) || 0;
+        if (placeholder.includes('earning') || placeholder.includes('prize')) earnings = Number(input.value) || 0;
+    });
+
+    if (!matchId || !uid) {
+        alert("Please enter Match ID and Player UID!");
+        return;
+    }
+
+    db.collection('results').add({
+        matchId: matchId,
+        playerUid: uid,
+        kills: kills,
+        earnings: earnings,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("✅ Result Submitted & Saved Successfully!");
+    }).catch((err) => {
+        alert("Error submitting result: " + err.message);
+    });
+}
+
+// --- 7. MARK MATCH COMPLETE ---
+function markMatchComplete() {
+    const matchIdInput = document.querySelector('input[placeholder*="Match ID"]');
+    const matchId = matchIdInput ? matchIdInput.value.trim() : '';
+
+    if (!matchId) {
+        alert("Please enter Match ID!");
+        return;
+    }
+
+    db.collection('tournaments').doc(matchId).set({
+        status: 'Completed',
+        completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).then(() => {
+        alert("🏁 Match Marked Complete Successfully!");
+    }).catch((err) => {
+        alert("Error: " + err.message);
+    });
 }
 
 // --- EVENT LISTENERS ---
