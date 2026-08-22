@@ -9,7 +9,15 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 // Smart updateSubMode function
+// Dono naam define kar diye hain taaki HTML ka mismatch khatam ho jaye
 function updateSubMode() {
+    runSubModeLogic();
+}
+function updateSubModes() {
+    runSubModeLogic();
+}
+
+function runSubModeLogic() {
     const categoryElement = document.getElementById('tournament-category') || document.getElementById('category');
     const subModeSelect = document.getElementById('tournament-submode') || document.getElementById('submode');
     
