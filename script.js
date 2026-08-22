@@ -298,11 +298,59 @@ function showMyContestsModal(statusType, contests) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
+// --- UPI ADD MONEY SYSTEM ---
 
 window.openAddCoinsModal = function() {
-    // Aapka existing UPI payment gateway yahan connect rahega
-    alert("Opening UPI Deposit Gateway...");
+    let existingModal = document.getElementById('add-money-modal');
+    if (existingModal) existingModal.remove();
+
+    let modalHTML = `
+    <div id="add-money-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
+        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:#ff9800; margin:0;">Add Money to Wallet</h3>
+                <button onclick="document.getElementById('add-money-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">X</button>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px; color:#ccc;">Enter Amount (₹):</label>
+                <input type="number" id="walletAmountInput" placeholder="e.g. 100" style="width:100%; padding:10px; margin-top:5px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:16px; box-sizing:border-box;">
+            </div>
+
+            <div style="background:#262626; padding:10px; border-radius:6px; font-size:12px; color:#aaa; margin-bottom:15px;">
+                💡 Button dabate hi aapke phone ke UPI apps khul jayenge. Apna PIN daal kar payment complete karein.
+            </div>
+
+            <button onclick="processUpiPayment()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:15px; cursor:pointer;">
+                Pay via UPI App
+            </button>
+        </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
+
+window.processUpiPayment = function() {
+    const amount = document.getElementById('walletAmountInput').value;
+    
+    if (!amount || amount <= 0) {
+        alert("Kripya sahi amount enter karein!");
+        return;
+    }
+
+    // ⚠️ IMPORTANT: Yahan apni asli UPI ID daal dena (jaise yourname@paytm, yourname@ybl, etc.)
+    const merchantUpiID = "kinggkwrd@okicici"; 
+    const merchantName = "Clutchzone";
+    const transactionNote = "Wallet Deposit";
+
+    // UPI Intent URL generate karna
+    const upiUrl = `upi://pay?pa=${merchantUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+
+    // User ke phone ke UPI apps par redirect karna
+    window.location.href = upiUrl;
+};
+
+
 
 window.openWithdrawModal = function() {
     alert("Opening Withdrawal Window...");
