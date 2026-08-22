@@ -99,13 +99,23 @@
             </div>
         </div>
 
-        <!-- ADD COINS SUB-VIEW -->
+                <!-- ADD COINS SUB-VIEW -->
         <div id="add-coins-view" class="view-section">
             <div class="back-nav" onclick="switchView('wallet-view')"><i class="fas fa-arrow-left"></i> Add Coins</div>
+            
+            <!-- Step 1: Pay via UPI -->
             <div class="card">
-                <p>Enter Coins to Add:</p>
-                <input type="number" placeholder="e.g. 100">
-                <button class="btn-primary" onclick="alert('Proceeding to Payment Gateway...')">Proceed to Pay</button>
+                <p>Enter Coins to Add (Min 10):</p>
+                <input type="number" id="coin-amount-input" placeholder="e.g. 100">
+                <button class="btn-primary" onclick="openUpiApp()">1. Open UPI App & Pay</button>
+            </div>
+
+            <!-- Step 2: Submit UTR / Proof -->
+            <div class="card" style="margin-top: 15px;">
+                <h4 style="color: #ffa502; margin-bottom: 10px; font-size: 14px;">Payment Done? Submit UTR:</h4>
+                <p style="font-size: 12px; color: #aaa; margin-bottom: 8px;">Payment karne ke baad yahan Transaction ID (UTR) daalein:</p>
+                <input type="text" id="utr-input" placeholder="Enter 12-digit UTR Number">
+                <button class="btn-primary" style="background: #2ecc71; color: #fff; margin-top: 10px;" onclick="submitPaymentProof()">2. Submit Payment Proof</button>
             </div>
         </div>
 
