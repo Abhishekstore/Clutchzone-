@@ -87,29 +87,12 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
         }
         if (d.status === 'Completed') return;
 
-        // --- SubMode ke hisab se Banner ka Color aur Text set karna ---
-        let mode = (d.subMode || 'Solo').toUpperCase();
-        let bannerBg = 'linear-gradient(135deg, #2b1055, #7597de)'; 
-        let badgeText = 'SOLO TOURNAMENT';
-
-        if (mode.includes('SQUAD') || mode.includes('4V4')) {
-            bannerBg = 'linear-gradient(135deg, #4a0e4e, #b71c1c)'; // Squad (Red/Purple)
-            badgeText = 'SQUAD TOURNAMENT';
-        } else if (mode.includes('DUO') || mode.includes('2V2')) {
-            bannerBg = 'linear-gradient(135deg, #0d47a1, #00838f)'; // Duo (Blue/Cyan)
-            badgeText = 'DUO TOURNAMENT';
-        } else {
-            bannerBg = 'linear-gradient(135deg, #1b5e20, #f57f17)'; // Solo (Green/Orange)
-            badgeText = 'SOLO TOURNAMENT';
-        }
-
         modalHTML += `
             <div style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:15px; color:white; font-family:sans-serif;">
                 
-                <!-- Dynamic Banner (Solo/Duo/Squad ke hisab se color change hoga) -->
-                <div style="width:100%; height:110px; background:${bannerBg}; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; margin-bottom:10px; text-align:center; padding:10px; box-sizing:border-box; border:1px solid rgba(255,255,255,0.2);">
-                    <span style="font-size:11px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; color:#ffeb3b; margin-bottom:4px; font-weight:bold;">${badgeText}</span>
-                    <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,0.8);">${d.title || 'Custom Room Tournament'}</span>
+                <!-- Top Banner Box (Exact screenshot jaisa) -->
+                <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:10px; text-align:center; padding:10px; box-sizing:border-box;">
+                    <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Custom Room Tournament'}</span>
                 </div>
 
                 <!-- Logo & Subtitle Section -->
