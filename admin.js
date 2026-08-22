@@ -1,3 +1,4 @@
+alert("Function chal gaya!");
 // --- FIREBASE INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyA1jgyhtyvOfGNicgcIT-JjUuny3zVLJ8",
