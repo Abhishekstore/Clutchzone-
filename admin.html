@@ -226,7 +226,13 @@
         }
     });
 </script>
-
+<!-- Error Catcher for Mobile -->
+<script>
+  window.onerror = function(msg, url, line) {
+    alert("Error: " + msg + " | Line: " + line);
+  };
+</script>
+    
 <!-- Firebase App SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <!-- Firebase Firestore SDK -->
