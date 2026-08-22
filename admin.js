@@ -347,4 +347,3 @@ window.rejectDeposit = function(docId) {
         console.log(err);
     });
 };
-
