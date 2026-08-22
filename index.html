@@ -365,6 +365,12 @@
 
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app-container').style.display = 'block';
+                const homeView = document.getElementById('home-view');
+if (homeView) {
+    document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+    homeView.classList.add('active');
+}
+                
                 alert("Registration Successful! Welcome to ClutchZone.");
             })
             .catch((error) => {
