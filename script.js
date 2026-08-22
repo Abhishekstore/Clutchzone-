@@ -137,7 +137,8 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                 </div>
 
                 <!-- Join Button -->
-                <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee})" style="width:100%; background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">JOIN MATCH</button>
+                <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee}, '${d.category}')" style="width:100%; background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">JOIN MATCH</button>
+                
             </div>
         `;
     });
@@ -150,24 +151,31 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-// 2. Slot Selection Screen (1 to 48 Slots)
-window.openSlotSelection = function(tournamentId, title, entryFee) {
+window.openSlotSelection = function(tournamentId, title, entryFee, category) {
+    // Agar CS ya Lone Wolf hai, toh slot selection skip karke seedha payment screen par bhejo
+    if (category === 'CS' || category === 'Lone Wolf') {
+        showPaymentScreen(tournamentId, title, entryFee, 'N/A');
+        return;
+    }
+
     let modalHTML = `
-    <div id="slot-selection-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:10000; overflow-y:auto; padding:20px; color:white; font-family:sans-serif;">
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button onclick="document.getElementById('slot-selection-modal').remove()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; margin-right:15px;">←</button>
-            <h2 style="margin:0; font-size:18px;">Choose your match slot</h2>
+    <div id="slot-selection-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:15px; box-sizing:border-box; font-family:sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background:#1c1c1c; padding:10px 15px; border-radius:8px; border:1px solid #333;">
+            <button onclick="document.getElementById('slot-selection-modal').remove()" style="background:#f44336; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Close</button>
+            <h2 style="color:#ff9800; margin:0; font-size:16px;">Choose your match slot</h2>
         </div>
-        <p style="color:#aaa; font-size:13px; margin-bottom:15px;">Tournament: ${title}</p>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:20px;" id="slots-grid">`;
+        <p style="color:#aaa; font-size:13px; margin-bottom:15px; text-align:center;">Tournament: ${title}</p>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+    `;
 
     for (let i = 1; i <= 48; i++) {
-        modalHTML += `<button onclick="selectThisSlot(${i}, '${tournamentId}', '${title}', ${entryFee})" style="background:#222; border:1px solid #555; color:white; padding:15px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer;" id="slot-btn-${i}">${i}</button>`;
+        modalHTML += `<button onclick="selectThisSlot(${i}, '${tournamentId}', '${title}', ${entryFee})" id="slot-btn-${i}" style="background:#222; color:#fff; border:1px solid #444; padding:12px 0; border-radius:6px; font-weight:bold; cursor:pointer;">${i}</button>`;
     }
 
     modalHTML += `</div></div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
+};
+
 
 let selectedSlotNumber = null;
 window.selectThisSlot = function(slotNum, tournamentId, title, entryFee) {
