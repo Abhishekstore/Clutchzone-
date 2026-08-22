@@ -313,4 +313,24 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRegisteredUsers();
     loadAdminData();
 });
+function switchSection(sectionId, btn) {
+    // Sabhi sections ko hide karo
+    document.querySelectorAll('.admin-section').forEach(sec => {
+        sec.style.display = 'none';
+    });
+    
+    // Sirf target section ko dikhao
+    const target = document.getElementById(sectionId);
+    if (target) {
+        target.style.display = 'block';
+    }
+    
+    // Buttons ki active class manage karo
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('active');
+    });
+    if (btn) {
+        btn.classList.add('active');
+    }
+}
 
