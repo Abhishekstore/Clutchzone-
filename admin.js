@@ -1,4 +1,3 @@
-alert("Function chal gaya!");
 // --- FIREBASE INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyA1jgyhtyvOfGNicgcIT-JjUuny3zVLJ8",
@@ -62,23 +61,14 @@ function switchSection(sectionId, btn) {
 
 // --- 3. CREATE TOURNAMENT FUNCTION ---
 function createTournament() {
-    const hostCodeField = document.getElementById('host-code') || document.getElementById('tournament-host');
-    const titleField = document.getElementById('tournament-title');
-    const categoryField = document.getElementById('tournament-category') || document.getElementById('category');
-    const subModeField = document.getElementById('tournament-submode') || document.getElementById('submode');
-    const entryField = document.getElementById('tournament-entry');
-    const prizeField = document.getElementById('tournament-prize');
-    const killField = document.getElementById('tournament-kill');
-    const timeField = document.getElementById('tournament-time');
-
-    const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
-    const title = titleField ? titleField.value.trim() : '';
-    const category = categoryField ? categoryField.value : 'Full Map';
-    const subMode = subModeField ? subModeField.value : '';
-    const entryFee = Number(entryField ? entryField.value : 0);
-    const prizePool = Number(prizeField ? prizeField.value : 0);
-    const perKill = Number(killField ? killField.value : 0);
-    const startTime = timeField ? timeField.value : 'TBD';
+    const hostCode = document.getElementById('host-code') ? document.getElementById('host-code').value.trim() : '';
+    const title = document.getElementById('tournament-title') ? document.getElementById('tournament-title').value.trim() : '';
+    const category = document.getElementById('tournament-category') ? document.getElementById('tournament-category').value : 'Full Map';
+    const subMode = document.getElementById('tournament-submode') ? document.getElementById('tournament-submode').value : '';
+    const entryFee = Number(document.getElementById('tournament-entry') ? document.getElementById('tournament-entry').value : 0);
+    const prizePool = Number(document.getElementById('tournament-prize') ? document.getElementById('tournament-prize').value : 0);
+    const perKill = Number(document.getElementById('tournament-kill') ? document.getElementById('tournament-kill').value : 0);
+    const startTime = document.getElementById('tournament-time') ? document.getElementById('tournament-time').value : 'TBD';
 
     if (!hostCode || !title) {
         alert("Please enter Host Code and Title!");
@@ -99,11 +89,12 @@ function createTournament() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         alert("🎉 Tournament Launched Successfully!");
-        if (titleField) titleField.value = '';
+        document.getElementById('tournament-title').value = '';
     }).catch((error) => {
         alert("Error: " + error.message);
     });
 }
+
 
 // --- 4. ACTIVATE / EXTEND HOST PLAN ---
 function saveHostPlan() {
