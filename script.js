@@ -124,12 +124,19 @@ function updateBottomNavActive(viewId) {
 /* =================================================================
    3. CATEGORIES & TOURNAMENTS LOGIC
    ================================================================= */
+
 function openCategory(catName) {
     console.log("Opening category:", catName);
-    // Dynamic content loading based on category clicked
-    alert("Loading live custom rooms for: " + catName);
-    // If you have a detail view container, populate it here
-    switchView('home-view');
+    
+    // Set category title dynamically
+    const titleSpan = document.getElementById('category-title');
+    const heading = document.getElementById('category-name-heading');
+    
+    if(titleSpan) titleSpan.innerText = catName;
+    if(heading) heading.innerText = catName + " Custom Rooms";
+    
+    // Switch view to category detail
+    switchView('category-detail-view');
 }
 
 function setupEventListeners() {
