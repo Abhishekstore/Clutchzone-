@@ -233,6 +233,34 @@ function requestWithdrawal(upiId, amount) {
     alert('Withdrawal request submitted successfully! UPI: ' + upiId);
     switchView('wallet-view');
 }
+function submitPaymentProof() {
+    const amount = document.getElementById('coin-amount-input').value;
+    const utr = document.getElementById('utr-input').value.trim();
+    
+    // Yahan apna WhatsApp Number daalein (Country code ke sath, bina '+' ke, jaise 919876543210)
+    const myWhatsAppNumber = "919304177952"; 
+
+    if (!amount || !utr) {
+        alert("Pehle amount aur UTR / Transaction ID dono bharein!");
+        return;
+    }
+
+    // Message format
+    const message = `Hello Admin, maine payment kiya hai!%0A%0AAmount: ${amount} Coins%0AUTR ID: ${utr}%0A%0APlease check and add coins.`;
+
+    // WhatsApp URL
+    const waUrl = `https://wa.me/${myWhatsAppNumber}?text=${message}`;
+
+    // Open WhatsApp
+    window.open(waUrl, '_blank');
+
+    alert("Ab aapko WhatsApp par redirect kiya ja raha hai, wahan 'Send' button dabayein!");
+    
+    // Clear inputs
+    document.getElementById('coin-amount-input').value = '';
+    document.getElementById('utr-input').value = '';
+    switchView('wallet-view');
+}
 
 
 /* =================================================================
