@@ -347,12 +347,15 @@ function updateSubMode() {
         `;
     } else if (category === 'CS') {
         subModeSelect.innerHTML = `
-            <option value="CS Squad">CS Squad</option>
+            <option value="1v1">1v1</option>
+            <option value="2v2">2v2</option>
+            <option value="4v4">4v4</option>
+            <option value="6v6">6v6</option>
         `;
     } else if (category === 'Lone Wolf') {
         subModeSelect.innerHTML = `
-            <option value="Lone Wolf 1v1">Lone Wolf 1v1</option>
-            <option value="Lone Wolf 2v2">Lone Wolf 2v2</option>
+            <option value="1v1">1v1</option>
+            <option value="2v2">2v2</option>
         `;
     } else {
         subModeSelect.innerHTML = `
