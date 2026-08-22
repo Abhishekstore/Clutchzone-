@@ -333,4 +333,26 @@ function switchSection(sectionId, btn) {
         btn.classList.add('active');
     }
 }
+function updateSubMode() {
+    const category = document.getElementById('tournament-category').value;
+    const subModeSelect = document.getElementById('tournament-submode');
+    
+    subModeSelect.innerHTML = '';
+    
+    if (category === 'Full Map') {
+        subModeSelect.innerHTML = `
+            <option value="Solo">Solo</option>
+            <option value="Duo">Duo</option>
+            <option value="Squad">Squad</option>
+        `;
+    } else if (category === 'Clash Squad') {
+        subModeSelect.innerHTML = `
+            <option value="CS Squad">CS Squad</option>
+        `;
+    } else {
+        subModeSelect.innerHTML = `
+            <option value="Custom Mode">Custom Mode</option>
+        `;
+    }
+}
 
