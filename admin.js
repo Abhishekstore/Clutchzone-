@@ -158,6 +158,159 @@ function loadRegisteredUsers() {
     userListDiv.innerHTML = "Error loading users: " + error.message;
   });
 }
+// --- DEPOSITS & WITHDRAWALS MANAGEMENT LOGIC ---
+function loadAdminData() {
+    loadPendingDeposits();
+    loadDepositHistory();
+    loadPendingWithdrawals();
+    loadWithdrawalHistory();
+}
 
-// Page load hote hi list automatically show ho jayegi
-document.addEventListener("DOMContentLoaded", loadRegisteredUsers);
+// --- DEPOSITS LOGIC ---
+function loadPendingDeposits() {
+    const container = document.getElementById('pending-deposits-list');
+    const list = JSON.parse(localStorage.getItem('esports_pending_deposits')) || [];
+
+    if (list.length === 0) {
+        container.innerHTML = '<p style="color: #aaa; font-size: 13px;">No pending deposits.</p>';
+        return;
+    }
+
+    let html = '';
+    list.forEach((item, index) => {
+        html += `
+            <div style="background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #f97316;">
+                <p><b>Amount:</b> 🪙 ${item.amount} Coins</p>
+                <p><b>UTR / Txn ID:</b> <span style="color: #38bdf8; user-select: all;">${item.utr}</span></p>
+                <p style="font-size: 11px; color: #aaa;">Date: ${item.date}</p>
+                <div style="margin-top: 8px; display: flex; gap: 10px;">
+                    <button class="btn-submit" style="background: #2ecc71; padding: 6px 12px;" onclick="processDeposit(${index}, 'Approved', ${item.amount}, '${item.utr}')">Approve</button>
+                    <button class="btn-submit" style="background: #e74c3c; padding: 6px 12px;" onclick="processDeposit(${index}, 'Rejected', ${item.amount}, '${item.utr}')">Reject</button>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function processDeposit(index, status, amount, utr) {
+    let pending = JSON.parse(localStorage.getItem('esports_pending_deposits')) || [];
+    let history = JSON.parse(localStorage.getItem('esports_deposit_history')) || [];
+
+    pending.splice(index, 1);
+    localStorage.setItem('esports_pending_deposits', JSON.stringify(pending));
+
+    history.unshift({ amount, utr, date: new Date().toLocaleString(), status });
+    localStorage.setItem('esports_deposit_history', JSON.stringify(history));
+
+    if (status === 'Approved') {
+        let currentTotal = parseInt(localStorage.getItem('esports_total')) || 0;
+        let currentDeposited = parseInt(localStorage.getItem('esports_deposited')) || 0;
+        localStorage.setItem('esports_total', currentTotal + parseInt(amount));
+        localStorage.setItem('esports_deposited', currentDeposited + parseInt(amount));
+        alert(`Deposit of ${amount} coins Approved successfully!`);
+    } else {
+        alert(`Deposit Rejected.`);
+    }
+    loadAdminData();
+}
+
+function loadDepositHistory() {
+    const container = document.getElementById('deposit-history-list');
+    const history = JSON.parse(localStorage.getItem('esports_deposit_history')) || [];
+
+    if (history.length === 0) {
+        container.innerHTML = '<p style="color: #aaa; font-size: 13px;">No history available.</p>';
+        return;
+    }
+
+    let html = '';
+    history.forEach(item => {
+        const color = item.status === 'Approved' ? '#2ecc71' : '#e74c3c';
+        html += `
+            <div style="background: #1e293b; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 13px;">
+                <span style="color: ${color}; font-weight: bold;">[${item.status}]</span> 
+                🪙 ${item.amount} Coins | UTR: ${item.utr} 
+                <div style="font-size: 10px; color: #aaa;">${item.date}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// --- WITHDRAWALS LOGIC ---
+function loadPendingWithdrawals() {
+    const container = document.getElementById('pending-withdrawals-list');
+    const list = JSON.parse(localStorage.getItem('esports_pending_withdrawals')) || [];
+
+    if (list.length === 0) {
+        container.innerHTML = '<p style="color: #aaa; font-size: 13px;">No pending withdrawals.</p>';
+        return;
+    }
+
+    let html = '';
+    list.forEach((item, index) => {
+        html += `
+            <div style="background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #38bdf8;">
+                <p><b>Amount:</b> 🪙 ${item.amount} Coins</p>
+                <p><b>UPI ID:</b> <span style="color: #ffa502; user-select: all;">${item.upiId}</span></p>
+                <p style="font-size: 11px; color: #aaa;">Date: ${item.date}</p>
+                <div style="margin-top: 8px; display: flex; gap: 10px;">
+                    <button class="btn-submit" style="background: #2ecc71; padding: 6px 12px;" onclick="processWithdrawal(${index}, 'Approved', ${item.amount}, '${item.upiId}')">Pay & Approve</button>
+                    <button class="btn-submit" style="background: #e74c3c; padding: 6px 12px;" onclick="processWithdrawal(${index}, 'Rejected', ${item.amount}, '${item.upiId}')">Reject & Refund</button>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function processWithdrawal(index, status, amount, upiId) {
+    let pending = JSON.parse(localStorage.getItem('esports_pending_withdrawals')) || [];
+    let history = JSON.parse(localStorage.getItem('esports_withdrawal_history')) || [];
+
+    pending.splice(index, 1);
+    localStorage.setItem('esports_pending_withdrawals', JSON.stringify(pending));
+
+    history.unshift({ upiId, amount, date: new Date().toLocaleString(), status });
+    localStorage.setItem('esports_withdrawal_history', JSON.stringify(history));
+
+    if (status === 'Rejected') {
+        let currentTotal = parseInt(localStorage.getItem('esports_total')) || 0;
+        let currentWinning = parseInt(localStorage.getItem('esports_winning')) || 0;
+        localStorage.setItem('esports_total', currentTotal + parseInt(amount));
+        localStorage.setItem('esports_winning', currentWinning + parseInt(amount));
+        alert(`Withdrawal rejected and coins refunded to user.`);
+    } else {
+        alert(`Withdrawal Approved! Please pay manually to UPI: ${upiId}`);
+    }
+    loadAdminData();
+}
+
+function loadWithdrawalHistory() {
+    const container = document.getElementById('withdrawal-history-list');
+    const history = JSON.parse(localStorage.getItem('esports_withdrawal_history')) || [];
+
+    if (history.length === 0) {
+        container.innerHTML = '<p style="color: #aaa; font-size: 13px;">No history available.</p>';
+        return;
+    }
+
+    let html = '';
+    history.forEach(item => {
+        const color = item.status === 'Approved' ? '#2ecc71' : '#e74c3c';
+        html += `
+            <div style="background: #1e293b; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 13px;">
+                <span style="color: ${color}; font-weight: bold;">[${item.status}]</span> 
+                🪙 ${item.amount} Coins -> UPI: ${item.upiId} 
+                <div style="font-size: 10px; color: #aaa;">${item.date}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+document.addEventListener('DOMContentLoaded', () => {
+    loadRegisteredUsers();
+    loadAdminData();
+});
+
