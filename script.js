@@ -11,11 +11,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// Page load hote hi check karein ki user logged-in hai ya nahi
+// Page load hote hi check karein aur Home View dikhayein
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') === 'true') {
         const authScreen = document.getElementById('auth-screen');
         if (authScreen) authScreen.style.display = 'none';
+        
+        // Agar switchView function hai, toh seedha Home View khol do
+        if (typeof switchView === 'function') {
+            switchView('home-view');
+        }
     }
 });
 
