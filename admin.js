@@ -276,3 +276,75 @@ document.addEventListener('change', function(e) {
         }
     }
 });
+// --- SAFE ADDITION FOR DEPOSITS & USERS IN ADMIN PANEL ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        loadPendingDepositsAdmin();
+        loadRegisteredUsersAdmin();
+    }, 1000);
+});
+
+// 1. Load Pending Deposits safely
+window.loadPendingDepositsAdmin = function() {
+    const db = getDb();
+    if (!db) return;
+
+    db.collection('deposits').where('status', '==', 'Pending').get().then((querySnapshot) => {
+        // Agar aapke HTML mein koi container hai, toh wahan dikhayega
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            let docId = doc.id;
+            console.log("Pending Deposit found:", data.username, data.amount);
+        });
+    }).catch(err => {
+        console.log("Error loading deposits: ", err);
+    });
+};
+
+// 2. Load Registered Users safely
+window.loadRegisteredUsersAdmin = function() {
+    const db = getDb();
+    if (!db) return;
+
+    db.collection('users').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            let user = doc.data();
+            console.log("Registered User:", user.name);
+        });
+    }).catch(err => {
+        console.log("Error loading users: ", err);
+    });
+};
+
+// 3. Approve Deposit Function
+window.approveDeposit = function(docId, username, amount) {
+    const db = getDb();
+    if (!db) { alert("Database not connected!"); return; }
+
+    db.collection('deposits').doc(docId).update({
+        status: 'Approved'
+    }).then(() => {
+        alert(`✅ Deposit approved for ${username} (₹${amount})!`);
+        location.reload();
+    }).catch(err => {
+        console.log(err);
+        alert("Error approving deposit.");
+    });
+};
+
+// 4. Reject Deposit Function
+window.rejectDeposit = function(docId) {
+    const db = getDb();
+    if (!db) { alert("Database not connected!"); return; }
+
+    db.collection('deposits').doc(docId).update({
+        status: 'Rejected'
+    }).then(() => {
+        alert("❌ Deposit rejected.");
+        location.reload();
+    }).catch(err => {
+        console.log(err);
+    });
+};
+
