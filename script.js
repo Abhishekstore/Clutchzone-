@@ -256,65 +256,79 @@ window.switchAuthTab = function(tab) {
         loginBtn.style.color = '#fff';
     }
 };
-
-// Register Function
+// 1. Register Function (Firebase Database ke sath)
 window.registerUser = function() {
-    const nameEl = document.getElementById('reg-name');
-    const phoneEl = document.getElementById('reg-phone');
-    const ffuidEl = document.getElementById('reg-ffuid');
-    const passwordEl = document.getElementById('reg-password');
-
-    if (!nameEl || !phoneEl || !ffuidEl || !passwordEl) return;
-
-    const name = nameEl.value.trim();
-    const phone = phoneEl.value.trim();
-    const ffuid = ffuidEl.value.trim();
-    const password = passwordEl.value.trim();
+    const name = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const ffuid = document.getElementById('reg-ffuid').value.trim();
+    const password = document.getElementById('reg-password').value.trim();
 
     if (!name || !phone || !ffuid || !password) {
         alert("Kripya sabhi details bharein!");
         return;
     }
 
-    localStorage.setItem('savedName', name);
-    localStorage.setItem('savedPhone', phone);
-    localStorage.setItem('savedPassword', password);
-    localStorage.setItem('savedFFUid', ffuid);
-
-    alert("Registration Successful! Ab aap Login kar sakte hain.");
-    switchAuthTab('login');
+    // Firestore mein phone number ko Document ID banakar save karein
+    db.collection('users').doc(phone).set({
+        name: name,
+        phone: phone,
+        ffuid: ffuid,
+        password: password,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        alert("Registration Successful! Ab aap Login kar sakte hain.");
+        switchAuthTab('login'); // Login tab par bhej dega
+    })
+    .catch((error) => {
+        alert("Error: " + error.message);
+    });
 };
 
-// Login Function
+// 2. Login Function (Firebase Database se check karega)
 window.loginUser = function() {
-    const inputIdEl = document.getElementById('login-username');
-    const passwordInputEl = document.getElementById('login-password');
+    const phone = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
 
-    if (!inputIdEl || !passwordInputEl) return;
-
-    const inputId = inputIdEl.value.trim();
-    const passwordInput = passwordInputEl.value.trim();
-
-    const savedPhone = localStorage.getItem('savedPhone');
-    const savedPassword = localStorage.getItem('savedPassword');
-    const savedName = localStorage.getItem('savedName') || 'Gamer';
-
-    if (!inputId || !passwordInput) {
-        alert("Kripya Phone/Email aur Password darj karein!");
+    if (!phone || !password) {
+        alert("Kripya Phone aur Password darj karein!");
         return;
     }
 
-    if (inputId === savedPhone && passwordInput === savedPassword) {
-        localStorage.setItem('isLoggedIn', 'true');
-        const authScreen = document.getElementById('auth-screen');
-        if (authScreen) authScreen.style.display = 'none';
-        const userDisplayName = document.getElementById('user-display-name');
-        if (userDisplayName) userDisplayName.textContent = savedName;
-        alert("Login Successful!");
-    } else {
-        alert("Galat Phone Number ya Password! Pehle Register karein.");
-    }
+    // Firestore se direct us phone number ka data nikalenge
+    db.collection('users').doc(phone).get()
+    .then((doc) => {
+        if (doc.exists) {
+            const userData = doc.data();
+            
+            // Check karein ki password match ho raha hai ya nahi
+            if (userData.password === password) {
+                // Session save kar lenge taki baaki app ko pata chale user logged in hai
+                localStorage.setItem('userPhone', phone);
+                localStorage.setItem('savedPhone', phone);
+                localStorage.setItem('savedName', userData.name || 'Gamer');
+                localStorage.setItem('savedFFUID', userData.ffuid || '');
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // Auth screen chupayein
+                const authScreen = document.getElementById('auth-screen');
+                if (authScreen) authScreen.style.display = 'none';
+
+                alert("Login Successful!");
+                location.reload(); // Page refresh karke app chalu kar dega
+            } else {
+                alert("Galat Password! Kripya dobara koshish karein.");
+            }
+        } else {
+            alert("Yeh Phone Number registered nahi hai! Pehle Register karein.");
+        }
+    })
+    .catch((error) => {
+        alert("Error: " + error.message);
+    });
 };
+
+
 
 function openHosting() {
     const isSubscribed = localStorage.getItem('isSubscribed');
