@@ -431,3 +431,129 @@ document.addEventListener('change', function(e) {
         }
     }
 });
+// --- HOST PLANS MANAGEMENT ADD-ON CODE ---
+
+// 1. Automatically inject User Name and Mobile fields inside Manage Host Plans section
+window.injectHostInputFields = function() {
+    let hostCodeInput = document.getElementById('manage-host-code');
+    if (hostCodeInput && !document.getElementById('host-user-name')) {
+        let parentBox = hostCodeInput.parentElement;
+        let wrapper = document.createElement('div');
+        wrapper.id = 'dynamic-host-inputs';
+        wrapper.innerHTML = `
+            <div style="margin-top:8px; text-align:left;">
+                <label style="font-size:12px; color:#aaa; display:block; margin-bottom:2px;">User Name:</label>
+                <input type="text" id="host-user-name" placeholder="Enter User Name" style="width:100%; padding:8px; margin-bottom:8px; background:#111; border:1px solid #555; color:white; border-radius:5px; box-sizing:border-box; font-size:14px;">
+                <label style="font-size:12px; color:#aaa; display:block; margin-bottom:2px;">Mobile / Email:</label>
+                <input type="text" id="host-user-mobile" placeholder="Enter Mobile or Email" style="width:100%; padding:8px; margin-bottom:8px; background:#111; border:1px solid #555; color:white; border-radius:5px; box-sizing:border-box; font-size:14px;">
+            </div>
+        `;
+        parentBox.insertBefore(wrapper, hostCodeInput.nextSibling);
+    }
+};
+
+// 2. Updated saveHostPlan function to include User Name & Mobile
+window.saveHostPlan = function() {
+    try {
+        const db = getDb();
+        if (!db) { alert("Database not connected!"); return; }
+
+        const hostCodeField = document.getElementById('manage-host-code');
+        const planTypeField = document.getElementById('manage-plan-type');
+        const userNameField = document.getElementById('host-user-name');
+        const userMobileField = document.getElementById('host-user-mobile');
+
+        const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
+        const planType = planTypeField ? planTypeField.value : '₹250 - 1 Month Plan';
+        const userName = userNameField ? userNameField.value.trim() : 'N/A';
+        const userMobile = userMobileField ? userMobileField.value.trim() : 'N/A';
+
+        if (!hostCode) {
+            alert("Please enter Host Code!");
+            return;
+        }
+
+        let days = 30;
+        if (planType.includes('3 Months') || planType.includes('650')) {
+            days = 90;
+        }
+
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + days);
+
+        db.collection('hosts').doc(hostCode).set({
+            hostCode: hostCode,
+            userName: userName,
+            userMobile: userMobile,
+            plan: planType,
+            active: true,
+            expiresAt: expiryDate,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).then(() => {
+            alert("✅ Host Plan Activated & Saved Successfully!");
+            location.reload();
+        }).catch((error) => {
+            alert("Error: " + error.message);
+        });
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+};
+
+// 3. Render Numbered Host List (1, 2, 3...)
+window.renderHostPlansList = function() {
+    const db = getDb();
+    if (!db) return;
+
+    db.collection('hosts').get().then((querySnapshot) => {
+        let targetDiv = document.getElementById('host-plans-list-container');
+        if (!targetDiv) {
+            let elements = document.querySelectorAll('*');
+            elements.forEach(el => {
+                if (el.innerText && el.innerText.includes('Manage Host Plans')) {
+                    let existing = el.querySelector('#host-plans-list-container');
+                    if (!existing) {
+                        let div = document.createElement('div');
+                        div.id = 'host-plans-list-container';
+                        div.style.marginTop = '15px';
+                        el.appendChild(div);
+                        targetDiv = div;
+                    } else {
+                        targetDiv = existing;
+                    }
+                }
+            });
+        }
+
+        if (targetDiv) {
+            let html = "<h4 style='color:#00e676; margin-top:20px; border-top:1px solid #444; padding-top:12px; text-align:left;'>Active Host List</h4>";
+            if (querySnapshot.empty) {
+                html += "<p style='color:#aaa; font-size:13px; text-align:left;'>No host plans activated yet.</p>";
+            } else {
+                let index = 1;
+                querySnapshot.forEach((doc) => {
+                    let host = doc.data();
+                    html += `
+                        <div style="background:#262626; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #444; text-align:left; color:white;">
+                            <p style="margin:0 0 6px 0; font-size:15px; color:#ff9800;"><b>${index}. Host ID: ${host.hostCode}</b></p>
+                            <p style="margin:4px 0; font-size:13px; color:#fff;"><b>User Name:</b> ${host.userName || 'N/A'}</p>
+                            <p style="margin:4px 0; font-size:13px; color:#ccc;"><b>Mobile / Email:</b> ${host.userMobile || 'N/A'}</p>
+                            <p style="margin:4px 0; font-size:12px; color:#00e676;"><b>Plan:</b> ${host.plan || 'N/A'}</p>
+                            <hr style="border:0; border-top:1px solid #555; margin:8px 0;">
+                        </div>
+                    `;
+                    index++;
+                });
+            }
+            targetDiv.innerHTML = html;
+        }
+    }).catch(err => console.log("Host list error:", err));
+};
+
+// Trigger functions on load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderHostPlansList();
+        injectHostInputFields();
+    }, 1000);
+});
