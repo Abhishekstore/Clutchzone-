@@ -42,16 +42,22 @@ window.openCategory = function(catName) {
     loadTournamentsForCategory(catName);
 };
 
+
 function loadTournamentsForCategory(categoryName) {
+    // Agar Clash Squad hai toh database ke liye usko 'CS' bana do
+    let dbCategory = categoryName;
+    if (categoryName === 'Clash Squad') {
+        dbCategory = 'CS';
+    }
+
     db.collection('tournaments')
-        .where('category', '==', categoryName)
+        .where('category', '==', dbCategory)
         .get()
         .then((querySnapshot) => {
             let count = querySnapshot.size;
             if (count === 0) {
                 alert("No custom rooms found for " + categoryName + " right now. Please create one from Admin panel!");
             } else {
-                // Tournament List Modal / Screen dikhane ke liye
                 showTournamentListModal(categoryName, querySnapshot);
             }
         })
