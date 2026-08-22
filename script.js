@@ -298,43 +298,59 @@ function showMyContestsModal(statusType, contests) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-// --- SECURE QR CODE & UTR DEPOSIT SYSTEM ---
+// --- COMPLETE UPI REDIRECT + QR CODE + UTR ADMIN SYSTEM ---
 
 window.openAddCoinsModal = function() {
     let existingModal = document.getElementById('add-money-modal');
     if (existingModal) existingModal.remove();
 
+    let defaultName = localStorage.getItem('temp_deposit_name') || (document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User");
+    let defaultAmount = localStorage.getItem('temp_deposit_amount') || '';
+
     let modalHTML = `
     <div id="add-money-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px; overflow-y:auto;">
         <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.5); text-align:center;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="color:#ff9800; margin:0;">Add Money via QR</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="color:#ff9800; margin:0;">Add Money to Wallet</h3>
                 <button onclick="document.getElementById('add-money-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">X</button>
             </div>
             
-            <p style="font-size:12px; color:#ccc; margin-bottom:8px;">Is QR Code ko kisi bhi UPI app se scan karke payment karein:</p>
-            
-            <!-- Aapka QR Code Image -->
-            <div style="background:white; padding:8px; border-radius:8px; display:inline-block; margin-bottom:8px;">
-                <img src="24455.jpg" alt="QR Code" style="width:150px; height:150px; object-fit:contain;">
-            </div>
-            
-            <div style="background:#262626; padding:6px; border-radius:6px; font-size:12px; color:#00e676; margin-bottom:12px; font-weight:bold;">
-                UPI ID: kinggkwrrd@okicici
+            <div style="margin-bottom:10px; text-align:left;">
+                <label style="font-size:12px; color:#ccc;">Aapka Naam:</label>
+                <input type="text" id="depositName" value="${defaultName}" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
             </div>
 
             <div style="margin-bottom:10px; text-align:left;">
-                <label style="font-size:12px; color:#ccc;">Enter Paid Amount (₹):</label>
-                <input type="number" id="depositAmount" placeholder="e.g. 100" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                <label style="font-size:12px; color:#ccc;">Amount (₹):</label>
+                <input type="number" id="depositAmount" value="${defaultAmount}" placeholder="e.g. 100" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
             </div>
 
-            <div style="margin-bottom:15px; text-align:left;">
-                <label style="font-size:12px; color:#ccc;">Enter 12-digit UTR / Ref Number:</label>
+            <!-- Step 1: Direct UPI App Redirect Button -->
+            <button onclick="redirectToUpiApp()" style="width:100%; background:#00e676; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:10px;">
+                1. Pay via UPI App (GPay/PhonePe)
+            </button>
+
+            <p style="font-size:11px; color:#aaa; margin:6px 0;">— YA PHIR QR CODE SCAN KAREIN —</p>
+            
+            <!-- Naya QR Code Display -->
+            <div style="background:white; padding:6px; border-radius:8px; display:inline-block; margin-bottom:6px;">
+                <img src="https://raw.githubusercontent.com/Abhisheksstore/Clutchzone/main/24455.jpg" alt="QR Code" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='24455.jpg'">
+            </div>
+            
+            <div style="background:#262626; padding:5px; border-radius:6px; font-size:12px; color:#00e676; margin-bottom:10px; font-weight:bold;">
+                UPI ID: kinggkwrrd@okicici
+            </div>
+
+            <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
+
+            <!-- Step 2: UTR Submission -->
+            <div style="text-align:left; margin-bottom:10px;">
+                <label style="font-size:12px; color:#ff9800; font-weight:bold;">2. Enter 12-digit UTR / Ref Number (Payment ke baad):</label>
                 <input type="text" id="depositUtr" placeholder="e.g. 4321XXXXXXXX" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
             </div>
 
-            <button onclick="submitDepositRequest()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">
-                Submit Deposit Request
+            <button onclick="submitDepositRequestToAdmin()" style="width:100%; background:#2196f3; color:white; border:none; padding:11px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">
+                Submit to Admin
             </button>
         </div>
     </div>`;
@@ -342,12 +358,37 @@ window.openAddCoinsModal = function() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-window.submitDepositRequest = function() {
+window.redirectToUpiApp = function() {
+    const amount = parseInt(document.getElementById('depositAmount').value);
+    const name = document.getElementById('depositName').value.trim();
+    
+    if (!amount || amount <= 0) {
+        alert("Kripya pehle sahi amount enter karein!");
+        return;
+    }
+    
+    localStorage.setItem('temp_deposit_amount', amount);
+    localStorage.setItem('temp_deposit_name', name);
+
+    const merchantUpiID = "kinggkwrrd@okicici"; 
+    const merchantName = "Clutchzone";
+    const transactionNote = "Wallet Deposit";
+    const upiUrl = `upi://pay?pa=${merchantUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+    
+    window.location.href = upiUrl;
+};
+
+window.submitDepositRequestToAdmin = function() {
+    const name = document.getElementById('depositName').value.trim();
     const amount = parseInt(document.getElementById('depositAmount').value);
     const utr = document.getElementById('depositUtr').value.trim();
     
+    if (!name) {
+        alert("Kripya apna naam enter karein!");
+        return;
+    }
     if (!amount || amount <= 0) {
-        alert("Kripya sahi amount enter karein!");
+        alert("Kripya amount enter karein!");
         return;
     }
     if (!utr || utr.length < 8) {
@@ -355,16 +396,16 @@ window.submitDepositRequest = function() {
         return;
     }
 
-    let username = document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User";
-
     db.collection('deposits').add({
-        username: username,
+        username: name,
         amount: amount,
         utr: utr,
         status: 'Pending',
         createdAt: new Date()
     }).then(() => {
-        alert("✅ Aapki deposit request admin ke paas bhej di gayi hai! Payment verify hone ke baad coins add kar diye jayenge.");
+        alert("✅ Aapki deposit request admin ke paas bhej di gayi hai! Verification ke baad coins add kar diye jayenge.");
+        localStorage.removeItem('temp_deposit_amount');
+        localStorage.removeItem('temp_deposit_name');
         document.getElementById('add-money-modal').remove();
     }).catch(err => {
         console.log(err);
@@ -390,7 +431,6 @@ window.updateWalletUI = function() {
 document.addEventListener("DOMContentLoaded", () => {
     updateWalletUI();
 });
-
 
 window.openWithdrawalModal = function() {
     showCustomModal("Withdrawal Request", `
