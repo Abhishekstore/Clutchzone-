@@ -204,40 +204,47 @@ function openDepositTelegram() {
 }
 
 // Save Profile Logic (LocalStorage based)
+// Save Profile Logic (Smart & Fixed)
 const saveProfileBtn = document.getElementById('save-profile-btn');
 if (saveProfileBtn) {
     saveProfileBtn.addEventListener('click', () => {
-        const ignEl = document.getElementById('ign-input');
-        const ffuidEl = document.getElementById('ffuid-input');
-        if (!ignEl || !ffuidEl) return;
+        const ignEl = document.getElementById('ign-input') || document.querySelector('input[placeholder*="IGN"]');
+        const ffuidEl = document.getElementById('ffuid-input') || document.querySelector('input[placeholder*="UID"]');
         
-        const ign = ignEl.value.trim();
-        const ffuid = ffuidEl.value.trim();
-
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        if (isLoggedIn !== 'true') {
-            alert("User not logged in! Pehle Login karein.");
+        if (!ignEl || !ffuidEl) {
+            alert("Profile input fields nahi mil rahe!");
             return;
         }
 
-        const userPhone = localStorage.getItem('savedPhone');
+        const ign = ignEl.value.trim();
+        const ffuid = ffuidEl.value.trim();
+
+        if (!ign || !ffuid) {
+            alert("Kripya Free Fire IGN aur UID dono bharein!");
+            return;
+        }
+
+        const userPhone = localStorage.getItem('savedPhone') || localStorage.getItem('userPhone');
         if (!userPhone) {
             alert("User data missing! Dobara login karein.");
             return;
         }
 
-        db.collection('users').doc(userPhone).set({ 
-            ign: ign, 
-            ffuid: ffuid, 
-            phone: userPhone 
-        }, { merge: true })
-        .then(() => {
+        db.collection('users').doc(userPhone).set({
+            ign: ign,
+            ffuid: ffuid,
+            phone: userPhone
+        }, { merge: true }).then(() => {
             alert("Profile Saved Successfully!");
             localStorage.setItem('savedFFName', ign);
-            localStorage.setItem('savedFFUid', ffuid);
+            localStorage.setItem('savedFFUID', ffuid);
+            location.reload(); // Save hote hi app categories ke sath khul jayega!
+        }).catch(err => {
+            alert("Error: " + err.message);
         });
     });
 }
+
 
 // Tab Switching Function for Login/Register
 window.switchAuthTab = function(tab) {
