@@ -150,14 +150,13 @@ function saveHostPlan() {
         alert("Error: " + error.message);
     });
 }
-
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
     updateSubMode();
 });
 
 document.addEventListener('change', function(e) {
-    if (e.target && (e.target.id === 'tournament-category' || e.target.id === 'category' || e.target.id === 'admin-category')) {
+    if (e.target && e.target.id === 'tournament-category') {
         updateSubMode();
     }
 });
@@ -174,3 +173,4 @@ document.addEventListener('click', function(e) {
         createTournament();
     }
 });
+
