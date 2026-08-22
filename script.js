@@ -114,7 +114,7 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                 <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; text-align:center; margin-bottom:12px; border:1px solid #383838;">
                     <div style="flex:1;">
                         <div style="font-size:10px; color:#aaa; font-weight:bold;">👑 ENTRY</div>
-                        <div style="font-size:14px; color:#00e676; font-weight:bold; margin-top:3px;">₹${d.entryFee || 0}</div>
+                        <div style="font-size:14px; color:#00e676; font-weight:bold; margin-top:3px;">₹${d.entryFee || d.entry_fee || d.fee || 0}</div>
                     </div>
                     <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444;">
                         <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
@@ -143,7 +143,7 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                 </div>
 
                 <!-- Join Button -->
-                <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee}, '${d.category}')" style="width:100%; background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">JOIN MATCH</button>
+                <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || d.entry_fee || d.fee || 0}, '${d.category}')" style="width:100%; ...">
                 
             </div>
         `;
