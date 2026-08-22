@@ -74,9 +74,9 @@ function createTournament() {
     const title = titleField ? titleField.value.trim() : '';
     const category = categoryField ? categoryField.value : 'Full Map';
     const subMode = subModeField ? subModeField.value : '';
-    const entry = entryField ? entryField.value : '0';
-    const prize = prizeField ? prizeField.value : '0';
-    const kill = killField ? killField.value : '0';
+    const entryFee = Number(entryField ? entryField.value : 0);
+    const prizePool = Number(prizeField ? prizeField.value : 0);
+    const perKill = Number(killField ? killField.value : 0);
     const startTime = timeField ? timeField.value : 'TBD';
 
     if (!hostCode || !title) {
@@ -89,14 +89,15 @@ function createTournament() {
         title: title,
         category: category,
         subMode: subMode,
-        entry: Number(entry) || 0,
-        prize: Number(prize) || 0,
-        kill: Number(kill) || 0,
+        entryFee: entryFee,
+        prizePool: prizePool,
+        perKill: perKill,
         startTime: startTime,
         status: 'Upcoming',
+        joinedCount: 0,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-        alert("🎉 Tournament Created Successfully!");
+        alert("🎉 Tournament Launched Successfully!");
         if (titleField) titleField.value = '';
     }).catch((error) => {
         alert("Error: " + error.message);
