@@ -204,22 +204,23 @@
     function updateSubMode() {
         const categoryElem = document.getElementById('tournament-category');
         const subModeElem = document.getElementById('tournament-submode');
-        
+
         if (!categoryElem || !subModeElem) return;
 
         const cat = categoryElem.value;
         subModeElem.innerHTML = '';
 
         if (cat === 'Full Map') {
-            subModeElem.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Duos)">Duo (24 Duos)</option><option value="Squad (12 Squads)">Squad (12 Squads)</option>';
+            subModeElem.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Players)">Duo (24 Players)</option>';
         } else if (cat === 'Survival') {
             subModeElem.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option>';
         } else if (cat === 'CS') {
-            subModeElem.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option><option value="4vs4">4vs4</option><option value="6vs6">6vs6</option>';
-        } else if (cat === 'Lone Wolf') {
             subModeElem.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option>';
+        } else if (cat === 'Lone Wolf') {
+            subModeElem.innerHTML = '<option value="1vs1">1vs1</option>';
         }
     }
+
     document.addEventListener('DOMContentLoaded', updateSubMode);
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'tournament-category') {
@@ -227,12 +228,6 @@
         }
     });
 </script>
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'tournament-category') {
-                updateSubMode();
-            }
-        });
-    </script>
 
 <!-- Firebase App SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
