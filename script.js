@@ -294,7 +294,7 @@ function handleLogout() {
 }
 function openUpiApp() {
     const amount = document.getElementById('coin-amount-input').value;
-    const myUpiId = "your_actual_upi@paytm"; // <--- Yahan apni asli UPI ID daal dena
+    const myUpiId = "kinggkwrd@okicici"; // <--- Yahan apni asli UPI ID daal dena
     const myName = "Esports Gaming";
 
     if (!amount || amount < 10) {
