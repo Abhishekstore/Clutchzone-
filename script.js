@@ -11,17 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// Page load hote hi check karein ki user logged-in hai ya nahi
-document.addEventListener('DOMContentLoaded', () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const authScreen = document.getElementById('auth-screen');
 
-    if (isLoggedIn === 'true') {
-        if (authScreen) {
-            authScreen.style.display = 'none';
-        }
-    }
-});
 
 let currentCategory = 'Full Map';
 let selectedTournamentId = null;
