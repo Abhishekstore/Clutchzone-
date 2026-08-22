@@ -77,6 +77,13 @@ function showTournamentListModal(categoryName, querySnapshot) {
     querySnapshot.forEach((doc) => {
         let d = doc.data();
         let docId = doc.id;
+        if (d.startTime) {
+    let matchTime = new Date(d.startTime);
+    let currentTime = new Date();
+    if (matchTime <= currentTime) return;
+}
+if (d.status === 'Completed') return;
+        
         modalHTML += `
         <div style="background:#222; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:15px; color:white;">
             <h3 style="margin:0 0 10px 0; color:#fff;">${d.title || 'Custom Room Tournament'}</h3>
