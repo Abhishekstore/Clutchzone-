@@ -1,0 +1,152 @@
+// --- FIREBASE INITIALIZATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyA1jgyhtyvOfGNicgcIT-JjUuny3zVLJ8",
+    authDomain: "ff-tournaments-af47a.firebaseapp.com",
+    projectId: "ff-tournaments-af47a",
+    storageBucket: "ff-tournaments-af47a.appspot.com",
+    messagingSenderId: "238745686365",
+    appId: "1:238745686365:web:83e96d5e1dd450dbe2d8b4"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// --- 1. DYNAMIC SUB-MODE LOGIC (Bulletproof) ---
+function updateSubMode() {
+    runSubModeLogic();
+}
+function updateSubModes() {
+    runSubModeLogic();
+}
+
+function runSubModeLogic() {
+    const categoryElement = document.getElementById('tournament-category') || document.getElementById('category') || document.getElementById('admin-category');
+    const subModeSelect = document.getElementById('tournament-submode') || document.getElementById('submode') || document.getElementById('admin-submode');
+    
+    if (!categoryElement || !subModeSelect) return;
+    
+    const category = categoryElement.value;
+    subModeSelect.innerHTML = '';
+    
+    if (category === 'Full Map') {
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option><option value="Duo (24 Duos)">Duo (24 Duos)</option><option value="Squad (12 Squads)">Squad (12 Squads)</option>';
+    } else if (category === 'Survival') {
+        subModeSelect.innerHTML = '<option value="Solo (48 Players)">Solo (48 Players)</option>';
+    } else if (category === 'CS') {
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option><option value="4vs4">4vs4</option><option value="6vs6">6vs6</option>';
+    } else if (category === 'Lone Wolf') {
+        subModeSelect.innerHTML = '<option value="1vs1">1vs1</option><option value="2vs2">2vs2</option>';
+    }
+}
+
+// --- 2. SECTION SWITCHING (Bottom Navigation) ---
+function switchSection(sectionId, btn) {
+    document.querySelectorAll('.admin-section').forEach(sec => {
+        sec.style.display = 'none';
+    });
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.style.display = 'block';
+    }
+    
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('active');
+    });
+    if (btn) {
+        btn.classList.add('active');
+    }
+}
+
+// --- 3. CREATE TOURNAMENT FUNCTION ---
+function createTournament() {
+    const hostCodeField = document.getElementById('host-code') || document.getElementById('tournament-host');
+    const titleField = document.getElementById('tournament-title');
+    const categoryField = document.getElementById('tournament-category') || document.getElementById('category');
+    const subModeField = document.getElementById('tournament-submode') || document.getElementById('submode');
+    const entryField = document.getElementById('tournament-entry');
+    const prizeField = document.getElementById('tournament-prize');
+    const killField = document.getElementById('tournament-kill');
+    const timeField = document.getElementById('tournament-time');
+
+    const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
+    const title = titleField ? titleField.value.trim() : '';
+    const category = categoryField ? categoryField.value : 'Full Map';
+    const subMode = subModeField ? subModeField.value : '';
+    const entry = entryField ? entryField.value : '0';
+    const prize = prizeField ? prizeField.value : '0';
+    const kill = killField ? killField.value : '0';
+    const startTime = timeField ? timeField.value : 'TBD';
+
+    if (!hostCode || !title) {
+        alert("Please enter Host Code and Title!");
+        return;
+    }
+
+    db.collection('tournaments').add({
+        hostCode: hostCode,
+        title: title,
+        category: category,
+        subMode: subMode,
+        entry: Number(entry) || 0,
+        prize: Number(prize) || 0,
+        kill: Number(kill) || 0,
+        startTime: startTime,
+        status: 'Upcoming',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("🎉 Tournament Created Successfully!");
+        if (titleField) titleField.value = '';
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+}
+
+// --- 4. ACTIVATE / EXTEND HOST PLAN ---
+function saveHostPlan() {
+    const hostCodeField = document.getElementById('manage-host-code') || document.getElementById('host-code-input');
+    const planTypeField = document.getElementById('manage-plan-type') || document.getElementById('plan-type');
+
+    const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
+    const planType = planTypeField ? planTypeField.value : '₹250 - 1 Month Plan';
+
+    if (!hostCode) {
+        alert("Please enter Host Code!");
+        return;
+    }
+
+    let days = 30;
+    if (planType.includes("3 Months") || planType.includes("650")) {
+        days = 90;
+    }
+
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+
+    db.collection('hosts').doc(hostCode).set({
+        hostCode: hostCode,
+        plan: planType,
+        active: true,
+        expiresAt: expiryDate
+    }, { merge: true }).then(() => {
+        alert("✅ Host Plan Activated Successfully for code: " + hostCode);
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+}
+
+// --- EVENT LISTENERS ---
+document.addEventListener('DOMContentLoaded', () => {
+    updateSubMode();
+});
+
+document.addEventListener('change', function(e) {
+    if (e.target && (e.target.id === 'tournament-category' || e.target.id === 'category' || e.target.id === 'admin-category')) {
+        updateSubMode();
+    }
+});
+
+window.addEventListener('load', () => {
+    updateSubMode();
+});
