@@ -60,43 +60,61 @@ function switchSection(sectionId, btn) {
 }
 
 // --- 3. CREATE TOURNAMENT FUNCTION ---
-
 function createTournament() {
-    const hostCode = document.getElementById('host-code') ? document.getElementById('host-code').value.trim() : '';
-    const title = document.getElementById('tournament-title') ? document.getElementById('tournament-title').value.trim() : '';
-    const category = document.getElementById('tournament-category') ? document.getElementById('tournament-category').value : 'Full Map';
-    const subMode = document.getElementById('tournament-submode') ? document.getElementById('tournament-submode').value : '';
-    const entryFee = Number(document.getElementById('tournament-entry') ? document.getElementById('tournament-entry').value : 0);
-    const prizePool = Number(document.getElementById('tournament-prize') ? document.getElementById('tournament-prize').value : 0);
-    const perKill = Number(document.getElementById('tournament-kill') ? document.getElementById('tournament-kill').value : 0);
-    const startTime = document.getElementById('tournament-time') ? document.getElementById('tournament-time').value : 'TBD';
+    try {
+        // Sabse pehle check karo ki Firebase aur db load hai ya nahi
+        if (typeof firebase === 'undefined' || typeof db === 'undefined') {
+            alert("Critical Error: Firebase ya 'db' load nahi hua hai! admin.html mein Firebase ki scripts check karo.");
+            return;
+        }
 
-    if (!hostCode || !title) {
-        alert("Please enter Host Code and Title!");
-        return;
+        const hostCodeField = document.getElementById('host-code');
+        const titleField = document.getElementById('tournament-title');
+        const categoryField = document.getElementById('tournament-category');
+        const subModeField = document.getElementById('tournament-submode');
+        const entryField = document.getElementById('tournament-entry');
+        const prizeField = document.getElementById('tournament-prize');
+        const killField = document.getElementById('tournament-kill');
+        const timeField = document.getElementById('tournament-time');
+
+        const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
+        const title = titleField ? titleField.value.trim() : '';
+        const category = categoryField ? categoryField.value : 'Full Map';
+        const subMode = subModeField ? subModeField.value : '';
+        const entryFee = Number(entryField ? entryField.value : 0);
+        const prizePool = Number(prizeField ? prizeField.value : 0);
+        const perKill = Number(killField ? killField.value : 0);
+        const startTime = timeField ? timeField.value : 'TBD';
+
+        if (!hostCode || !title) {
+            alert("Please enter Host Code and Title!");
+            return;
+        }
+
+        db.collection('tournaments').add({
+            hostCode: hostCode,
+            title: title,
+            category: category,
+            subMode: subMode,
+            entryFee: entryFee,
+            prizePool: prizePool,
+            perKill: perKill,
+            startTime: startTime,
+            status: 'Upcoming',
+            joinedCount: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            alert("🎉 Tournament Launched Successfully!");
+            if (titleField) titleField.value = '';
+        })
+        .catch((error) => {
+            alert("Firebase Error: " + error.message);
+        });
+
+    } catch (err) {
+        alert("JS Error: " + err.message);
     }
-
-    // Yeh batayega ki data Firebase ki taraf ja raha hai ya nahi
-    alert("Firebase par bhej rahe hain, ruko...");
-
-    db.collection('tournaments').add({
-        hostCode: hostCode,
-        title: title,
-        category: category,
-        subMode: subMode,
-        entryFee: entryFee,
-        prizePool: prizePool,
-        perKill: perKill,
-        startTime: startTime,
-        status: 'Upcoming',
-        joinedCount: 0,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        alert("🎉 Tournament Launched Successfully!");
-        document.getElementById('tournament-title').value = '';
-    }).catch((error) => {
-        alert("Firebase Error: " + error.message);
-    });
 }
 
 
