@@ -361,32 +361,129 @@ window.openTransactions = function() {
 };
 
 window.openStatics = function() {
-    alert("Opening User Statistics...");
+    showCustomModal("My Statistics", `
+        <div style="font-size:13px; color:#ccc;">
+            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between;">
+                <span>Total Tournaments Joined:</span>
+                <b style="color:#ff9800;">5</b>
+            </div>
+            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between;">
+                <span>Matches Won:</span>
+                <b style="color:#00e676;">0</b>
+            </div>
+            <div style="background:#222; padding:12px; border-radius:8px; display:flex; justify-content:space-between;">
+                <span>Total Earnings:</span>
+                <b style="color:#00e676;">₹0</b>
+            </div>
+        </div>
+    `);
+};
+
+window.openTopPlayers = function() {
+    showCustomModal("Top Players Leaderboard", `
+        <div style="font-size:13px;">
+            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span>🥇 1. AlphaStark</span>
+                <b style="color:#00e676;">₹2,450 Won</b>
+            </div>
+            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span>🥈 2. KillerX</span>
+                <b style="color:#00e676;">₹1,800 Won</b>
+            </div>
+        </div>
+    `);
 };
 
 window.openRefer = function() {
-    alert("Refer & Earn: Invite friends and get bonus coins!");
+    showCustomModal("Refer & Earn", `
+        <div style="text-align:center; font-size:13px; color:#ccc;">
+            <p>Invite friends and get <b style="color:#00e676;">₹10</b> bonus when they join!</p>
+            <div style="background:#111; border:1px dashed #555; padding:12px; border-radius:6px; margin:15px 0; font-size:16px; color:#ff9800; font-weight:bold;">
+                CLUTCH2026
+            </div>
+            <button onclick="alert('Referral link copied!');" style="background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer;">
+                Copy Link
+            </button>
+        </div>
+    `);
 };
 
 window.openNotifications = function() {
-    alert("No new notifications.");
+    showCustomModal("Notifications", `
+        <div style="font-size:13px; color:#ccc;">
+            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px;">
+                <b style="color:#ff9800;">🔥 New Tournament Live!</b>
+                <p style="margin:5px 0 0 0; color:#aaa; font-size:12px;">Full Map rooms open now. Join fast!</p>
+            </div>
+        </div>
+    `);
+};
+
+window.openSupport = function() {
+    showCustomModal("Contact Support", `
+        <div style="text-align:center; font-size:13px; color:#ccc;">
+            <p>Facing any issue? Join our official Telegram group:</p>
+            <a href="https://t.me/+oRx8lq1lACplOWFl" target="_blank" style="display:block; background:#0088cc; color:white; padding:12px; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:15px;">
+                📢 Join Telegram Support
+            </a>
+        </div>
+    `);
 };
 
 window.openFAQ = function() {
-    alert("Opening FAQ section...");
+    showCustomModal("FAQ & Rules", `
+        <div style="font-size:13px; color:#ccc; line-height:1.5;">
+            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px;">
+                <b style="color:#ff9800;">Q: Room ID kab milega?</b>
+                <p style="margin:5px 0 0 0; color:#aaa;">Ans: Match shuru hone se 10 minute pehle aapke 'Ongoing Contests' mein dikhega.</p>
+            </div>
+        </div>
+    `);
 };
 
 window.openAbout = function() {
-    alert("PLAYT24 - Professional Tournament Platform v1.11");
+    showCustomModal("About Clutchzone", `
+        <div style="font-size:13px; color:#ccc; line-height:1.6; text-align:left;">
+            <p style="text-align:center; color:#ff9800; font-weight:bold; font-size:15px;">CLUTCHZONE v1.11</p>
+            <p>India's ultimate competitive eSports platform built for Free Fire gamers to compete in custom rooms and win cash rewards.</p>
+        </div>
+    `);
 };
 
 window.openPrivacy = function() {
-    alert("Opening Privacy Policy...");
+    showCustomModal("Privacy Policy", `
+        <div style="font-size:12px; color:#ccc; line-height:1.5; max-height:260px; overflow-y:auto; padding-right:5px; text-align:left;">
+            <p><b style="color:#ff9800;">1. Information We Collect:</b><br>We collect your Free Fire username and match stats strictly for managing tournaments.</p>
+            <p><b style="color:#ff9800;">2. Data Security:</b><br>Your details are kept secure and never shared with third parties.</p>
+        </div>
+    `);
 };
 
 window.openTerms = function() {
-    alert("Opening Terms & Conditions...");
+    showCustomModal("Terms & Conditions", `
+        <div style="font-size:12px; color:#ccc; line-height:1.5; max-height:260px; overflow-y:auto; padding-right:5px; text-align:left;">
+            <p><b style="color:#ff9800;">1. Fair Play Policy:</b><br>Hacks or third-party tools are strictly prohibited. Violators will be banned.</p>
+            <p><b style="color:#ff9800;">2. Room Credentials:</b><br>Shared inside the app 10 minutes prior to match start.</p>
+        </div>
+    `);
 };
+
+// Modal Helper Function (Popups dikhane ke liye zaroori hai)
+function showCustomModal(title, contentHTML) {
+    let existing = document.getElementById('custom-action-modal');
+    if (existing) existing.remove();
+    let modalHTML = `
+    <div id="custom-action-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
+        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:360px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <h3 style="color:#ff9800; margin:0; font-size:16px;">${title}</h3>
+                <button onclick="document.getElementById('custom-action-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">X</button>
+            </div>
+            ${contentHTML}
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
 
 window.logout = function() {
     if(confirm("Are you sure you want to logout?")) {
