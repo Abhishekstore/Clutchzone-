@@ -636,3 +636,171 @@ window.logout = function() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("PLAYT24 User App Loaded Successfully!");
 });
+// --- NEW LOGIN & REGISTER SYSTEM (Add this at the very bottom of script.js) ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    checkAuthStatus();
+});
+
+window.checkAuthStatus = function() {
+    let isLoggedIn = localStorage.getItem('is_logged_in');
+    if (!isLoggedIn) {
+        showAuthModal();
+    } else {
+        let userName = localStorage.getItem('logged_in_username') || "User";
+        let profileEl = document.getElementById('profile-username');
+        if(profileEl) profileEl.innerText = userName;
+    }
+};
+
+window.showAuthModal = function() {
+    let existing = document.getElementById('auth-modal');
+    if (existing) existing.remove();
+
+    let modalHTML = `
+    <div id="auth-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:20000; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px; overflow-y:auto;">
+        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.8); text-align:center;">
+            <h2 id="auth-title" style="color:#ff9800; margin-top:0;">Login to Clutchzone</h2>
+            
+            <div style="display:flex; margin-bottom:15px; border-bottom:1px solid #444;">
+                <button id="tab-login-btn" onclick="switchAuthTab('login')" style="flex:1; background:none; border:none; color:#ff9800; padding:10px; font-weight:bold; cursor:pointer; border-bottom:2px solid #ff9800;">Login</button>
+                <button id="tab-reg-btn" onclick="switchAuthTab('register')" style="flex:1; background:none; border:none; color:#aaa; padding:10px; font-weight:bold; cursor:pointer;">Register</button>
+            </div>
+
+            <div id="login-form-div">
+                <div style="margin-bottom:12px; text-align:left;">
+                    <label style="font-size:12px; color:#ccc;">Mobile Number or Email:</label>
+                    <input type="text" id="login-identifier" placeholder="Enter mobile or email" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:15px; text-align:left;">
+                    <label style="font-size:12px; color:#ccc;">Password:</label>
+                    <input type="password" id="login-password" placeholder="Enter password" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <button onclick="handleLogin()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">Login</button>
+            </div>
+
+            <div id="register-form-div" style="display:none;">
+                <div style="margin-bottom:10px; text-align:left;">
+                    <label style="font-size:12px; color:#ccc;">Full Name:</label>
+                    <input type="text" id="reg-name" placeholder="Enter your name" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:10px; text-align:left;">
+                    <label style="font-size:12px; color:#ccc;">Mobile Number or Email:</label>
+                    <input type="text" id="reg-identifier" placeholder="Enter mobile or email" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:15px; text-align:left;">
+                    <label style="font-size:12px; color:#ccc;">Password:</label>
+                    <input type="password" id="reg-password" placeholder="Create password" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <button onclick="handleRegister()" style="width:100%; background:#2196f3; color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">Register & Login</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.switchAuthTab = function(tab) {
+    let loginDiv = document.getElementById('login-form-div');
+    let regDiv = document.getElementById('register-form-div');
+    let loginBtn = document.getElementById('tab-login-btn');
+    let regBtn = document.getElementById('tab-reg-btn');
+    let title = document.getElementById('auth-title');
+
+    if (tab === 'login') {
+        loginDiv.style.display = 'block';
+        regDiv.style.display = 'none';
+        loginBtn.style.color = '#ff9800';
+        loginBtn.style.borderBottom = '2px solid #ff9800';
+        regBtn.style.color = '#aaa';
+        regBtn.style.borderBottom = 'none';
+        title.innerText = 'Login to Clutchzone';
+    } else {
+        loginDiv.style.display = 'none';
+        regDiv.style.display = 'block';
+        regBtn.style.color = '#2196f3';
+        regBtn.style.borderBottom = '2px solid #2196f3';
+        loginBtn.style.color = '#aaa';
+        loginBtn.style.borderBottom = 'none';
+        title.innerText = 'Register on Clutchzone';
+    }
+};
+
+window.handleRegister = function() {
+    let name = document.getElementById('reg-name').value.trim();
+    let identifier = document.getElementById('reg-identifier').value.trim();
+    let password = document.getElementById('reg-password').value.trim();
+
+    if (!name || !identifier || !password) {
+        alert("Kripya sabhi fields bharein!");
+        return;
+    }
+
+    db.collection('users').doc(identifier).get().then((doc) => {
+        if (doc.exists) {
+            alert("Yeh mobile/email pehle se registered hai! Kripya Login karein.");
+            switchAuthTab('login');
+        } else {
+            db.collection('users').doc(identifier).set({
+                name: name,
+                identifier: identifier,
+                password: password,
+                createdAt: new Date()
+            }).then(() => {
+                localStorage.setItem('is_logged_in', 'true');
+                localStorage.setItem('logged_in_username', name);
+                localStorage.setItem('logged_in_identifier', identifier);
+                alert("✅ Registration successful!");
+                let modal = document.getElementById('auth-modal');
+                if (modal) modal.remove();
+                location.reload();
+            }).catch(err => {
+                console.log(err);
+                alert("Registration failed. Try again.");
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+        alert("Error checking user. Try again.");
+    });
+};
+
+window.handleLogin = function() {
+    let identifier = document.getElementById('login-identifier').value.trim();
+    let password = document.getElementById('login-password').value.trim();
+
+    if (!identifier || !password) {
+        alert("Kripya mobile/email aur password daalein!");
+        return;
+    }
+
+    db.collection('users').doc(identifier).get().then((doc) => {
+        if (!doc.exists) {
+            alert("Yeh user registered nahi hai! Kripya pehle Register karein.");
+            switchAuthTab('register');
+        } else {
+            let userData = doc.data();
+            if (userData.password === password) {
+                localStorage.setItem('is_logged_in', 'true');
+                localStorage.setItem('logged_in_username', userData.name);
+                localStorage.setItem('logged_in_identifier', userData.identifier);
+                alert("✅ Login successful!");
+                let modal = document.getElementById('auth-modal');
+                if (modal) modal.remove();
+                location.reload();
+            } else {
+                alert("❌ Galat password! Kripya dobara try karein.");
+            }
+        }
+    }).catch(err => {
+        console.log(err);
+        alert("Login error. Try again.");
+    });
+};
+
+window.logoutUser = function() {
+    localStorage.removeItem('is_logged_in');
+    localStorage.removeItem('logged_in_username');
+    localStorage.removeItem('logged_in_identifier');
+    alert("Aap logout ho chuke hain.");
+    location.reload();
+};
