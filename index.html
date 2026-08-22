@@ -321,6 +321,13 @@
         const mainApp = document.getElementById('main-app-container');
         if (mainApp) mainApp.style.display = 'block';
 
+        // Yahan home-view active karne ka code joda hai
+        const homeView = document.getElementById('home-view');
+        if (homeView) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            homeView.classList.add('active');
+        }
+
         const savedName = localStorage.getItem('userName') || localStorage.getItem('savedName') || 'Gamer';
         const displayNameEl = document.getElementById('user-display-name');
         if (displayNameEl) {
