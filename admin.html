@@ -67,22 +67,26 @@
             <h2>⚡ Create Tournament</h2>
             <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
             <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
-            <div class="row">
-    <div class="form-group"><label>Category</label>
+          <div class="row">
+    <div class="form-group">
+        <label>Category</label>
         <select id="tournament-category" onchange="updateSubMode()">
             <option value="Full Map">Full Map</option>
-            <option value="Clash Squad">Clash Squad</option>
-            <option value="Custom">Custom</option>
+            <option value="Survival">Survival</option>
+            <option value="CS">CS</option>
+            <option value="Lone Wolf">Lone Wolf</option>
         </select>
     </div>
-    <div class="form-group"><label>Sub-Mode</label>
+    <div class="form-group">
+        <label>Sub-Mode</label>
         <select id="tournament-submode">
-            <option value="Solo">Solo</option>
-            <option value="Duo">Duo</option>
-            <option value="Squad">Squad</option>
+            <option value="Solo (48 Players)">Solo (48 Players)</option>
+            <option value="Duo (24 Duos)">Duo (24 Duos)</option>
+            <option value="Squad (12 Squads)">Squad (12 Squads)</option>
         </select>
     </div>
 </div>
+
 
             <div class="row">
                 <div class="form-group"><label>Entry (₹)</label><input type="number" id="tournament-entry" placeholder="0"></div>
