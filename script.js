@@ -264,3 +264,48 @@ function handleLogout() {
         location.reload();
     }
 }
+function openUpiApp() {
+    const amount = document.getElementById('coin-amount-input').value;
+    const myUpiId = "your_actual_upi@paytm"; // <--- Yahan apni asli UPI ID daal dena
+    const myName = "Esports Gaming";
+
+    if (!amount || amount < 10) {
+        alert("Kam se kam 10 coins enter karein!");
+        return;
+    }
+
+    // UPI Deep Link jo GPay/PhonePe ko direct khol dega
+    const upiUrl = `upi://pay?pa=${myUpiId}&pn=${encodeURIComponent(myName)}&am=${amount}&cu=INR&tn=AddCoins_${amount}`;
+    
+    // Redirect to UPI App
+    window.location.href = upiUrl;
+}
+
+function submitPaymentProof() {
+    const amount = document.getElementById('coin-amount-input').value;
+    const utr = document.getElementById('utr-input').value.trim();
+
+    if (!amount || !utr) {
+        alert("Pehle amount aur UTR / Transaction ID dono bharein!");
+        return;
+    }
+
+    // Save pending deposit in localStorage (Aap ise admin panel ke liye use kar sakte hain)
+    let pendingDeposits = JSON.parse(localStorage.getItem('esports_pending_deposits')) || [];
+    pendingDeposits.unshift({
+        amount: amount,
+        utr: utr,
+        date: new Date().toLocaleString(),
+        status: 'Pending'
+    });
+    localStorage.setItem('esports_pending_deposits', JSON.stringify(pendingDeposits));
+
+    alert("Payment proof submitted successfully! Admin verification ke baad coins aapke wallet mein add kar diye jayenge.");
+    
+    // Clear inputs
+    document.getElementById('coin-amount-input').value = '';
+    document.getElementById('utr-input').value = '';
+    
+    switchView('wallet-view');
+}
+
