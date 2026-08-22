@@ -313,18 +313,22 @@
     <script src="script.js"></script>
 
     <script>
-                // 1. Check Login Status on Page Load & Set Username
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-app-container').style.display = 'block';
-                
-                // Saved name ko header mein set karein
-                const savedName = localStorage.getItem('userName');
-                if (savedName) {
-                    document.getElementById('user-display-name').textContent = savedName;
-                }
-            }
+                window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        const authScreen = document.getElementById('auth-screen');
+        if (authScreen) authScreen.style.display = 'none';
+
+        const mainApp = document.getElementById('main-app-container');
+        if (mainApp) mainApp.style.display = 'block';
+
+        const savedName = localStorage.getItem('userName') || localStorage.getItem('savedName') || 'Gamer';
+        const displayNameEl = document.getElementById('user-display-name');
+        if (displayNameEl) {
+            displayNameEl.textContent = savedName;
+        }
+    }
+});
+
         });
 
         // 2. User Registration Function (Saves Name & Updates Header)
