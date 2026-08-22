@@ -87,7 +87,7 @@ window.switchSection = function(sectionId, btn) {
     }
 };
 
-// --- 4. CREATE TOURNAMENT ---
+// --- 4. CREATE TOURNAMENT (Automatic Time Expiration Support ke sath) ---
 window.createTournament = function() {
     try {
         const db = getDb();
@@ -109,7 +109,7 @@ window.createTournament = function() {
         const entryFee = entryField ? Number(entryField.value) : 0;
         const prizePool = prizeField ? Number(prizeField.value) : 0;
         const perKill = killField ? Number(killField.value) : 0;
-        const startTime = timeField ? timeField.value : 'TBD';
+        const startTime = timeField ? timeField.value : '';
 
         if (!hostCode || !title) {
             alert("Please enter Host Code and Title!");
@@ -124,11 +124,12 @@ window.createTournament = function() {
             entryFee: entryFee,
             prizePool: prizePool,
             perKill: perKill,
-            startTime: startTime,
+            startTime: startTime, // Isme tournament ka exact time save hoga
             status: 'Upcoming',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            alert("🚀 Tournament Launched Successfully!");
+            alert("🚀 Tournament Launched Successfully! Time khatam hone par yeh automatic app se hat jayega.");
+            location.reload();
         }).catch((error) => {
             alert("Firebase Error: " + error.message);
         });
@@ -136,6 +137,7 @@ window.createTournament = function() {
         alert("Error: " + err.message);
     }
 };
+
 
 // --- 5. SAVE HOST PLAN ---
 window.saveHostPlan = function() {
