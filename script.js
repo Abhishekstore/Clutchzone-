@@ -395,6 +395,16 @@ function loadUserData() {
 
             const profileName = document.getElementById('user-display-name');
             if (profileName && data.ign) profileName.innerText = data.ign;
+                // Agar profile saved hai toh setup box ko chhupane ke liye
+    if (data.ign && data.ffuid) {
+        const profileBox = document.querySelector('input[placeholder*="IGN"]') || document.getElementById('profile-setup-section');
+        if (profileBox) {
+            // Iske aas-paas ka pura box hide karne ke liye
+            let parentBox = profileBox.closest('div') || profileBox.parentNode;
+            if (parentBox) parentBox.style.display = 'none';
+        }
+    }
+
         }
     });
 }
