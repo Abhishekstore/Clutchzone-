@@ -264,7 +264,8 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
         return;
     }
 
-    let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username');
+ let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username') || localStorage.getItem('logged_in_username');
+
 if (!currentUsername) {
     alert("Tournament join karne ke liye pehle login karein!");
     return;
