@@ -244,34 +244,41 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
         return;
     }
 
-    // Database mein joined match save karna
-    db.collection('joined_matches').add({
-        tournamentId: tournamentId,
-        slotNumber: slotNum,
-        playerName: playerName,
-        entryFee: entryFee,
-        joinedAt: new Date()
-    }).then(() => {
-                // 👇 Yeh code yahan paste karein
-        let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
-        let userRef = db.collection("users").doc(currentUsername);
-        userRef.get().then((doc) => {
-            if (doc.exists) {
-                let currentCoins = doc.data().coins || 0;
-                let updatedCoins = currentCoins - entryFee;
-                userRef.update({ coins: updatedCoins });
-            }
-        });
+    let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
+    let userRef = db.collection("users").doc(currentUsername);
 
-        alert("🎉 Successfully Joined Match at Slot " + slotNum + "!\nEntry fee deducted from wallet.");
-        let pModal = document.getElementById('payment-modal');
-        if(pModal) pModal.remove();
-        let tModal = document.getElementById('dynamic-tournament-modal');
-        if(tModal) tModal.remove();
-    }).catch((error) => {
-        alert("Error joining match: " + error.message);
+    // Pehle Firebase se user ka balance check karenge
+    userRef.get().then((doc) => {
+        let currentCoins = doc.exists ? (doc.data().coins || 0) : 0;
+
+        // Agar wallet mein paise entry fee se kam hain
+        if (currentCoins < entryFee) {
+            alert("⚠️ Insufficient balance! Aapke wallet mein 0 ya kam coins hain. Please pehle paise add karein.");
+            return; // Yahin rok dega, aage join nahi hone dega
+        }
+
+        // Agar balance poora hai, tabhi match join hoga aur paise katenge
+        db.collection('joined_matches').add({
+            tournamentId: tournamentId,
+            slotNumber: slotNum,
+            playerName: playerName,
+            entryFee: entryFee,
+            joinedAt: new Date()
+        }).then(() => {
+            let updatedCoins = currentCoins - entryFee;
+            userRef.update({ coins: updatedCoins }); // Wallet se fee minus hogi
+
+            alert("🎉 Successfully Joined Match at Slot " + slotNum + "!\nEntry fee deducted from wallet.");
+            let pModal = document.getElementById('payment-modal');
+            if (pModal) pModal.remove();
+            let tModal = document.getElementById('dynamic-tournament-modal');
+            if (tModal) tModal.remove();
+        }).catch((error) => {
+            alert("Error joining match: " + error.message);
+        });
     });
 };
+
 
 
 
