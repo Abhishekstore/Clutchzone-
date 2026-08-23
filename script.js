@@ -294,6 +294,8 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
             if (pModal) pModal.remove();
             let tModal = document.getElementById('dynamic-tournament-modal');
             if (tModal) tModal.remove();
+            showWhatsAppJoinPopup();
+
         }).catch((error) => {
             alert("Error joining match: " + error.message);
         });
