@@ -989,3 +989,34 @@ function loadUserWallet() {
 window.addEventListener("DOMContentLoaded", function() {
     loadUserWallet();
 });
+window.loadMatchLeaderboard = function(tournamentId) {
+    db.collection("joined_matches")
+        .where("tournamentId", "==", tournamentId)
+        .orderBy("kills", "desc")
+        .get()
+        .then((snapshot) => {
+            let leaderboardHTML = `<div style="padding:15px; color:#fff;"><h3>🏆 Match Leaderboard</h3><hr style="border-color:#444;">`;
+            let rank = 1;
+            
+            if(snapshot.empty) {
+                leaderboardHTML += `<p style="color:#aaa;">Abhi koi data available nahi hai.</p>`;
+            } else {
+                snapshot.forEach((doc) => {
+                    let data = doc.data();
+                    let kills = data.kills || 0;
+                    let earnings = data.earnings || 0;
+                    let playerName = data.playerName || "Player";
+                    
+                    leaderboardHTML += `<p style="margin:8px 0;"><b>#${rank}</b> ${playerName} — <b>${kills} Kills</b> (Won: ₹${earnings})</p>`;
+                    rank++;
+                });
+            }
+            leaderboardHTML += `</div>`;
+            
+            showCustomModal("Match Leaderboard", leaderboardHTML);
+        })
+        .catch((error) => {
+            console.error("Leaderboard error:", error);
+            alert("Leaderboard load karne mein error aaya.");
+        });
+};
