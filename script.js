@@ -321,7 +321,6 @@ window.toggleHelp = function() {
 
 // --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 
-// --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 window.filterContests = function (statusType) {
     let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
 
@@ -341,16 +340,22 @@ window.filterContests = function (statusType) {
                         let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
 
                         if (currentStatus === statusType.toLowerCase()) {
+                            // Room ID aur Password ko 'undefined' ya blank hone se bachane ka secure check
+                            let rId = tData.roomId || tData.room_id || tData.roomID;
+                            if (!rId || rId === "undefined" || rId === "null") rId = 'Not Provided Yet';
+
+                            let rPass = tData.roomPassword || tData.room_pass || tData.password;
+                            if (!rPass || rPass === "undefined" || rPass === "null") rPass = 'Not Provided Yet';
+
                             joinedList.push({
                                 title: tData.title || 'Custom Room Tournament',
                                 slot: matchData.slotNumber,
                                 playerName: matchData.playerName,
                                 entryFee: matchData.entryFee,
                                 prizePool: tData.prizePool || 0,
-                                roomId: tData.roomId || 'Not Provided Yet',
-                                roomId: tData.roomId || tData.room_id || tData.roomID || 'Not Provided Yet',
-roomPass: tData.roomPassword || tData.room_pass || tData.password || 'Not Provided Yet',
-
+                                roomId: rId,
+                                roomPass: rPass,
+                                status: currentStatus
                             });
                         }
                     }
@@ -366,6 +371,7 @@ roomPass: tData.roomPassword || tData.room_pass || tData.password || 'Not Provid
             alert("Error: " + error.message);
         });
 };
+
 
 
 
