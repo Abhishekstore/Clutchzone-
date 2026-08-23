@@ -141,11 +141,23 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                         <div style="color:#fff; font-weight:bold; font-size:11px; margin-top:2px;">${d.map || 'Bermuda'}</div>
                     </div>
                 </div>
+<!-- Progress Bar aur Side-by-Side JOIN Button Layout -->
+<div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px;">
+    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 5px;">
+        <span>Spots Left</span>
+        <span><b>Match Open</b></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- Progress Bar -->
+        <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
+            <div style="background: #ff9900; width: 50%; height: 100%;"></div>
+        </div>
+        <!-- Compact JOIN Button -->
+        <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || 0}, ${d.entryFee || 0}, 0)" style="background: #fff; color: #000; font-weight: bold; padding: 8px 22px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">JOIN</button>
+    </div>
+</div>
 
-                <!-- Join Button -->
-<button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || 0}, ${d.entryFee || 0}, 0)" style="background: linear-gradient(135deg, #ff9900, #ff5500); color: #fff; font-weight: bold; width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; margin-top: 10px; font-size: 15px; box-shadow: 0 4px 10px rgba(255, 153, 0, 0.3);">JOIN MATCH 🎮</button>
-
-        `;
+                
     });
 
     modalHTML += `
