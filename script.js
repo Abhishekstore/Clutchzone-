@@ -252,6 +252,17 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
         entryFee: entryFee,
         joinedAt: new Date()
     }).then(() => {
+                // 👇 Yeh code yahan paste karein
+        let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
+        let userRef = db.collection("users").doc(currentUsername);
+        userRef.get().then((doc) => {
+            if (doc.exists) {
+                let currentCoins = doc.data().coins || 0;
+                let updatedCoins = currentCoins - entryFee;
+                userRef.update({ coins: updatedCoins });
+            }
+        });
+
         alert("🎉 Successfully Joined Match at Slot " + slotNum + "!\nEntry fee deducted from wallet.");
         let pModal = document.getElementById('payment-modal');
         if(pModal) pModal.remove();
