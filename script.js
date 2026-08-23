@@ -123,21 +123,21 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                         </div>
                     </div>
 
-                    <!-- Entry Fee, Prize Pool, Per Kill -->
-                    <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; text-align:center; margin-bottom:12px;">
-                        <div style="flex:1;">
-                            <div style="font-size:10px; color:#aaa; font-weight:bold;">👑 ENTRY</div>
-                            <div style="font-size:14px; color:#00e676; font-weight:bold; margin-top:3px;">₹${d.entryFee || 0}</div>
-                        </div>
-                        <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444;">
-                            <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
-                            <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prizePool || 0}</div>
-                        </div>
-                        <div style="flex:1;">
-                            <div style="font-size:10px; color:#aaa; font-weight:bold;">🎯 KILL</div>
-                            <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 4}</div>
-                        </div>
-                    </div>
+                            <!-- Entry Fee, Prize Pool, Per Kill -->
+        <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-bottom:12px;">
+            <div style="flex:1;">
+                <div style="font-size:10px; color:#aaa; font-weight:bold;">👑 ENTRY</div>
+                <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
+            </div>
+            <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
+                <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
+                <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
+            </div>
+            <div style="flex:1; text-align:right;">
+                <div style="font-size:10px; color:#aaa; font-weight:bold;">🎯 KILL</div>
+                <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || d.kill || 0}</div>
+            </div>
+        </div>
 
                     <!-- Time, Type, Map Section -->
                     <div style="display:flex; justify-content:space-between; text-align:center; font-size:12px; margin-bottom:10px;">
@@ -165,7 +165,8 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                             <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
                                 <div style="background: #ff9900; width: ${progressPercent}%; height: 100%;"></div>
                             </div>
-                            <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || 0}, ${d.entryFee || 0}, 0)" style="background: #fff; color: #000; font-weight: bold; padding: 8px 22px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">JOIN</button>
+                            <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entry || 0}, ${d.entry || 0}, 0)" style="background: #fff; color: #000; font-weight: bold; padding: 8px 22px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">JOIN</button>
+
                         </div>
                     </div>
                 </div>
