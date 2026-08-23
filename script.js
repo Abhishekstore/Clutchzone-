@@ -352,8 +352,11 @@ window.filterContests = function (statusType) {
                         let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
 
                         if (currentStatus === statusType.toLowerCase()) {
-                            let rId = tData.roomId || tData.room_id || tData.roomID;
-                            if (!rId || rId === "undefined" || rId === "null") rId = 'Not Provided Yet';
+                            let rid = tData.roomId || tData.room_id || tData.roomID;
+if (!rid || rid === "undefined" || rid === "null") {
+    rid = "Not Provided Yet";
+}
+
 
                             let rPass = tData.roomPassword || tData.room_pass || tData.password;
                             if (!rPass || rPass === "undefined" || rPass === "null") rPass = 'Not Provided Yet';
