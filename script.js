@@ -251,22 +251,23 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
     userRef.get().then((doc) => {
         let currentCoins = doc.exists ? (doc.data().coins || 0) : 0;
 
-        // Agar wallet mein paise entry fee se kam hain
+        // Agar balance kam hai toh yahin rok dega
         if (currentCoins < entryFee) {
             alert("⚠️ Insufficient balance! Aapke wallet mein 0 ya kam coins hain. Please pehle paise add karein.");
-            return; // Yahin rok dega, aage join nahi hone dega
+            return;
         }
 
-        // Agar balance poora hai, tabhi match join hoga aur paise katenge
+        // Match save hoga aur username bhi jud jayega
         db.collection('joined_matches').add({
             tournamentId: tournamentId,
             slotNumber: slotNum,
             playerName: playerName,
             entryFee: entryFee,
+            username: currentUsername, // 👈 Username save ho raha hai
             joinedAt: new Date()
         }).then(() => {
             let updatedCoins = currentCoins - entryFee;
-            userRef.update({ coins: updatedCoins }); // Wallet se fee minus hogi
+            userRef.update({ coins: updatedCoins });
 
             alert("🎉 Successfully Joined Match at Slot " + slotNum + "!\nEntry fee deducted from wallet.");
             let pModal = document.getElementById('payment-modal');
@@ -278,7 +279,6 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
         });
     });
 };
-
 
 
 
@@ -298,47 +298,47 @@ window.toggleHelp = function() {
 
 // --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 
-window.filterContests = function(statusType) {
-    db.collection('joined_matches').get()
-        .then((snapshot) => {
-            let joinedList = [];
-            let promises = [];
+window.filterContests = function (statusType) {
+    let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
 
-            snapshot.forEach((doc) => {
-                let matchData = doc.data();
-                
-                let p = db.collection('tournaments').doc(matchData.tournamentId).get()
-                    .then((tDoc) => {
-                        if (tDoc.exists) {
-                            let tData = tDoc.data();
-                            let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
-                            
-                            if (currentStatus === statusType.toLowerCase()) {
-                                joinedList.push({
-                                    title: tData.title || 'Custom Room Tournament',
-                                    slot: matchData.slotNumber,
-                                    playerName: matchData.playerName,
-                                    entryFee: matchData.entryFee,
-                                    prizePool: tData.prizePool || 0,
-                                    roomID: tData.roomID || 'Not Provided Yet',
-                                    roomPass: tData.roomPassword || 'Not Provided Yet',
-                                    status: currentStatus
-                                });
-                            }
-                        }
-                    });
-                promises.push(p);
-            });
+    // Sirf logged-in user ka data fetch hoga
+    db.collection('joined_matches').where('username', '==', currentUsername).get().then((snapshot) => {
+        let joinedList = [];
+        let promises = [];
 
-            Promise.all(promises).then(() => {
-                showMyContestsModal(statusType, joinedList);
+        snapshot.forEach((doc) => {
+            let matchData = doc.data();
+            let p = db.collection('tournaments').doc(matchData.tournamentId).get().then((tDoc) => {
+                if (tDoc.exists) {
+                    let tData = tDoc.data();
+                    let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
+
+                    if (currentStatus === statusType.toLowerCase()) {
+                        joinedList.push({
+                            title: tData.title || 'Custom Room Tournament',
+                            slot: matchData.slotNumber,
+                            playerName: matchData.playerName,
+                            entryFee: matchData.entryFee,
+                            prizePool: tData.prizePool || 0,
+                            roomId: tData.roomId || 'Not Provided Yet',
+                            roomPass: tData.roomPassword || 'Not Provided Yet',
+                            status: currentStatus
+                        });
+                    }
+                }
             });
-        })
-        .catch((error) => {
-            console.error("Error fetching joined contests:", error);
-            alert("Error: " + error.message);
+            promises.push(p);
         });
+
+        Promise.all(promises).then(() => {
+            showMyContestsModal(statusType, joinedList);
+        });
+    }).catch((error) => {
+        console.error("Error fetching joined contests:", error);
+        alert("Error: " + error.message);
+    });
 };
+
 
 function showMyContestsModal(statusType, contests) {
     let existingModal = document.getElementById('my-contests-modal');
