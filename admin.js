@@ -93,26 +93,18 @@ window.createTournament = function() {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        const matchIdField = document.getElementById('tournament-match-id') || document.getElementById('match-id');
-        const hostCodeField = document.getElementById('host-code');
-        const titleField = document.getElementById('title') || document.getElementById('tournament-title');
-        const categoryField = document.getElementById('tournament-category');
-        const submodeField = document.getElementById('tournament-submode');
-        const entryField = document.getElementById('tournament-entry') || document.getElementById('entry');
-        const prizeField = document.getElementById('tournament-prize') || document.getElementById('prize');
-        const killField = document.getElementById('tournament-perkill') || document.getElementById('kill');
-        const timeField = document.getElementById('tournament-time') || document.getElementById('startTime');
-
-        const matchId = matchIdField ? matchIdField.value.trim() : "";
-        const hostCode = hostCodeField ? hostCodeField.value.trim() : "ADMIN";
-        const title = titleField ? titleField.value.trim() : "";
-        const category = categoryField ? categoryField.value : "Full Map";
-        const submode = submodeField ? submodeField.value : "Solo";
+        const matchId = document.getElementById('tournament-match-id')?.value.trim() || "";
+        const hostCode = document.getElementById('host-code')?.value.trim() || "ADMIN";
+        const title = document.getElementById('tournament-title')?.value.trim() || document.getElementById('title')?.value.trim() || "";
+        const category = document.getElementById('tournament-category')?.value || "Full Map";
+        const submode = document.getElementById('tournament-submode')?.value || "Solo";
         
-        const entry = entryField ? Number(entryField.value) || 0 : 0;
-        const prize = prizeField ? Number(prizeField.value) || 0 : 0;
-        const perKill = killField ? Number(killField.value) || 0 : 0;
-        const startTime = timeField ? timeField.value : "";
+        // Yahan input IDs ko aapke form ke mutabiq set kar diya hai
+        const entry = Number(document.getElementById('tournament-entry')?.value || document.getElementById('entry')?.value) || 0;
+        const prize = Number(document.getElementById('tournament-prize')?.value || document.getElementById('prize')?.value) || 0;
+        const perKill = Number(document.getElementById('kill')?.value || document.getElementById('tournament-perkill')?.value) || 0;
+        
+        const startTime = document.getElementById('tournament-time')?.value || "";
 
         if (!matchId || !title) {
             alert("Kripya Match ID aur Title zaroor bharein!");
@@ -125,14 +117,14 @@ window.createTournament = function() {
             title: title,
             category: category,
             submode: submode,
-            entry: entry,          // Correct key name matching script.js
-            prize: prize,          // Correct key name matching script.js
-            perKill: perKill,      // Correct key name matching script.js
+            entry: entry,
+            prize: prize,
+            perKill: perKill,
             startTime: startTime,
             status: "upcoming",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            alert("🚀 Tournament Successfully Launch ho gaya! (Entry: ₹" + entry + ", Prize: ₹" + prize + ")");
+            alert("🚀 Tournament Launch ho gaya! (Entry: ₹" + entry + ", Prize: ₹" + prize + ", Kill: ₹" + perKill + ")");
             location.reload();
         }).catch((error) => {
             alert("Firebase Error: " + error.message);
@@ -142,6 +134,7 @@ window.createTournament = function() {
         alert("Error: " + err.message);
     }
 };
+
 
 // --- 5. SAVE HOST PLAN ---
 window.saveHostPlan = function () {
