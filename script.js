@@ -758,10 +758,17 @@ function showCustomModal(title, contentHTML) {
 
 window.logout = function() {
     if(confirm("Are you sure you want to logout?")) {
+        // Yahan saara login data clear karna zaroori hai
+        localStorage.removeItem('is_logged_in');
+        localStorage.removeItem('loggedInUser');
+        localStorage.removeItem('username');
+        localStorage.removeItem('logged_in_username');
+        
         alert("Logged out successfully!");
         window.location.reload();
     }
 };
+
 
 // Initializer
 document.addEventListener('DOMContentLoaded', () => {
