@@ -143,9 +143,8 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                 </div>
 
                 <!-- Join Button -->
-                <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || d.entry_fee || d.fee || 0}, '${d.category}')" style="width:100%; ...">
-                
-            </div>
+<button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entryFee || 0}, ${d.entryFee || 0}, 0)" style="background: linear-gradient(135deg, #ff9900, #ff5500); color: #fff; font-weight: bold; width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; margin-top: 10px; font-size: 15px; box-shadow: 0 4px 10px rgba(255, 153, 0, 0.3);">JOIN MATCH 🎮</button>
+
         `;
     });
 
