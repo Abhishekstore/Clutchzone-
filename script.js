@@ -321,46 +321,51 @@ window.toggleHelp = function() {
 
 // --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 
+// --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 window.filterContests = function (statusType) {
     let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
 
     // Sirf logged-in user ka data fetch hoga
-    db.collection('joined_matches').where('username', '==', currentUsername).get().then((snapshot) => {
-        let joinedList = [];
-        let promises = [];
+    db.collection('joined_matches')
+        .where('username', '==', currentUsername)
+        .get()
+        .then((snapshot) => {
+            let joinedList = [];
+            let promises = [];
 
-        snapshot.forEach((doc) => {
-            let matchData = doc.data();
-            let p = db.collection('tournaments').doc(matchData.tournamentId).get().then((tDoc) => {
-                if (tDoc.exists) {
-                    let tData = tDoc.data();
-                    let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
+            snapshot.forEach((doc) => {
+                let matchData = doc.data();
+                let p = db.collection('tournaments').doc(matchData.tournamentId).get().then((tDoc) => {
+                    if (tDoc.exists) {
+                        let tData = tDoc.data();
+                        let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
 
-                    if (currentStatus === statusType.toLowerCase()) {
-                        joinedList.push({
-                            title: tData.title || 'Custom Room Tournament',
-                            slot: matchData.slotNumber,
-                            playerName: matchData.playerName,
-                            entryFee: matchData.entryFee,
-                            prizePool: tData.prizePool || 0,
-                            roomId: tData.roomId || 'Not Provided Yet',
-                            roomPass: tData.roomPassword || 'Not Provided Yet',
-                            status: currentStatus
-                        });
+                        if (currentStatus === statusType.toLowerCase()) {
+                            joinedList.push({
+                                title: tData.title || 'Custom Room Tournament',
+                                slot: matchData.slotNumber,
+                                playerName: matchData.playerName,
+                                entryFee: matchData.entryFee,
+                                prizePool: tData.prizePool || 0,
+                                roomId: tData.roomId || 'Not Provided Yet',
+                                roomPass: tData.roomPassword || 'Not Provided Yet',
+                                status: currentStatus
+                            });
+                        }
                     }
-                }
+                });
+                promises.push(p);
             });
-            promises.push(p);
-        });
 
-        Promise.all(promises).then(() => {
-            showMyContestsModal(statusType, joinedList);
+            Promise.all(promises).then(() => {
+                showMyContestsModal(statusType, joinedList);
+            });
+        }).catch((error) => {
+            console.error("Error fetching joined contests: ", error);
+            alert("Error: " + error.message);
         });
-    }).catch((error) => {
-        console.error("Error fetching joined contests:", error);
-        alert("Error: " + error.message);
-    });
 };
+
 
 
 function showMyContestsModal(statusType, contests) {
