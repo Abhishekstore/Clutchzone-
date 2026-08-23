@@ -62,14 +62,27 @@
 
     </script>
     <!-- 1. TOURNAMENTS SECTION -->
-    <div id="tournaments-section" class="admin-section" style="display: block;">
-        <div class="admin-container">
-            <h2>⚡ Create Tournament</h2>
-            <div class="form-group"><label>Host Code</label><input type="text" id="host-code" placeholder="e.g. HOST001"></div>
-            <div class="form-group"><label>Title</label><input type="text" id="tournament-title" placeholder="Match Title"></div>
-          <div class="row">
-    <div class="form-group">
-        <label>Category</label>
+<div id="tournaments-section" class="admin-section" style="display: block;">
+    <div class="admin-container">
+        <h2>⚡ Create Tournament</h2>
+        
+        <div class="form-group">
+            <label>Match ID (Unique)</label>
+            <input type="text" id="tournament-match-id" placeholder="e.g. MATCH101">
+        </div>
+        
+        <div class="form-group">
+            <label>Host Code</label>
+            <input type="text" id="host-code" placeholder="e.g. HOST001">
+        </div>
+        
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="tournament-title" placeholder="Match Title">
+        </div>
+<div class="form-group">
+    <label>Category</label>
+    
         <select id="tournament-category" onchange="updateSubMode()">
             <option value="Full Map">Full Map</option>
             <option value="Survival">Survival</option>
@@ -129,7 +142,22 @@
             <button class="btn-submit" onclick="saveHostPlan()" style="background: #38bdf8; color: #0f172a;">💾 Activate / Extend Host</button>
         </div>
     </div>
-
+<div id="kills-section" class="admin-section" style="display: none;">
+    <div class="admin-container" style="background: #1e293b; border: 1px solid #38bdf8; padding: 20px;">
+        <h2 style="color: #38bdf8; margin-bottom: 5px;">🎯 Match Kills & Payout Manager</h2>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Match ID daal kar us match ke sabhi players ka kills table load karein.</p>
+        
+        <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <input type="text" id="filter-match-id" placeholder="Enter Match ID (e.g. MATCH101)" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #555; border-radius:4px;">
+            <button onclick="loadPlayersByMatchId()" style="background: #2196f3; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">🔍 Load Match</button>
+        </div>
+        
+        <div id="admin-matches-container" style="overflow-x:auto;">
+            <p style="color: #777; font-size: 13px;">Match ID daalkar 'Load Match' par click karein...</p>
+        </div>
+    </div>
+</div>
+    
     <!-- 2. PAYOUT SECTION -->
     <div id="payout-section" class="admin-section" style="display: none;">
         <div class="admin-container" style="background: #312e81;">
