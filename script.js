@@ -989,34 +989,59 @@ function loadUserWallet() {
 window.addEventListener("DOMContentLoaded", function() {
     loadUserWallet();
 });
-window.loadMatchLeaderboard = function(tournamentId) {
+window.loadMatchLeaderboard = function(matchId, tournamentTitle, prizePool, perKill) {
     db.collection("joined_matches")
-        .where("tournamentId", "==", tournamentId)
+        .where("matchId", "==", matchId)
         .orderBy("kills", "desc")
         .get()
         .then((snapshot) => {
-            let leaderboardHTML = `<div style="padding:15px; color:#fff;"><h3>🏆 Match Leaderboard</h3><hr style="border-color:#444;">`;
-            let rank = 1;
+            let html = `
+            <div style="background:#0f172a; color:#fff; padding:15px; border-radius:10px; max-height:80vh; overflow-y:auto;">
+                <h3 style="color:#f97316; margin-bottom:5px; font-size:16px;">${tournamentTitle || "Match Result"}</h3>
+                <p style="font-size:12px; color:#aaa; margin-bottom:15px;">Full Results & Leaderboard</p>
+                
+                <div style="display:flex; justify-content:space-between; background:#1e293b; padding:10px; border-radius:8px; margin-bottom:15px; font-size:13px; border:1px solid #334155;">
+                    <div>Prize Pool: <b style="color:#f97316;">₹${prizePool || 0}</b></div>
+                    <div>Per Kill: <b style="color:#eab308;">₹${perKill || 0}</b></div>
+                </div>
+                
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#0284c7; color:#fff;">
+                            <th style="padding:10px; text-align:center; width:40px; border-top-left-radius:6px; border-bottom-left-radius:6px;">#</th>
+                            <th style="padding:10px; text-align:left;">Player Name</th>
+                            <th style="padding:10px; text-align:center;">Kill</th>
+                            <th style="padding:10px; text-align:center; border-top-right-radius:6px; border-bottom-right-radius:6px;">Winning</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
             
             if(snapshot.empty) {
-                leaderboardHTML += `<p style="color:#aaa;">Abhi koi data available nahi hai.</p>`;
+                html += `<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">Is match mein koi player nahi mila.</td></tr>`;
             } else {
+                let rank = 1;
                 snapshot.forEach((doc) => {
                     let data = doc.data();
+                    let playerName = data.playerName || data.username || "Player";
                     let kills = data.kills || 0;
                     let earnings = data.earnings || 0;
-                    let playerName = data.playerName || "Player";
                     
-                    leaderboardHTML += `<p style="margin:8px 0;"><b>#${rank}</b> ${playerName} — <b>${kills} Kills</b> (Won: ₹${earnings})</p>`;
+                    html += `
+                    <tr style="border-bottom:1px solid #334155;">
+                        <td style="padding:10px; text-align:center; font-weight:bold; color:#f97316;">${rank}</td>
+                        <td style="padding:10px; font-weight:bold; color:#fff;">${playerName}</td>
+                        <td style="padding:10px; text-align:center; color:#38bdf8; font-weight:bold;">${kills}</td>
+                        <td style="padding:10px; text-align:center; color:#22c55e; font-weight:bold;">₹${earnings}</td>
+                    </tr>`;
                     rank++;
                 });
             }
-            leaderboardHTML += `</div>`;
             
-            showCustomModal("Match Leaderboard", leaderboardHTML);
+            html += `</tbody></table></div>`;
+            showCustomModal("Match Result", html);
         })
-        .catch((error) => {
-            console.error("Leaderboard error:", error);
+        .catch((err) => {
+            console.error("Leaderboard error:", err);
             alert("Leaderboard load karne mein error aaya.");
         });
 };
