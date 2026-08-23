@@ -1046,17 +1046,13 @@ window.loadMatchLeaderboard = function(matchId, tournamentTitle, prizePool, perK
             alert("Leaderboard load karne mein error aaya.");
         });
 };
-window.openUpcomingContests = function() {
+window.filterContests = function(status) {
+    let dbStatus = status.toLowerCase(); 
     db.collection("tournaments")
-    .where("status", "==", "upcoming")
+    .where("status", "==", dbStatus)
     .get()
     .then((querySnapshot) => {
-        let count = querySnapshot.size;
-        if (count === 0) {
-            alert("No Upcoming contests found!");
-        } else {
-            showTournamentListModal("Upcoming Contests", querySnapshot);
-        }
+        showTournamentListModal(status + " Contests", querySnapshot);
     })
     .catch((error) => {
         alert("Error: " + error.message);
