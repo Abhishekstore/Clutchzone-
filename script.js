@@ -973,4 +973,26 @@ function loadUserWallet() {
 window.addEventListener('DOMContentLoaded', () => {
     loadUserWallet();
 });
+// WhatsApp Channel Popup function
+function showWhatsAppJoinPopup() {
+    let existingModal = document.getElementById('whatsapp-popup-modal');
+    if (existingModal) existingModal.remove();
+
+    let whatsappLink = "https://whatsapp.com/channel/0029VbD7YeCHltY1BylrtH1E";
+
+    let modalHTML = `
+        <div id="whatsapp-popup-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px;">
+            <div style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:20px; width:100%; max-width:350px; text-align:center;">
+                <div style="font-size:40px; margin-bottom:10px;">🎉</div>
+                <h3 style="color:#00e676; margin:0 0 10px 0; font-size:18px;">Successfully Joined!</h3>
+                <p style="color:#ddd; font-size:13px; line-height:1.5; margin-bottom:20px;">
+                    Match ki <b>Room ID aur Password</b> aapko hamare <b>WhatsApp Channel</b> par hi milega. Kripya channel zaroor join karein!
+                </p>
+                <a href="${whatsappLink}" target="_blank" style="display:block; background:#25D366; color:#fff; text-decoration:none; font-weight:bold; padding:12px; border-radius:8px; font-size:14px; margin-bottom:10px;">📢 Join WhatsApp Channel</a>
+                <button onclick="document.getElementById('whatsapp-popup-modal').remove(); location.reload();" style="background:#333; color:#fff; border:none; width:100%; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:13px;">Done / Go to My Matches</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
 
