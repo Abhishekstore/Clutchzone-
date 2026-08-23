@@ -871,3 +871,40 @@ window.logoutUser = function() {
     alert("Aap logout ho chuke hain.");
     location.reload();
 };
+// User ka unique name ya ID (Jo login ke waqt save hota hai)
+let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex'; 
+
+// Firebase se Wallet Balance Load karne ka function
+function loadUserWallet() {
+    if (!currentUsername) return;
+
+    db.collection("users").doc(currentUsername).get().then((doc) => {
+        if (doc.exists) {
+            let userData = doc.data();
+            let coins = userData.coins || 0;
+
+            // Website/App ke wallet element par coins update karna
+            // (Apne wallet element ki class ya ID yahan match kar lein, jaise .wallet-balance ya #wallet-amount)
+            let walletElements = document.querySelectorAll('.wallet-amount, #wallet-amount');
+            walletElements.forEach(el => {
+                el.innerText = coins;
+            });
+
+            // Local storage mein bhi backup ke liye save rakhna
+            localStorage.setItem('userCoins', coins);
+        } else {
+            // Agar user pehli baar aa raha hai, toh 0 coins ke sath database mein entry bana dena
+            db.collection("users").doc(currentUsername).set({
+                coins: 0,
+                username: currentUsername
+            }, { merge: true });
+        }
+    }).catch((error) => {
+        console.error("Wallet load karne mein error:", error);
+    });
+}
+
+// Page khulte hi balance load hoga
+document.addEventListener("DOMContentLoaded", function() {
+    loadUserWallet();
+});
