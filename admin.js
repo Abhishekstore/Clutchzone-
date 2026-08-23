@@ -534,48 +534,118 @@ window.updatePlayerKills = function(matchDocId, killsCount, perKillRate, targetU
     });
 };
 // 1. Joined Matches ko Admin Panel mein load karne ka function
-window.loadJoinedMatchesForAdmin = function() {
-    let container = document.getElementById('admin-matches-container');
-    container.innerHTML = "<p style='color:#ff9800;'>Loading joined matches...</p>";
-    
-    db.collection("joined_matches").get().then((snapshot) => {
-        let html = "";
-        if(snapshot.empty) {
-            container.innerHTML = "<p style='color:#aaa;'>Abhi koi player match join nahi kiya hai.</p>";
+// 1. Unique Match ID ke sath Tournament Create karne ka function
+window.createTournament = function() {
+    let matchId = document.getElementById('tournament-match-id').value.trim();
+    let hostCode = document.getElementById('host-code') ? document.getElementById('host-code').value.trim() : "ADMIN";
+    let title = document.getElementById('tournament-title').value.trim();
+    let category = document.getElementById('tournament-category').value;
+    let submode = document.getElementById('tournament-submode').value;
+    let entry = Number(document.getElementById('tournament-entry').value) || 0;
+    let prize = Number(document.getElementById('tournament-prize').value) || 0;
+    let perKill = Number(document.getElementById('tournament-perkill') ? document.getElementById('tournament-perkill').value : 0) || 0;
+    let time = document.getElementById('tournament-time').value;
+
+    if(!matchId || !title) {
+        alert("Kripya Match ID aur Title zaroor bharein!");
+        return;
+    }
+
+    db.collection("tournaments").doc(matchId).get().then((doc) => {
+        if (doc.exists) {
+            alert("❌ Error: Yeh Match ID (" + matchId + ") pehle se bani hui hai! Dobara create nahi ho sakti.");
             return;
         }
-        
-        snapshot.forEach((doc) => {
-            let data = doc.data();
-            let docId = doc.id;
-            let playerName = data.playerName || "Unknown Player";
-            let username = data.username || data.playerUsername || "N/A";
-            let tournamentId = data.tournamentId || "N/A";
-            let currentKills = data.kills || 0;
-            
-            html += `
-            <div style="background:#262626; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #444;">
-                <p style="margin:2px 0; font-size:12px; color:#888;">Tournament ID: ${tournamentId} | Doc ID: <span style="color:#00e676; font-size:11px;">${docId}</span></p>
-                <p style="margin:6px 0; font-weight:bold; color:#fff; font-size:15px;">👤 Player: ${playerName} <span style="font-size:12px; color:#aaa;">(User: ${username})</span></p>
-                
-                <div style="display:flex; gap:10px; margin-top:10px; align-items:center; flex-wrap:wrap;">
-                    <div style="font-size:13px; color:#ccc;">Kills:</div>
-                    <input type="number" id="kills_${docId}" value="${currentKills}" style="width:70px; padding:6px; background:#111; color:#fff; border:1px solid #555; border-radius:4px; text-align:center;">
-                    
-                    <div style="font-size:13px; color:#ccc;">Per-Kill ₹:</div>
-                    <input type="number" id="rate_${docId}" value="5" style="width:70px; padding:6px; background:#111; color:#fff; border:1px solid #555; border-radius:4px; text-align:center;">
-                    
-                    <button onclick="saveMatchKills('${docId}', '${username}')" style="background:#00e676; color:#000; padding:7px 14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">💾 Save & Pay</button>
-                </div>
-            </div>`;
+
+        db.collection("tournaments").doc(matchId).set({
+            matchId: matchId,
+            hostCode: hostCode,
+            title: title,
+            category: category,
+            submode: submode,
+            entry: entry,
+            prize: prize,
+            perKill: perKill,
+            startTime: time,
+            status: "upcoming",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert("🚀 Tournament Successfully Launch ho gaya!");
+            document.getElementById('tournament-match-id').value = "";
+            document.getElementById('tournament-title').value = "";
+        }).catch((error) => {
+            alert("Error launching tournament: " + error.message);
         });
-        container.innerHTML = html;
-    }).catch((err) => {
-        container.innerHTML = `<p style="color:red;">Error loading matches: ${err.message}</p>`;
     });
 };
 
-// 2. Button click hone par kills aur earnings update karne ka helper function
+// 2. Match ID se players ko Table format mein load karne ka function
+window.loadPlayersByMatchId = function() {
+    let matchId = document.getElementById('filter-match-id').value.trim();
+    let container = document.getElementById('admin-matches-container');
+    
+    if(!matchId) {
+        alert("Kripya Match ID daalein!");
+        return;
+    }
+    
+    container.innerHTML = "<p style='color:#ff9800;'>Loading players...</p>";
+    
+    db.collection("joined_matches")
+        .where("matchId", "==", matchId)
+        .get()
+        .then((snapshot) => {
+            if(snapshot.empty) {
+                container.innerHTML = `<p style="color:#aaa;">Is Match ID (${matchId}) par koi player nahi mila.</p>`;
+                return;
+            }
+            
+            let html = `
+            <table style="width:100%; border-collapse:collapse; color:#fff; font-size:13px; margin-top:10px;">
+                <thead>
+                    <tr style="background:#111; border-bottom:2px solid #444;">
+                        <th style="padding:10px; text-align:left;">User Name</th>
+                        <th style="padding:10px; text-align:left;">User ID / FF Name</th>
+                        <th style="padding:10px; text-align:center;">Per Kill (₹)</th>
+                        <th style="padding:10px; text-align:center;">Kills</th>
+                        <th style="padding:10px; text-align:center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            snapshot.forEach((doc) => {
+                let data = doc.data();
+                let docId = doc.id;
+                let username = data.username || data.playerUsername || "N/A";
+                let playerName = data.playerName || "N/A";
+                let currentKills = data.kills || 0;
+                let perKillRate = data.perKillRate || 5;
+                
+                html += `
+                <tr style="border-bottom:1px solid #333;">
+                    <td style="padding:10px; color:#38bdf8; font-weight:bold;">${username}</td>
+                    <td style="padding:10px; color:#ddd;">${playerName}</td>
+                    <td style="padding:10px; text-align:center;">
+                        <input type="number" id="rate_${docId}" value="${perKillRate}" style="width:55px; padding:5px; background:#111; color:#fff; border:1px solid #555; text-align:center; border-radius:4px;">
+                    </td>
+                    <td style="padding:10px; text-align:center;">
+                        <input type="number" id="kills_${docId}" value="${currentKills}" style="width:55px; padding:5px; background:#111; color:#fff; border:1px solid #555; text-align:center; border-radius:4px;">
+                    </td>
+                    <td style="padding:10px; text-align:center;">
+                        <button onclick="saveMatchKills('${docId}', '${username}')" style="background:#00e676; color:#000; padding:6px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">Save</button>
+                    </td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        })
+        .catch((err) => {
+            container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+        });
+};
+
+// 3. Save button dabane par kills update karke wallet mein automatic paise bhejna
 window.saveMatchKills = function(docId, targetUsername) {
     let killsInput = document.getElementById(`kills_${docId}`).value;
     let rateInput = document.getElementById(`rate_${docId}`).value;
@@ -584,15 +654,29 @@ window.saveMatchKills = function(docId, targetUsername) {
     let perKillRate = Number(rateInput);
     
     if(isNaN(killsCount) || isNaN(perKillRate)) {
-        alert("Kripya Kills aur Rate mein sahi number daalein!");
+        alert("Kripya valid numbers daalein!");
         return;
     }
     
-    if(!targetUsername || targetUsername === "N/A") {
-        alert("Error: Is player ka username nahi mila, isliye wallet mein paise nahi jayenge!");
-        return;
-    }
-    
-    // Pehle se banaye gaye updatePlayerKills function ko call karega
-    updatePlayerKills(docId, killsCount, perKillRate, targetUsername);
+    let earnedAmount = killsCount * perKillRate;
+
+    db.collection("joined_matches").doc(docId).update({
+        kills: killsCount,
+        perKillRate: perKillRate,
+        earnings: earnedAmount
+    }).then(() => {
+        let userRef = db.collection("users").doc(targetUsername);
+        userRef.get().then((doc) => {
+            let currentCoins = doc.exists && doc.data().coins ? Number(doc.data().coins) : 0;
+            let newCoinsTotal = currentCoins + earnedAmount;
+
+            userRef.update({
+                coins: newCoinsTotal
+            }).then(() => {
+                alert("✅ Saved! ₹" + earnedAmount + " player ke wallet mein successfully add ho gaye.");
+            });
+        });
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
 };
