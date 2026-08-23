@@ -831,7 +831,6 @@ window.switchAuthTab = function(tab) {
         title.innerText = 'Register on Clutchzone';
     }
 };
-
 window.handleRegister = function() {
     let name = document.getElementById('reg-name').value.trim();
     let identifier = document.getElementById('reg-identifier').value.trim();
@@ -847,15 +846,14 @@ window.handleRegister = function() {
             alert("Yeh mobile/email pehle se registered hai! Kripya Login karein.");
             switchAuthTab('login');
         } else {
-                db.collection('users').doc(identifier).set({
-        name: name,
-        identifier: identifier,
-        mobile: identifier,  // 🟢 Ye naya jod dein taaki admin mein mobile dikhe
-        email: identifier,   // 🟢 Ye bhi jod dein taaki email dikhe
-        password: password,
-        createdAt: new Date()
-    })
-
+            db.collection('users').doc(identifier).set({
+                name: name,
+                identifier: identifier,
+                mobile: identifier,
+                email: identifier,
+                password: password,
+                createdAt: new Date()
+            }).then(() => {
                 localStorage.setItem('is_logged_in', 'true');
                 localStorage.setItem('logged_in_username', name);
                 localStorage.setItem('logged_in_identifier', identifier);
@@ -863,16 +861,18 @@ window.handleRegister = function() {
                 let modal = document.getElementById('auth-modal');
                 if (modal) modal.remove();
                 location.reload();
-            }).catch(err => {
+            }).catch((err) => {
                 console.log(err);
                 alert("Registration failed. Try again.");
             });
         }
-    }).catch(err => {
+    }).catch((err) => {
         console.log(err);
         alert("Error checking user. Try again.");
     });
 };
+
+
 
 window.handleLogin = function() {
     let identifier = document.getElementById('login-identifier').value.trim();
