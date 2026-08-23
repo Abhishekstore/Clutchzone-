@@ -533,3 +533,66 @@ window.updatePlayerKills = function(matchDocId, killsCount, perKillRate, targetU
         alert("Error updating kills: " + error.message);
     });
 };
+// 1. Joined Matches ko Admin Panel mein load karne ka function
+window.loadJoinedMatchesForAdmin = function() {
+    let container = document.getElementById('admin-matches-container');
+    container.innerHTML = "<p style='color:#ff9800;'>Loading joined matches...</p>";
+    
+    db.collection("joined_matches").get().then((snapshot) => {
+        let html = "";
+        if(snapshot.empty) {
+            container.innerHTML = "<p style='color:#aaa;'>Abhi koi player match join nahi kiya hai.</p>";
+            return;
+        }
+        
+        snapshot.forEach((doc) => {
+            let data = doc.data();
+            let docId = doc.id;
+            let playerName = data.playerName || "Unknown Player";
+            let username = data.username || data.playerUsername || "N/A";
+            let tournamentId = data.tournamentId || "N/A";
+            let currentKills = data.kills || 0;
+            
+            html += `
+            <div style="background:#262626; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #444;">
+                <p style="margin:2px 0; font-size:12px; color:#888;">Tournament ID: ${tournamentId} | Doc ID: <span style="color:#00e676; font-size:11px;">${docId}</span></p>
+                <p style="margin:6px 0; font-weight:bold; color:#fff; font-size:15px;">👤 Player: ${playerName} <span style="font-size:12px; color:#aaa;">(User: ${username})</span></p>
+                
+                <div style="display:flex; gap:10px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+                    <div style="font-size:13px; color:#ccc;">Kills:</div>
+                    <input type="number" id="kills_${docId}" value="${currentKills}" style="width:70px; padding:6px; background:#111; color:#fff; border:1px solid #555; border-radius:4px; text-align:center;">
+                    
+                    <div style="font-size:13px; color:#ccc;">Per-Kill ₹:</div>
+                    <input type="number" id="rate_${docId}" value="5" style="width:70px; padding:6px; background:#111; color:#fff; border:1px solid #555; border-radius:4px; text-align:center;">
+                    
+                    <button onclick="saveMatchKills('${docId}', '${username}')" style="background:#00e676; color:#000; padding:7px 14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">💾 Save & Pay</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }).catch((err) => {
+        container.innerHTML = `<p style="color:red;">Error loading matches: ${err.message}</p>`;
+    });
+};
+
+// 2. Button click hone par kills aur earnings update karne ka helper function
+window.saveMatchKills = function(docId, targetUsername) {
+    let killsInput = document.getElementById(`kills_${docId}`).value;
+    let rateInput = document.getElementById(`rate_${docId}`).value;
+    
+    let killsCount = Number(killsInput);
+    let perKillRate = Number(rateInput);
+    
+    if(isNaN(killsCount) || isNaN(perKillRate)) {
+        alert("Kripya Kills aur Rate mein sahi number daalein!");
+        return;
+    }
+    
+    if(!targetUsername || targetUsername === "N/A") {
+        alert("Error: Is player ka username nahi mila, isliye wallet mein paise nahi jayenge!");
+        return;
+    }
+    
+    // Pehle se banaye gaye updatePlayerKills function ko call karega
+    updatePlayerKills(docId, killsCount, perKillRate, targetUsername);
+};
