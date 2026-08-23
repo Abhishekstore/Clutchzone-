@@ -264,7 +264,12 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
         return;
     }
 
-    let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
+    let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username');
+if (!currentUsername) {
+    alert("Tournament join karne ke liye pehle login karein!");
+    return;
+}
+    
     let userRef = db.collection("users").doc(currentUsername);
 
     // Pehle Firebase se user ka balance check karenge
@@ -322,9 +327,13 @@ window.toggleHelp = function() {
 // --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 
 window.filterContests = function (statusType) {
-    let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
+    let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username');
 
-    // Sirf logged-in user ka data fetch hoga
+    if (!currentUsername) {
+        alert("Kripya pehle Login karein!");
+        return;
+    }
+
     db.collection('joined_matches')
         .where('username', '==', currentUsername)
         .get()
@@ -334,13 +343,14 @@ window.filterContests = function (statusType) {
 
             snapshot.forEach((doc) => {
                 let matchData = doc.data();
+                if (!matchData.tournamentId) return;
+
                 let p = db.collection('tournaments').doc(matchData.tournamentId).get().then((tDoc) => {
                     if (tDoc.exists) {
                         let tData = tDoc.data();
                         let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
 
                         if (currentStatus === statusType.toLowerCase()) {
-                            // Room ID aur Password ko 'undefined' ya blank hone se bachane ka secure check
                             let rId = tData.roomId || tData.room_id || tData.roomID;
                             if (!rId || rId === "undefined" || rId === "null") rId = 'Not Provided Yet';
 
@@ -348,10 +358,10 @@ window.filterContests = function (statusType) {
                             if (!rPass || rPass === "undefined" || rPass === "null") rPass = 'Not Provided Yet';
 
                             joinedList.push({
-                                title: tData.title || 'Custom Room Tournament',
-                                slot: matchData.slotNumber,
-                                playerName: matchData.playerName,
-                                entryFee: matchData.entryFee,
+                                title: tData.title || tData.name || 'Custom Room Tournament',
+                                slot: matchData.slotNumber || 1,
+                                playerName: matchData.playerName || currentUsername,
+                                entryFee: matchData.entryFee || 0,
                                 prizePool: tData.prizePool || 0,
                                 roomId: rId,
                                 roomPass: rPass,
@@ -366,7 +376,8 @@ window.filterContests = function (statusType) {
             Promise.all(promises).then(() => {
                 showMyContestsModal(statusType, joinedList);
             });
-        }).catch((error) => {
+        })
+        .catch((error) => {
             console.error("Error fetching joined contests: ", error);
             alert("Error: " + error.message);
         });
