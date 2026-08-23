@@ -926,3 +926,31 @@ function loadUserWallet() {
 document.addEventListener("DOMContentLoaded", function() {
     loadUserWallet();
 });
+// Wallet balance ko direct Firebase se load karne ke liye
+function loadUserWallet() {
+    let currentUsername = localStorage.getItem('loggedInUser') || 'Abhi.Primex';
+    let userRef = db.collection("users").doc(currentUsername);
+
+    userRef.get().then((doc) => {
+        let coins = 0;
+        if (doc.exists && doc.data().coins !== undefined) {
+            coins = doc.data().coins;
+        } else {
+            // Agar naya user hai aur doc nahi hai, toh 0 ke sath bana do
+            userRef.set({ coins: 0 }, { merge: true });
+            coins = 0;
+        }
+
+        // Screen par jahan wallet balance dikhta hai wahan update kar do
+        let balanceElement = document.getElementById('wallet-balance-text');
+        if (balanceElement) {
+            balanceElement.innerText = "₹" + coins;
+        }
+    });
+}
+
+// Page khulte hi yeh function automatically chal jayega
+window.addEventListener('DOMContentLoaded', () => {
+    loadUserWallet();
+});
+
