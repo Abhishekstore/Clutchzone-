@@ -328,7 +328,7 @@ window.toggleHelp = function() {
 // --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
 
 window.filterContests = function (statusType) {
-    let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username');
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedInUser') || localStorage.getItem('username');
 
     if (!currentUsername) {
         alert("Kripya pehle Login karein!");
@@ -947,7 +947,8 @@ window.logoutUser = function() {
     location.reload();
 };
 // User ka unique name ya ID
-let currentUsername = localStorage.getItem('loggedINUser') || 'Abhi.Primex';
+let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedInUser') || localStorage.getItem('username');
+
 
 // Wallet balance load karne ka function
 function loadUserWallet() {
