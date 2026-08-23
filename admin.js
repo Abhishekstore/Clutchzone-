@@ -88,48 +88,51 @@ window.switchSection = function (sectionId, btn) {
 };
 
 // --- 4. CREATE TOURNAMENT ---
-window.createTournament = function () {
+window.createTournament = function() {
     try {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        // Saare possible IDs aur backup selectors taaki value kabhi miss na ho
-        const hostCodeField = document.getElementById('hostCode') || document.getElementById('match-host-code') || document.getElementById('host-code') || document.querySelector('input[placeholder*="Host"]');
-        const titleField = document.getElementById('title') || document.getElementById('tournament-title') || document.querySelector('input[placeholder*="Title"]');
-        const categoryField = document.getElementById('tournament-category') || document.getElementById('category');
-        const subModeField = document.getElementById('tournament-submode') || document.getElementById('submode');
-        const entryField = document.getElementById('entry') || document.getElementById('entryFee') || document.querySelector('input[placeholder*="Entry"]');
-        const prizeField = document.getElementById('prize') || document.getElementById('prizePool') || document.querySelector('input[placeholder*="Prize"]');
-        const killField = document.getElementById('kill') || document.getElementById('perKill') || document.querySelector('input[placeholder*="Kill"]');
-        const timeField = document.getElementById('startTime') || document.getElementById('match-time') || document.querySelector('input[type="datetime-local"]');
+        const matchIdField = document.getElementById('tournament-match-id') || document.getElementById('match-id');
+        const hostCodeField = document.getElementById('host-code');
+        const titleField = document.getElementById('title') || document.getElementById('tournament-title');
+        const categoryField = document.getElementById('tournament-category');
+        const submodeField = document.getElementById('tournament-submode');
+        const entryField = document.getElementById('tournament-entry') || document.getElementById('entry');
+        const prizeField = document.getElementById('tournament-prize') || document.getElementById('prize');
+        const killField = document.getElementById('tournament-perkill') || document.getElementById('kill');
+        const timeField = document.getElementById('tournament-time') || document.getElementById('startTime');
 
-        const hostCode = hostCodeField ? hostCodeField.value.trim() : '';
-        const title = titleField ? titleField.value.trim() : '';
-        const category = categoryField ? categoryField.value : 'Full Map';
-        const subMode = subModeField ? subModeField.value : 'Solo';
-        const entryFee = entryField ? Number(entryField.value) || 0 : 0;
-        const prizePool = prizeField ? Number(prizeField.value) || 0 : 0;
+        const matchId = matchIdField ? matchIdField.value.trim() : "";
+        const hostCode = hostCodeField ? hostCodeField.value.trim() : "ADMIN";
+        const title = titleField ? titleField.value.trim() : "";
+        const category = categoryField ? categoryField.value : "Full Map";
+        const submode = submodeField ? submodeField.value : "Solo";
+        
+        const entry = entryField ? Number(entryField.value) || 0 : 0;
+        const prize = prizeField ? Number(prizeField.value) || 0 : 0;
         const perKill = killField ? Number(killField.value) || 0 : 0;
-        const startTime = timeField ? timeField.value : '';
+        const startTime = timeField ? timeField.value : "";
 
-        if (!hostCode || !title) {
-            alert("Please enter Host Code and Title!");
+        if (!matchId || !title) {
+            alert("Kripya Match ID aur Title zaroor bharein!");
             return;
         }
 
-        db.collection('tournaments').add({
+        db.collection("tournaments").doc(matchId).set({
+            matchId: matchId,
             hostCode: hostCode,
             title: title,
             category: category,
-            subMode: subMode,
-            entryFee: entryFee,
-            prizePool: prizePool,
-            perKill: perKill,
+            submode: submode,
+            entry: entry,          // Correct key name matching script.js
+            prize: prize,          // Correct key name matching script.js
+            perKill: perKill,      // Correct key name matching script.js
             startTime: startTime,
-            status: 'Upcoming',
+            status: "upcoming",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            alert("🚀 Tournament Launched Successfully!");
+            alert("🚀 Tournament Successfully Launch ho gaya! (Entry: ₹" + entry + ", Prize: ₹" + prize + ")");
             location.reload();
         }).catch((error) => {
             alert("Firebase Error: " + error.message);
