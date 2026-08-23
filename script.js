@@ -847,12 +847,15 @@ window.handleRegister = function() {
             alert("Yeh mobile/email pehle se registered hai! Kripya Login karein.");
             switchAuthTab('login');
         } else {
-            db.collection('users').doc(identifier).set({
-                name: name,
-                identifier: identifier,
-                password: password,
-                createdAt: new Date()
-            }).then(() => {
+                db.collection('users').doc(identifier).set({
+        name: name,
+        identifier: identifier,
+        mobile: identifier,  // 🟢 Ye naya jod dein taaki admin mein mobile dikhe
+        email: identifier,   // 🟢 Ye bhi jod dein taaki email dikhe
+        password: password,
+        createdAt: new Date()
+    })
+
                 localStorage.setItem('is_logged_in', 'true');
                 localStorage.setItem('logged_in_username', name);
                 localStorage.setItem('logged_in_identifier', identifier);
