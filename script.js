@@ -271,11 +271,12 @@ window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
     userRef.get().then((doc) => {
         let currentCoins = doc.exists ? (doc.data().coins || 0) : 0;
 
-        // Agar balance kam hai toh yahin rok dega
-        if (currentCoins < entryFee) {
-            alert("⚠️ Insufficient balance! Aapke wallet mein 0 ya kam coins hain. Please pehle paise add karein.");
-            return;
-        }
+        // Agar entry fee 0 se zyada hai aur balance kam hai, tabhi roke
+if (entryFee > 0 && currentCoins < entryFee) {
+    alert("⚠️ Insufficient balance! Aapke wallet mein kam coins hain. Please pehle paise add karein.");
+    return;
+}
+
 
         // Match save hoga aur username bhi jud jayega
         db.collection('joined_matches').add({
