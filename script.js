@@ -348,8 +348,9 @@ window.filterContests = function (statusType) {
                                 entryFee: matchData.entryFee,
                                 prizePool: tData.prizePool || 0,
                                 roomId: tData.roomId || 'Not Provided Yet',
-                                roomPass: tData.roomPassword || 'Not Provided Yet',
-                                status: currentStatus
+                                roomId: tData.roomId || tData.room_id || tData.roomID || 'Not Provided Yet',
+roomPass: tData.roomPassword || tData.room_pass || tData.password || 'Not Provided Yet',
+
                             });
                         }
                     }
