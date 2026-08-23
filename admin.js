@@ -510,3 +510,26 @@ document.addEventListener('change', function (e) {
         }
     }
 });
+
+window.updatePlayerKills = function(matchDocId, killsCount, perKillRate, targetUsername) {
+    let earnedAmount = Number(killsCount) * Number(perKillRate);
+
+    db.collection("joined_matches").doc(matchDocId).update({
+        kills: Number(killsCount),
+        earnings: earnedAmount
+    }).then(() => {
+        let userRef = db.collection("users").doc(targetUsername);
+        userRef.get().then((doc) => {
+            let currentCoins = doc.exists && doc.data().coins ? Number(doc.data().coins) : 0;
+            let newCoinsTotal = currentCoins + earnedAmount;
+
+            userRef.update({
+                coins: newCoinsTotal
+            }).then(() => {
+                alert("✅ Kills update ho gaye aur ₹" + earnedAmount + " player ke wallet mein successfully jud gaye!");
+            });
+        });
+    }).catch((error) => {
+        alert("Error updating kills: " + error.message);
+    });
+};
