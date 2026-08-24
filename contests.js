@@ -213,7 +213,44 @@ window.filterContests = function(statusType) {
             }
 
             if (isJoined) {
-                let matchStatus = (d.status || 'upcoming').toLowerCase();
+                            // 👉 Line 216 ki jagah yeh naya automatic code daalein:
+            let matchStatus = (d.status || 'upcoming').toLowerCase();
+            
+            if (matchStatus !== 'completed' && matchStatus !== 'cancelled') {
+                if (d.time) {
+                    let matchTime = new Date(d.time);
+                    let now = new Date();
+                    
+                    if (!isNaN(matchTime.getTime())) {
+                        let diffMins = (now - matchTime) / (1000 * 60); // Time difference
+                        
+                        if (diffMins > 45) {
+                            matchStatus = 'completed'; // Time nikal gaya toh completed
+                        } else if (diffMins >= 0) {
+                            matchStatus = 'ongoing';   // Match shuru ho chuka hai toh ongoing
+                        } else {
+                            matchStatus = 'upcoming';  // Time bacha hai toh upcoming
+                        }
+                    }
+                }
+            }
+
+            // Automatic Refund Logic (Agar match cancel ho jaye)
+            if (matchStatus === 'cancelled' && Number(d.entryFee || 0) > 0) {
+                let refundedUsers = d.refundedUsers || [];
+                if (!refundedUsers.includes(currentUsername)) {
+                    db.collection('users').doc(currentUsername).get().then(userDoc => {
+                        let currentWallet = userDoc.exists && userDoc.data().wallet ? Number(userDoc.data().wallet) : 0;
+                        let refundAmount = Number(d.entryFee);
+                        let updatedWallet = currentWallet + refundAmount;
+                        
+                        db.collection('users').doc(currentUsername).set({ wallet: updatedWallet }, { merge: true });
+                        refundedUsers.push(currentUsername);
+                        db.collection('tournaments').doc(docId).update({ refundedUsers: refundedUsers });
+                    });
+                }
+            }
+
                 
                 let matchesTab = false;
                 if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
