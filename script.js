@@ -1033,7 +1033,7 @@ window.openTransactions = function() {
     });
 };
 // ==========================================
-// CONTESTS TABS HANDLER (Filtered by Logged-in User)
+// CONTESTS TABS HANDLER (JS-side Filtering - No Index Required)
 // ==========================================
 window.filterContests = function(statusType) {
     let existing = document.getElementById('contest-modal');
@@ -1055,29 +1055,39 @@ window.filterContests = function(statusType) {
 
     let listContainer = document.getElementById('contest-list-content');
 
-    // Sirf wahi tournaments fetch honge jisme current user ne join kiya ho
+    // Sirf status ke basis par fetch karenge taaki index error na aaye
     db.collection('tournaments')
       .where('status', '==', statusType)
-      .where('participants', 'array-contains', currentUsername)
       .get()
       .then(snapshot => {
           if(snapshot.empty) {
-              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne koi bhi ${statusType.toLowerCase()} contest join nahi kiya hai.</p>`;
+              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No ${statusType.toLowerCase()} contests found.</p>`;
               return;
           }
+          
           let html = '';
+          let foundCount = 0;
+
           snapshot.forEach(doc => {
               let d = doc.data();
-              html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
-                  <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
-                  <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
-                  <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
-              </div>`;
+              // Check karenge ki participants array mein current user ka naam hai ya nahi
+              if (d.participants && Array.isArray(d.participants) && d.participants.includes(currentUsername)) {
+                  foundCount++;
+                  html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
+                      <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
+                      <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
+                      <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
+                  </div>`;
+              }
           });
-          listContainer.innerHTML = html;
+
+          if(foundCount === 0) {
+              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne koi bhi ${statusType.toLowerCase()} contest join nahi kiya hai.</p>`;
+          } else {
+              listContainer.innerHTML = html;
+          }
       })
       .catch(err => {
-          // Fallback agar 'participants' field array na ho kar kisi aur format mein ho
           listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
       });
 };
