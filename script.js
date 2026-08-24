@@ -824,19 +824,21 @@ window.openSupport = function() {
     `;
     showClutchzoneModal("Support - Clutchzone", content);
 };
+
 // ==========================================
-// CLUTCHZONE COMPLETE WALLET & UPI SYSTEM
+// CLUTCHZONE COMPLETE WALLET & UPI/QR SYSTEM
 // ==========================================
 
-// 1. ADD COINS MODAL (With Instructions & Confirmation Popup)
+// 1. ADD COINS MODAL (With Instructions, QR Code & Confirmation Popup)
 window.openAddCoinsModal = function() {
     let existing = document.getElementById('add-coins-modal');
     if (existing) existing.remove();
 
     let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || 'User';
     
-    // ⚠️ Yahan apni asli UPI ID daalein (Jaise: yourname@paytm)
-    let adminUpi = "clutchzone@paytm"; 
+    // ⚠️ Yahan apni UPI ID aur QR Code ka image link/path dalein
+    let adminUpi = "kinggkwrd@okicici"; 
+    let adminQrUrl = "qr.png"; // Yahan apne QR code ka link ya image file ka naam dalein (Jaise: "https://yourwebsite.com/qr.png")
 
     let modalHTML = `
     <div id="add-coins-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff;">
@@ -851,9 +853,16 @@ window.openAddCoinsModal = function() {
             <!-- Instructions Box -->
             <div style="background:rgba(255,204,0,0.1); border:1px dashed #ffcc00; padding:10px; border-radius:6px; margin-bottom:12px; font-size:12px; color:#ffd54f; line-height:1.4;">
                 <b>📌 Kaise Add Karein? (Steps):</b><br>
-                1. Amount daal kar <b>'Pay via UPI'</b> dabayein aur payment complete karein.<br>
+                1. <b>'Pay via UPI'</b> dabayein ya niche diye gaye <b>QR Code</b> ko scan karke payment karein.<br>
                 2. Payment app se <b>12-digit UTR / Ref ID</b> copy karein.<br>
                 3. UTR yahan paste karke <b>'Submit Request'</b> dabayein!
+            </div>
+
+            <!-- QR Code Section for Shop/Friends scan -->
+            <div style="text-align:center; margin-bottom:12px; background:#121212; padding:10px; border-radius:8px; border:1px solid #333;">
+                <p style="font-size:12px; color:#aaa; margin-bottom:6px;">📸 Scan QR Code (Dukaan ya Dost se pay karwayein):</p>
+                <img src="${adminQrUrl}" alt="Admin QR Code" style="width:130px; height:130px; border-radius:6px; background:#fff; padding:4px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/130?text=QR+Not+Found'">
+                <p style="font-size:10px; color:#888; margin-top:4px;">(Aap iska screenshot lekar bhi bhej sakte hain)</p>
             </div>
 
             <div style="margin-bottom:12px;">
@@ -882,7 +891,6 @@ window.payViaUpi = function(upiId) {
         return;
     }
 
-    // Alert popup jo user ko yaad dilayega ki wapas aakar UTR dalna hai
     let confirmPay = confirm("⚠️ Zaroori Soochna:\n\nPayment complete karne ke baad wapas is app par aakar 12-digit UTR (Transaction ID) zaroor daalein!\n\nOK dabate hi aap payment app par redirect ho jayenge.");
     
     if (confirmPay) {
@@ -893,7 +901,7 @@ window.payViaUpi = function(upiId) {
 
 window.submitDepositRequest = function(username) {
     let amount = Number(document.getElementById('deposit-amount').value);
-    let utr = document.getElementById('deposit-utr').value.trim();
+    let utr = document.getElementById('deposit-utr'].value.trim();
 
     if(!amount || amount <= 0) {
         alert("Kripya amount bharein!");
