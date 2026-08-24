@@ -1,3 +1,9 @@
+window.onerror = function(msg, url, line) {
+    alert("CRITICAL ERROR: " + msg + " (Line: " + line + ")");
+    return true;
+};
+
+
 // ==========================================
 // COMPLETE PLAYT24 USER APP SCRIPT.JS
 // ==========================================
