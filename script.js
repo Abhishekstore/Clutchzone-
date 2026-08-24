@@ -1035,7 +1035,7 @@ window.openTransactions = function() {
 // ==========================================
 // CONTESTS TABS HANDLER (Ongoing, Upcoming, Completed)
 // ==========================================
-window.openContestTab = function(statusType) {
+window.filterContests = function(statusType) {
     let existing = document.getElementById('contest-modal');
     if (existing) existing.remove();
 
@@ -1053,8 +1053,6 @@ window.openContestTab = function(statusType) {
 
     let listContainer = document.getElementById('contest-list-content');
 
-    // Firebase se tournaments / contests fetch karna
-    // Note: Agar aapke database mein collection ka naam 'tournaments' ki jagah kuch aur hai, toh yahan change kar sakte hain.
     db.collection('tournaments')
       .where('status', '==', statusType)
       .get()
