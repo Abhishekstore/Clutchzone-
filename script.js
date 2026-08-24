@@ -1125,7 +1125,4 @@ window.joinTournament = function(tournamentId, entryFee) {
     }).catch((error) => {
         alert("Error: " + error.message);
     });
-};        </div>`;
-        document.body.insertAdjacentHTML('beforeend', slotHTML);
-    }).catch(err => alert(err.message || err));
-};
+};        
