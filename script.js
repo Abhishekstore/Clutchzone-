@@ -390,49 +390,74 @@ if (!rid || rid === "undefined" || rid === "null") {
 
 
 
+window.filterContests = function(status) {
+    let dbStatus = status.toLowerCase();
+    let user = auth.currentUser;
+
+    db.collection("tournaments")
+    .where("status", "==", dbStatus)
+    .get()
+    .then((querySnapshot) => {
+        let userTournaments = [];
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            // Agar participants array mein user ki ID hai, tabhi dikhayein
+            if (data.participants && data.participants.includes(user ? user.uid : "")) {
+                userTournaments.push({id: doc.id, ...data});
+            }
+        });
+        showMyContestsModal(status, userTournaments);
+    })
+    .catch((error) => {
+        alert("Error: " + error.message);
+    });
+};
 
 function showMyContestsModal(statusType, contests) {
     let existingModal = document.getElementById('my-contests-modal');
     if (existingModal) existingModal.remove();
 
     let modalHTML = `
-    <div id="my-contests-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; overflow-y:auto; padding:15px; font-family:sans-serif; color:white;">
-        <div style="display:flex; justify-content:space-between; align-items:center; background:#1e1e1e; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <h2 style="color:#ff9800; margin:0; text-transform:uppercase;">My ${statusType} Contests</h2>
-            <button onclick="document.getElementById('my-contests-modal').remove()" style="background:#ff4444; color:white; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">X Close</button>
-        </div>
-        <div id="contests-list-container">`;
+    <div id="my-contests-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
+        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:#ff9800; margin:0; text-transform:uppercase;">My ${statusType} Contests</h3>
+                <button onclick="document.getElementById('my-contests-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Close</button>
+            </div>
+            <div id="contests-list-container">`;
 
     if (contests.length === 0) {
         modalHTML += `
-        <div style="text-align:center; padding:50px 20px; color:#aaa;">
-            <p style="font-size:16px;">No ${statusType} contests found!</p>
-            <p style="font-size:13px; color:#666;">Join a match from categories to see it here.</p>
-        </div>`;
+                <div style="text-align:center; padding:30px 20px; color:#aaa;">
+                    <p style="font-size:16px;">No ${statusType} contests found!</p>
+                    <p style="font-size:13px; color:#666;">Join a match from categories to see it here.</p>
+                </div>`;
     } else {
         contests.forEach(c => {
             modalHTML += `
-            <div style="background:#222; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:15px;">
-                <h3 style="margin:0 0 8px 0; color:#fff;">${c.title}</h3>
-                <div style="display:flex; justify-content:space-between; font-size:13px; color:#ccc; margin-bottom:10px;">
-                    <span>Player: <b>${c.playerName}</b></span>
-                    <span>Slot: <b style="color:#ff9800;">#${c.slot}</b></span>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:13px; color:#ffcc00; margin-bottom:12px;">
-                    <span>Prize Pool: ₹${c.prizePool}</span>
-                    <span>Entry: ₹${c.entryFee}</span>
-                </div>
-                <div style="background:#111; border:1px dashed #555; padding:10px; border-radius:6px; font-size:13px;">
-                    <span style="color:#00e676;">🔑 Room ID: <b>${c.roomID}</b></span><br>
-                    <span style="color:#00e676;">🔒 Password: <b>${c.roomPass}</b></span>
-                </div>
-            </div>`;
+                <div style="background:#222; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:15px;">
+                    <h4 style="margin:0 0 8px 0; color:#fff;">${c.title}</h4>
+                    <div style="display:flex; justify-content:space-between; font-size:13px; color:#ccc; margin-bottom:8px;">
+                        <span>Player: <b>${c.playerName || 'N/A'}</b></span>
+                        <span>Slot: <b style="color:#ff9800;">${c.slot || '1'}</b></span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px; color:#ffcc00; margin-bottom:8px;">
+                        <span>Prize Pool: ₹${c.prizePool}</span>
+                        <span>Entry: ₹${c.entryFee}</span>
+                    </div>
+                    <div style="background:#111; border:1px dashed #555; padding:10px; border-radius:6px; font-size:13px;">
+                        <span style="color:#00e676;">🔑 Room ID: <b>${c.roomId || 'Waiting'}</b></span><br>
+                        <span style="color:#00e676;">🔒 Password: <b>${c.roomPass || 'Waiting'}</b></span>
+                    </div>
+                </div>`;
         });
     }
 
-    modalHTML += `</div></div>`;
+    modalHTML += `</div></div></div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
+
+
 
 // --- COMPLETE UPI REDIRECT + QR CODE + UTR ADMIN SYSTEM ---
 
