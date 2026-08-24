@@ -231,7 +231,8 @@ window.filterContests = function(statusType) {
                     <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer;">
                         <!-- Banner Image -->
                         <div style="width: 100%; height: 160px; overflow: hidden;">
-                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/${bannerImg}'">
+                            
                         </div>
                         <!-- Tournament Details -->
                         <div style="padding: 12px;">
