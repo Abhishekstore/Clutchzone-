@@ -1033,32 +1033,36 @@ window.openTransactions = function() {
     });
 };
 // ==========================================
-// CONTESTS TABS HANDLER (Ongoing, Upcoming, Completed)
+// CONTESTS TABS HANDLER (Filtered by Logged-in User)
 // ==========================================
 window.filterContests = function(statusType) {
     let existing = document.getElementById('contest-modal');
     if (existing) existing.remove();
 
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || '';
+
     let modalHTML = `
     <div id="contest-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-            <h3 style="color:#ffcc00; margin:0; font-size:18px;">🏆 ${statusType} Contests</h3>
+            <h3 style="color:#ffcc00; margin:0; font-size:18px;">🏆 My ${statusType} Contests</h3>
             <button onclick="document.getElementById('contest-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">✕ Close</button>
         </div>
         <div id="contest-list-content" style="font-size:14px; color:#ddd;">
-            <p style="text-align:center; color:#888;">Loading contests...</p>
+            <p style="text-align:center; color:#888;">Loading your joined contests...</p>
         </div>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
     let listContainer = document.getElementById('contest-list-content');
 
+    // Sirf wahi tournaments fetch honge jisme current user ne join kiya ho
     db.collection('tournaments')
       .where('status', '==', statusType)
+      .where('participants', 'array-contains', currentUsername)
       .get()
       .then(snapshot => {
           if(snapshot.empty) {
-              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No ${statusType.toLowerCase()} contests found.</p>`;
+              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne koi bhi ${statusType.toLowerCase()} contest join nahi kiya hai.</p>`;
               return;
           }
           let html = '';
@@ -1073,6 +1077,7 @@ window.filterContests = function(statusType) {
           listContainer.innerHTML = html;
       })
       .catch(err => {
+          // Fallback agar 'participants' field array na ho kar kisi aur format mein ho
           listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
       });
 };
