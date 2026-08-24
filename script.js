@@ -1294,4 +1294,215 @@ window.openMyEntries = function(tournamentId) {
         document.body.insertAdjacentHTML('beforeend', entryHTML);
     });
 };
+// --- 1. VIEW MORE & COUNTDOWN MODAL ---
+window.openMatchDetails = function(tournamentId) {
+    db.collection("tournaments").doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) { alert("Tournament not found!"); return; }
+        let data = doc.data();
+        let title = data.title || "Tournament";
+        let matchTime = data.time ? new Date(data.time) : new Date();
+        let roomDetails = data.roomDetails || "Room ID & Password will be displayed here 4 to 6 mins prior to match.";
+
+        let now = new Date();
+        let diff = matchTime - now;
+        let days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+        let hours = Math.max(0, Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+        let minutes = Math.max(0, Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
+        let seconds = Math.max(0, Math.floor((diff % (1000 * 60)) / 1000));
+
+        let modalHTML = `
+        <div id="match-details-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; overflow-y:auto; color:#fff; font-family:sans-serif;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#121212; border-bottom:1px solid #333;">
+                <h3 style="margin:0; font-size:16px; color:#ff9800;">View More - ${title}</h3>
+                <button onclick="document.getElementById('match-details-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            
+            <div style="padding:20px; text-align:center;">
+                <p style="color:#d1c4e9; font-size:11px; line-height:1.4; margin-bottom:15px;">
+                    *ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH<br>
+                    *STAY IN YOUR GIVEN ROOM SLOT OR YOU WILL BE KICKED FROM THE ROOM
+                </p>
+                
+                <div style="background:#1a1a2e; border:1px solid #3f51b5; border-radius:10px; padding:25px; margin-bottom:25px;">
+                    <p style="color:#ffcc00; font-size:13px; margin:0; font-weight:bold;">${roomDetails}</p>
+                </div>
+
+                <p style="font-size:15px; font-weight:bold; margin-bottom:15px; color:#fff;">Game Start In</p>
+                <div style="display:flex; justify-content:center; gap:12px; margin-bottom:30px;">
+                    <div style="background:#22194d; border:2px solid #7c4dff; border-radius:50%; width:65px; height:65px; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:16px; font-weight:bold;">${days}</span><span style="font-size:9px; color:#aaa;">Days</span></div>
+                    <div style="background:#22194d; border:2px solid #7c4dff; border-radius:50%; width:65px; height:65px; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:16px; font-weight:bold;">${hours}</span><span style="font-size:9px; color:#aaa;">Hours</span></div>
+                    <div style="background:#22194d; border:2px solid #7c4dff; border-radius:50%; width:65px; height:65px; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:16px; font-weight:bold;">${minutes}</span><span style="font-size:9px; color:#aaa;">Mins</span></div>
+                    <div style="background:#22194d; border:2px solid #7c4dff; border-radius:50%; width:65px; height:65px; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:16px; font-weight:bold;">${seconds}</span><span style="font-size:9px; color:#aaa;">Secs</span></div>
+                </div>
+
+                <div style="display:flex; gap:12px;">
+                    <button onclick="openParticipantsList('${tournamentId}')" style="flex:1; background:#00acc1; color:#fff; border:none; padding:14px; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;">VIEW PARTICIPANTS</button>
+                    <button onclick="openMyEntries('${tournamentId}')" style="flex:1; background:#7c4dff; color:#fff; border:none; padding:14px; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;">MY ENTRIES</button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    });
+};
+
+// --- 2. VIEW PARTICIPANTS LIST ---
+window.openParticipantsList = function(tournamentId) {
+    db.collection("tournaments").doc(tournamentId).get().then((doc) => {
+        let data = doc.data();
+        let slotsData = data.slots || {};
+        
+        let listHTML = `
+        <div id="participants-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto; font-family:sans-serif;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <h3 style="margin:0; color:#ffcc00; font-size:16px;">VIEW PARTICIPANTS</h3>
+                <button onclick="document.getElementById('participants-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold;">✕</button>
+            </div>
+            <div style="background:#1e1e1e; border-radius:10px; padding:15px;">`;
+        
+        let keys = Object.keys(slotsData);
+        if(keys.length === 0) {
+            listHTML += `<p style="text-align:center; color:#aaa;">No participants joined yet.</p>`;
+        } else {
+            keys.forEach((slotNum) => {
+                listHTML += `<p style="border-bottom:1px solid #333; padding:10px 0; margin:0; font-size:14px;">• Slot: <b>${slotNum}</b> &nbsp;|&nbsp; Player: <b>${slotsData[slotNum]}</b></p>`;
+            });
+        }
+        listHTML += `</div></div>`;
+        document.body.insertAdjacentHTML('beforeend', listHTML);
+    });
+};
+
+// --- 3. MY ENTRIES ---
+window.openMyEntries = function(tournamentId) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    db.collection("tournaments").doc(tournamentId).get().then((doc) => {
+        let data = doc.data();
+        let slotsData = data.slots || {};
+        let myAssignedSlot = null;
+        
+        for (let s in slotsData) {
+            if (slotsData[s] === currentUsername) { myAssignedSlot = s; break; }
+        }
+
+        let entryHTML = `
+        <div id="myentries-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff; font-family:sans-serif;">
+            <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:90%; max-width:350px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:8px;">
+                    <h3 style="margin:0; color:#ffcc00; font-size:16px;">MY ENTRIES</h3>
+                    <button onclick="document.getElementById('myentries-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:5px 10px; border-radius:5px; font-weight:bold;">✕</button>
+                </div>`;
+
+        if(myAssignedSlot !== null) {
+            entryHTML += `
+                <div style="background:#121212; padding:15px; border-radius:8px; text-align:center;">
+                    <p style="margin:0 0 10px 0; font-size:14px; color:#aaa;">Tournament ID: #${tournamentId.slice(0,6)}</p>
+                    <p style="margin:0; font-size:15px; color:#00e676;">• Slot: <b>${myAssignedSlot}</b><br>• Username: <b>${currentUsername}</b></p>
+                </div>`;
+        } else {
+            entryHTML += `<p style="text-align:center; color:#ff4444; margin:20px 0;">Aapne is tournament ko join nahi kiya hai!</p>`;
+        }
+        entryHTML += `</div></div>`;
+        document.body.insertAdjacentHTML('beforeend', entryHTML);
+    });
+};
+
+// --- 4. SECURE SLOT SELECTION POPUP ---
+window.openSlotSelection = function(tournamentId) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+
+    db.collection("tournaments").doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) return;
+        let data = doc.data();
+        let bookedSlots = data.slots || {}; 
+        let participants = data.participants || [];
+
+        if (participants.includes(currentUsername)) {
+            alert("Aap pehle hi is tournament mein join hain!");
+            return;
+        }
+
+        let slotHTML = `
+        <div id="slot-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:10000; overflow-y:auto; padding:20px; color:#fff; font-family:sans-serif;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:#ffcc00; margin:0;">Choose your match slot</h3>
+                <button onclick="document.getElementById('slot-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold;">✕</button>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:20px;">
+        `;
+
+        let maxSlots = data.maxSlots || 48;
+        for (let i = 1; i <= maxSlots; i++) {
+            let isBooked = bookedSlots[i] ? true : false;
+            if (isBooked) {
+                slotHTML += `
+                <div style="background:#2a2a2a; border:2px solid #444; padding:15px; text-align:center; border-radius:8px; opacity:0.6; cursor:not-allowed;">
+                    <input type="checkbox" checked disabled style="margin-right:5px;"> <b>${i}</b>
+                    <br><span style="font-size:9px; color:#aaa; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;">${bookedSlots[i]}</span>
+                </div>`;
+            } else {
+                slotHTML += `
+                <div onclick="selectSlotNumber(${i})" id="slot-box-${i}" class="selectable-slot" style="background:#1e1e1e; border:2px solid #7c4dff; padding:15px; text-align:center; border-radius:8px; cursor:pointer;">
+                    <input type="checkbox" id="chk-${i}" style="margin-right:5px; pointer-events:none;"> <b>${i}</b>
+                </div>`;
+            }
+        }
+
+        slotHTML += `
+            </div>
+            <button onclick="confirmSlotBooking('${tournamentId}')" style="width:100%; background:#00acc1; color:#fff; border:none; padding:15px; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer;">CONFIRM SLOT</button>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', slotHTML);
+    });
+};
+
+let selectedSlotNumber = null;
+window.selectSlotNumber = function(slotNum) {
+    document.querySelectorAll('.selectable-slot').forEach(el => el.style.background = '#1e1e1e');
+    selectedSlotNumber = slotNum;
+    let box = document.getElementById(`slot-box-${slotNum}`);
+    if(box) {
+        box.style.background = '#7c4dff';
+        document.getElementById(`chk-${slotNum}`).checked = true;
+    }
+};
+
+window.confirmSlotBooking = function(tournamentId) {
+    if (!selectedSlotNumber) {
+        alert("Pehle koi ek khali slot select karein!");
+        return;
+    }
+
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    let tournamentRef = db.collection("tournaments").doc(tournamentId);
+
+    db.runTransaction((transaction) => {
+        return transaction.get(tournamentRef).then((doc) => {
+            if (!doc.exists) throw "Tournament does not exist!";
+            let data = doc.data();
+            let bookedSlots = data.slots || {};
+
+            if (bookedSlots[selectedSlotNumber]) {
+                throw "Yeh slot abhi-abhi kisi aur ne book kar liya hai! Dusra slot chunhein.";
+            }
+
+            bookedSlots[selectedSlotNumber] = currentUsername;
+            let participants = data.participants || [];
+            if (!participants.includes(currentUsername)) participants.push(currentUsername);
+
+            transaction.update(tournamentRef, {
+                slots: bookedSlots,
+                participants: participants
+            });
+        });
+    }).then(() => {
+        alert("Match successfully joined on Slot #" + selectedSlotNumber + "!");
+        document.getElementById('slot-modal').remove();
+        location.reload();
+    }).catch((error) => {
+        alert(error);
+        location.reload();
+    });
+};
 
