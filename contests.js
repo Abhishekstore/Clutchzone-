@@ -213,71 +213,17 @@ window.filterContests = function(statusType) {
             }
 
             if (isJoined) {
-                                        let matchStatus = (d.status || 'upcoming').toLowerCase();
-            
-            if (matchStatus !== 'completed' && matchStatus !== 'cancelled') {
-                if (d.time) {
-                    try {
-                        let matchTime;
-                        if (d.time.includes('-') || d.time.includes('/')) {
-                            let parts = d.time.split(' ');
-                            let dateParts = parts[0].split(/[-/]/);
-                            if (dateParts.length === 3) {
-                                let day = parseInt(dateParts[0], 10);
-                                let month = parseInt(dateParts[1], 10) - 1;
-                                let year = parseInt(dateParts[2], 10);
-                                
-                                let hours = 0, mins = 0, secs = 0;
-                                if (parts[1]) {
-                                    let timeParts = parts[1].split(':');
-                                    hours = parseInt(timeParts[0] || 0, 10);
-                                    mins = parseInt(timeParts[1] || 0, 10);
-                                    secs = parseInt(timeParts[2] || 0, 10);
-                                    
-                                    if (parts[2] && parts[2].toLowerCase() === 'pm' && hours < 12) hours += 12;
-                                    if (parts[2] && parts[2].toLowerCase() === 'am' && hours === 12) hours = 0;
-                                }
-                                matchTime = new Date(year, month, day, hours, mins, secs);
-                            } else {
-                                matchTime = new Date(d.time);
-                            }
-                        } else {
-                            matchTime = new Date(d.time);
-                        }
+                                            if (isJoined) {
+        let matchStatus = (d.status || 'upcoming').toLowerCase();
 
-                        let now = new Date();
-                        if (matchTime && !isNaN(matchTime.getTime())) {
-                            let diffMins = (now - matchTime) / (1000 * 60);
-                            
-                            if (diffMins > 45) {
-                                matchStatus = 'completed';
-                            } else if (diffMins >= 0) {
-                                matchStatus = 'ongoing';
-                            } else {
-                                matchStatus = 'upcoming';
-                            }
-                        }
-                    } catch (e) {
-                        matchStatus = (d.status || 'upcoming').toLowerCase();
-                    }
-                }
-            }
-
-            // Automatic Refund Logic
-            if (matchStatus === 'cancelled' && Number(d.entryFee || 0) > 0) {
-                let refundedUsers = d.refundedUsers || [];
-                if (!refundedUsers.includes(currentUsername)) {
-                    db.collection('users').doc(currentUsername).get().then(userDoc => {
-                        let currentWallet = userDoc.exists && userDoc.data().wallet ? Number(userDoc.data().wallet) : 0;
-                        let refundAmount = Number(d.entryFee);
-                        let updatedWallet = currentWallet + refundAmount;
-                        
-                        db.collection('users').doc(currentUsername).set({ wallet: updatedWallet }, { merge: true });
-                        refundedUsers.push(currentUsername);
-                        db.collection('tournaments').doc(docId).update({ refundedUsers: refundedUsers });
-                    }).catch(err => {});
-                }
-            }
+        let matchesTab = false;
+        if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
+            matchesTab = true;
+        } else if (targetTab === 'completed' && (matchStatus === 'completed' || matchStatus === 'finished')) {
+            matchesTab = true;
+        } else if (targetTab === 'ongoing' && matchStatus === 'ongoing') {
+            matchesTab = true;
+        }
 
 
                 
