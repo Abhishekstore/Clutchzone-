@@ -706,3 +706,22 @@ window.submitDepositRequest = function() {
         alert("Error: " + err.message);
     });
 };
+// Bottom Navigation aur Top Buttons ke liye yeh functions add karein:
+window.openMyProfile = function() {
+    alert("Profile section open ho raha hai...");
+    // Agar aapke paas profile modal ya tab hai toh uska code yahan likhein
+};
+
+window.openMyWallet = function() {
+    alert("Wallet section open ho raha hai...");
+};
+
+window.openTopPlayers = function() {
+    alert("Top players ranking...");
+};
+
+// Bottom bar tabs ke liye agar function missing hain:
+window.switchTab = function(tabName) {
+    console.log("Switching to: " + tabName);
+    // Yahan apne tabs ko show/hide karne ka logic lagayein
+};
