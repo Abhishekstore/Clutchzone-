@@ -737,3 +737,90 @@ window.openTopPlayers = function() {
 window.openSupport = function() {
     alert("📞 Support: Contact admin via Telegram/WhatsApp");
 };
+// ==========================================
+// CLUTCHZONE POLICY, FAQ & ABOUT MODALS
+// ==========================================
+
+function showClutchzoneModal(title, contentHTML) {
+    let existing = document.getElementById('clutchzone-info-modal');
+    if (existing) existing.remove();
+
+    let modalHTML = `
+    <div id="clutchzone-info-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+            <h2 style="color:#ffcc00; margin:0; font-size:18px;">${title}</h2>
+            <button onclick="document.getElementById('clutchzone-info-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">✕ Close</button>
+        </div>
+        <div style="font-size:14px; line-height:1.6; color:#ddd; padding-bottom:30px;">
+            ${contentHTML}
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// 1. FAQ Modal
+window.openFAQ = function() {
+    let content = `
+        <p><b>💰 1. How to add cash?</b><br>👉 Go to Wallet → Click on Add Coins → Choose amount → Pay via UPI.<br>⚡ Balance instantly update ho jata hai.</p>
+        <p><b>🎮 2. How to join match?</b><br>👉 App open karo → Mode select karo (CS / LW / Full Map) → Entry pay karo → Match join ho jayega.</p>
+        <p><b>🆔 3. ID & Password kab milta hai?</b><br>👉 Match start se thoda pehle “My Matches” section me show hota hai.</p>
+        <p><b>💸 4. How to withdraw money?</b><br>👉 Wallet → Withdraw → UPI ID enter karo → Amount select karo → Submit.</p>
+        <p><b>⏱️ 5. Withdraw kitne time me aata hai?</b><br>👉 Usually instant se few hours (within 24 hours). Kabhi bank issue se thoda delay ho sakta hai.</p>
+        <p><b>⚠️ 6. Match ID/Password nahi mila toh?</b><br>👉 Support pe contact karo: <a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00;">Telegram</a></p>
+        <p><b>🔒 7. Is Clutchzone safe?</b><br>👉 Yes, 100% secure platform hai. Fair play + active support available.</p>
+        <p><b>🚫 8. Fake proof / abuse ka kya hoga?</b><br>👉 Fake payment / abuse = direct account ban.</p>
+        <p><b>✉️ 9. Support kaise contact kare?</b><br>👉 Telegram: <a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00;">https://t.me/clutchzoneprime</a></p>
+        <p><b>🔄 10. Refund kab milta hai?</b><br>👉 Agar match cancel ya host issue hua ho.</p>
+    `;
+    showClutchzoneModal("FAQ - Clutchzone", content);
+};
+
+// 2. Privacy Policy Modal
+window.openPrivacy = function() {
+    let content = `
+        <p>We value your privacy and are committed to protecting your personal information at <b>Clutchzone</b>.</p>
+        <p>All user data is securely stored and is never shared with any third parties under any circumstances.</p>
+        <p>The data we collect is used strictly to improve user experience and ensure smooth and fair gameplay.</p>
+        <p><b>Account Security:</b> Your account security is your responsibility. Your password is private and visible only to you. Do not share your password with anyone, including the owner or any Clutchzone staff member.</p>
+        <p><b>Official Support:</b> For any support or assistance, use only our official Telegram channel: <a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00;">https://t.me/clutchzoneprime</a>. Please be cautious of fake accounts.</p>
+        <p>Do not make any payments to staff members. No tips, fees, or additional charges are required.</p>
+        <p>Stay informed, stay secure, and enjoy a safe gaming experience with Clutchzone!</p>
+    `;
+    showClutchzoneModal("Privacy Policy - Clutchzone", content);
+};
+
+// 3. Terms & Conditions Modal
+window.openTerms = function() {
+    let content = `
+        <p>Welcome to <b>Clutchzone</b>. By accessing or using our platform, you agree to comply with the following terms and conditions.</p>
+        <p><b>1. ELIGIBILITY:</b> Users must be 18 years or older to register and participate. Only one account per user/device/IP is allowed.</p>
+        <p><b>2. FAIR PLAY POLICY:</b> All matches are strictly skill-based. Use of hacks, cheats, or unfair advantage will lead to an immediate permanent ban.</p>
+        <p><b>3. PAYMENTS & ADD CASH:</b> All deposits are final and non-refundable except in valid technical error cases.</p>
+        <p><b>4. WITHDRAWALS:</b> Withdrawals are processed within the specified time frame. Users must provide accurate UPI details.</p>
+        <p><b>5. REFUND POLICY:</b> Refunds are only applicable in verified technical issues from our side.</p>
+        <p><b>6. SUPPORT:</b> Official support channel: <a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00;">https://t.me/clutchzoneprime</a>.</p>
+        <p>Thank you for being a part of Clutchzone!</p>
+    `;
+    showClutchzoneModal("Terms & Conditions - Clutchzone", content);
+};
+
+// 4. About Us Modal
+window.openAbout = function() {
+    let content = `
+        <p><b>Welcome to Clutchzone!</b></p>
+        <p>Clutchzone is your premier esports tournament platform designed for gamers to compete, win exciting cash prizes, and showcase their gaming skills.</p>
+        <p><b>Official Telegram Channel:</b> <a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00;">https://t.me/clutchzoneprime</a></p>
+        <p><b>App Version:</b> v1.11</p>
+    `;
+    showClutchzoneModal("About Us - Clutchzone", content);
+};
+
+// 5. Support / Contact Us Modal
+window.openSupport = function() {
+    let content = `
+        <p><b>Need Help? Contact Clutchzone Support</b></p>
+        <p>For any queries, match issues, or payment assistance, reach out to us directly on our official Telegram channel:</p>
+        <p><a href="https://t.me/clutchzoneprime" target="_blank" style="color:#ffcc00; font-size:16px; font-weight:bold;">👉 Click here to join Telegram Support</a></p>
+    `;
+    showClutchzoneModal("Support - Clutchzone", content);
+};
