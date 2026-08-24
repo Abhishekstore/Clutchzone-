@@ -77,32 +77,32 @@ function getBannerByType(type, mode) {
     let m = (mode || '').toLowerCase();
     let combined = (t + ' ' + m).trim();
 
-    // Aap yahan apni uploaded images ke links paste kar sakte hain:
     if (combined.includes('4vs4') || combined.includes('4v4')) {
-        return 'IMG_20260824_221300.jpg'; 
+        return 'banners/IMG_20260824_221300.jpg'; 
     } 
     else if (combined.includes('3vs3') || combined.includes('3v3')) {
-        return 'IMG_20260824_221319.jpg'; 
+        return 'banners/IMG_20260824_221319.jpg'; 
     } 
     else if (combined.includes('2vs2') || combined.includes('2v2')) {
-        return 'IMG_20260824_221318.jpg'; 
+        return 'banners/IMG_20260824_221338.jpg'; 
     } 
     else if (combined.includes('1vs1') || combined.includes('1v1')) {
-        return 'IMG_20260824_221414.jpg'; 
+        return 'banners/IMG_20260824_221414.jpg'; 
     } 
     else if (combined.includes('squad')) {
-        return 'IMG_20260824_221457.jpg'; 
+        return 'banners/IMG_20260824_221457.jpg'; 
     } 
     else if (combined.includes('duo')) {
-        return 'IMG_20260824_221432.jpg'; 
+        return 'banners/IMG_20260824_221432.jpg'; 
     } 
     else if (combined.includes('solo')) {
-        return 'IMG_20260824_221547.jpg'; 
+        return 'banners/IMG_20260824_221547.jpg'; 
     } 
     else {
         return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc'; // Default Fallback
     }
 }
+
 
 // ==========================================
 // 4. DETAILED JOINED MATCH MODAL (Image 3 Style)
