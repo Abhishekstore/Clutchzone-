@@ -1,26 +1,23 @@
-// ==========================================
+// ==============================
 // 1. JOIN TOURNAMENT LOGIC
-// ==========================================
+// ==============================
 window.joinTournament = function(tournamentId) {
-    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('username') || '';
-    if(!currentUsername) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserNaame') || localStorage.getItem('username') || '';
+    if (!currentUsername) {
         alert('Pehle login karein!');
         return;
     }
-
     let docRef = db.collection('tournaments').doc(tournamentId);
     docRef.get().then(doc => {
-        if(doc.exists) {
+        if (doc.exists) {
             let data = doc.data();
             let participants = data.participants || [];
-            
-            if(participants.includes(currentUsername)) {
+            if (participants.some(p => p && p.toLowerCase() === currentUsername.toLowerCase())) {
                 alert('Aapne yeh match pehle hi join kar liya hai!');
                 return;
             }
-
             participants.push(currentUsername);
-            docRef.update({ 
+            docRef.update({
                 participants: participants
             }).then(() => {
                 alert('Successfully Joined Tournament!');
@@ -32,36 +29,45 @@ window.joinTournament = function(tournamentId) {
     });
 };
 
-// ==========================================
-// 2. VIEW PARTICIPANTS / ENTRIES MODAL (Image 4 Style)
-// ==========================================
-window.openViewEntriesModal = function(tournamentTitle, participantsList, matchId) {
+// ==============================
+// 2. VIEW PARTICIPANTS / ENTRIES MODAL
+// ==============================
+window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, matchId) {
     let existing = document.getElementById('participants-modal');
     if (existing) existing.remove();
 
+    let participantslist = [];
+    try {
+        if (encodedParticipants) {
+            participantslist = JSON.parse(atob(encodedParticipants));
+        }
+    } catch(e) {
+        participantslist = [];
+    }
+
     let listHTML = '';
-    if(!participantsList || participantsList.length === 0) {
-        listHTML = `<p style="text-align:center; color:#888; padding:20px;">Koi entries nahi mili.</p>`;
+    if (!participantslist || participantslist.length === 0) {
+        listHTML = '<p style="text-align: center; color: #888; padding: 20px;">Koi entries nahi mili.</p>';
     } else {
-        participantsList.forEach((user, index) => {
+        participantslist.forEach((user, index) => {
             let teamNo = index + 1;
-            listHTML += `<div style="padding:12px 15px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center; color:#000; font-size:14px;">
-                <span>• Team: ${teamNo}, Pos: A - <strong style="color:#d32f2f;">${user}</strong></span>
+            listHTML += `<div style="padding:12px 15px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                <span>- Team: ${teamNo}, Pos: A - <strong style="color:#d32f2f;">${user}</strong></span>
             </div>`;
         });
     }
 
     let modalHTML = `
-    <div id="participants-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:flex; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:#fff; width:100%; max-width:380px; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; max-height:80vh; color:#000;">
+    <div id="participants-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 15px;">
+        <div style="background: #fff; width: 100%; max-width: 380px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 80vh;">
             <!-- Header -->
-            <div style="background:#512da8; padding:15px; text-align:center; position:relative; color:#fff;">
-                <h3 style="margin:0; font-size:16px; font-weight:bold;">VIEW PARTICIPANTS</h3>
-                <small style="font-size:12px; opacity:0.8;">Match # ${matchId || '95216'}</small>
-                <button onclick="document.getElementById('participants-modal').remove()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#fff; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
+            <div style="background: #512da8; padding: 15px; position: relative; color: #fff;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold;">VIEW PARTICIPANTS</h3>
+                <small style="font-size: 12px; opacity: 0.8;">Match # ${matchId || '95216'}</small>
+                <button onclick="document.getElementById('participants-modal').remove()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer;">✕</button>
             </div>
             <!-- List Content -->
-            <div style="overflow-y:auto; padding:10px; background:#fff; max-height:60vh;">
+            <div style="overflow-y: auto; padding: 10px; background: #fff; max-height: 60vh;">
                 ${listHTML}
             </div>
         </div>
@@ -69,44 +75,36 @@ window.openViewEntriesModal = function(tournamentTitle, participantsList, matchI
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-// ==========================================
+// ==============================
 // 3. BANNER MANAGER FOR ALL MODES
-// ==========================================
+// ==============================
 function getBannerByType(type, mode) {
     let t = (type || '').toLowerCase();
     let m = (mode || '').toLowerCase();
     let combined = (t + ' ' + m).trim();
 
-    if (combined.includes('4vs4') || combined.includes('4v4')) {
-        return 'banners/IMG_20260824_221300.jpg'; 
-    } 
-    else if (combined.includes('3vs3') || combined.includes('3v3')) {
-        return 'banners/IMG_20260824_221319.jpg'; 
-    } 
-    else if (combined.includes('2vs2') || combined.includes('2v2')) {
-        return 'banners/IMG_20260824_221338.jpg'; 
-    } 
-    else if (combined.includes('1vs1') || combined.includes('1v1')) {
-        return 'banners/IMG_20260824_221414.jpg'; 
-    } 
-    else if (combined.includes('squad')) {
-        return 'banners/IMG_20260824_221457.jpg'; 
-    } 
-    else if (combined.includes('duo')) {
-        return 'banners/IMG_20260824_221432.jpg'; 
-    } 
-    else if (combined.includes('solo')) {
-        return 'banners/IMG_20260824_221547.jpg'; 
-    } 
-    else {
-        return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc'; // Default Fallback
+    if (combined.includes('4v4') || combined.includes('4*4')) {
+        return 'banners/IMG_20260824_221300.jpg';
+    } else if (combined.includes('3v3') || combined.includes('3*3')) {
+        return 'banners/IMG_20260824_221319.jpg';
+    } else if (combined.includes('2v2') || combined.includes('2*2')) {
+        return 'banners/IMG_20260824_221338.jpg';
+    } else if (combined.includes('1v1') || combined.includes('1*1')) {
+        return 'banners/IMG_20260824_221414.jpg';
+    } else if (combined.includes('squad')) {
+        return 'banners/IMG_20260824_221457.jpg';
+    } else if (combined.includes('duo')) {
+        return 'banners/IMG_20260824_221432.jpg';
+    } else if (combined.includes('solo')) {
+        return 'banners/IMG_20260824_221547.jpg';
+    } else {
+        return 'https://images.unsplash.com/photo-15348110705-c7104e0365fc';
     }
 }
 
-
-// ==========================================
-// 4. DETAILED JOINED MATCH MODAL (Image 3 Style)
-// ==========================================
+// ==============================
+// 4. DETAILED JOINED MATCH MODAL
+// ==============================
 window.openJoinedTournamentDetails = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
         if(!doc.exists) return;
@@ -114,65 +112,66 @@ window.openJoinedTournamentDetails = function(docId) {
         let docIdStr = doc.id;
 
         let existing = document.getElementById('joined-details-modal');
-        if (existing) existing.remove();
+        if(existing) existing.remove();
 
         let bannerImg = getBannerByType(d.type, d.mode || d.title);
+        let encodedParticipants = btoa(JSON.stringify(d.participants || []));
+        let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
 
         let modalHTML = `
-        <div id="joined-details-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0b0b14; z-index:9999; display:flex; flex-direction:column; padding:15px; color:#fff; overflow-y:auto;">
+        <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
             <!-- Top Bar -->
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <button onclick="document.getElementById('joined-details-modal').remove()" style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer;">←</button>
-                <h3 style="margin:0; font-size:18px; color:#fff; font-weight:normal;">View More</h3>
-                <div style="width:20px;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button onclick="document.getElementById('joined-details-modal').remove()" style="background: none; border: none; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer;">✕</button>
+                <h3 style="margin: 0; font-size: 18px; color: #0ff; font-weight: normal;">View More</h3>
+                <div style="width: 20px;"></div>
             </div>
 
             <!-- Rules Text -->
-            <div style="font-size:11px; color:#a280ff; margin-bottom:15px; line-height:1.4; font-weight:bold;">
-                <p style="margin:0 0 4px 0;">*ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH</p>
-                <p style="margin:0;">*STAY IN YOUR GIVEN ROOM SLOT OR YOU WILL BE KICKED FROM THE ROOM</p>
+            <div style="font-size: 11px; color: #a280ff; margin-bottom: 15px; line-height: 1.4; font-weight: bold;">
+                <p style="margin: 0 0 4px 0;">*ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH</p>
+                <p style="margin: 0;">*STAY IN YOUR GIVEN ROOM SLOT OR YOU WILL BE KICKED FROM THE ROOM</p>
             </div>
 
-            <p style="font-size:12px; text-align:center; color:#ccc; margin-bottom:8px;">HOW TO JOIN CUSTOM ROOM ?</p>
+            <p style="font-size: 12px; text-align: center; color: #ccc; margin-bottom: 8px;">*HOW TO JOIN CUSTOM ROOM ?*</p>
 
             <!-- Banner with Watermark -->
-            <div style="width:100%; height:170px; border-radius:10px; overflow:hidden; margin-bottom:15px; background:url('${bannerImg}') no-repeat center center; background-size:cover; position:relative; display:flex; justify-content:center; align-items:center; border:1px solid #333;">
-                <div style="position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.5);"></div>
-                <div style="position:relative; z-index:2; text-align:center; padding:10px;">
-                    <p style="color:#fff; font-size:13px; margin:0; opacity:0.9;">Room id and Password will be display here</p>
+            <div style="width: 100%; height: 170px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; position: relative; background: url('${bannerImg}') center/cover no-repeat;">
+                <div style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
+                <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 10px;">
+                    <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9;">Room Id and Password will be display here before 5-10 min of match start</p>
                 </div>
             </div>
 
             <!-- Action Buttons (View Match & View Entries) -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                <button style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer;">VIEW MATCH</button>
-                <button onclick="openViewEntriesModal('${d.title || d.name || 'Match'}', ${JSON.stringify(d.participants || [])}, '${docIdStr.slice(-5)}') " style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer;">VIEW ENTRIES</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">View Match</button>
+                <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">View Entries</button>
             </div>
 
             <!-- Countdown Timer Box -->
-            <div style="background:#673ab7; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#fff;">Game Start In</p>
-                <div style="display:flex; justify-content:space-around; color:#fff;">
-                    <div style="width:50px; height:50px; border:2px solid #fff; border-radius:50%; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:14px; font-weight:bold;">0</span><small style="font-size:8px;">Days</small></div>
-                    <div style="width:50px; height:50px; border:2px solid #fff; border-radius:50%; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:14px; font-weight:bold;">13</span><small style="font-size:8px;">Hours</small></div>
-                    <div style="width:50px; height:50px; border:2px solid #fff; border-radius:50%; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:14px; font-weight:bold;">28</span><small style="font-size:8px;">Minutes</small></div>
-                    <div style="width:50px; height:50px; border:2px solid #fff; border-radius:50%; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-size:14px; font-weight:bold;">15</span><small style="font-size:8px;">Seconds</small></div>
+            <div style="background: #0673ab; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #fff;">Game Start In</p>
+                <div style="display: flex; justify-content: space-around; color: #fff;">
+                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
+                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
+                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
                 </div>
             </div>
 
-            <!-- Bottom Buttons (My Entries & Match Full) -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:auto;">
-                <button onclick="openViewEntriesModal('${d.title || d.name || 'Match'}', ${JSON.stringify(d.participants || [])}, '${docIdStr.slice(-5)}') " style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer;">MY ENTRIES</button>
-                <button style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer;">MATCH FULL</button>
+            <!-- Bottom Buttons (My Entries & Watch Full) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto;">
+                <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">My Entries</button>
+                <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Watch Full</button>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     });
 };
 
-// ==========================================
-// 5. FILTER CONTEXTS (Status Filtering)
-// ==========================================
+// ==============================
+// 5. FILTER CONTESTS (Status Filtering)
+// ==============================
 window.filterContests = function(statusType) {
     let existing = document.getElementById("contest-modal");
     if (existing) existing.remove();
@@ -266,7 +265,7 @@ window.filterContests = function(statusType) {
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span style="padding: 4px 10px; border-radius: 4px; font-size: 11px; background: ${matchStatus === 'completed' ? '#ff9800' : '#00e676'}; color: #000; font-weight: bold;">${matchStatus.toUpperCase()}</span>
                                 <span style="color: #00bcd4; font-size: 12px; font-weight: bold;">TAP TO VIEW ➔</span>
-                                </div>
+                            </div>
                         </div>
                     </div>`;
                 }
