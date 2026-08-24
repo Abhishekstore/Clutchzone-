@@ -836,7 +836,7 @@ window.openAddCoinsModal = function() {
     let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || 'User';
     
     // ⚠️ Yahan apni UPI ID daalein
-    let adminUpi = "clutchzone@paytm"; 
+    let adminUpi = "kinggkwrd@okicici"; 
 
     let modalHTML = `
     <div id="add-coins-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff;">
