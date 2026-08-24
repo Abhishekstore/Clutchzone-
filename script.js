@@ -85,83 +85,57 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
     let container = document.getElementById("tournaments-cards-container");
     if(!container) return;
 
-    let promises = [];
+    if(querySnapshot.empty) {
+        container.innerHTML = `<div style="color:#fff; text-align:center; padding:20px; font-size:14px;">No tournaments found for ${categoryName}!</div>`;
+        return;
+    }
 
     querySnapshot.forEach((docSnapshot) => {
         let d = docSnapshot.data();
         let docid = docSnapshot.id;
 
-        if (d.startTime) {
-            let matchTime = new Date(d.startTime);
-            let currentTime = new Date();
-            if (matchTime <= currentTime) return;
-        }
-        if (d.status === 'Completed') return;
-
         let totalSlots = d.maxSlots || 48;
+        let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+        let participantsList = d.participants || [];
+        let hasJoined = participantsList.includes(currentUsername);
 
-        let p = db.collection('joined_matches').where('tournamentId', '==', docid).get().then((joinedSnap) => {
-            let joinedCount = joinedSnap.size;
-            let spotsLeft = totalSlots - joinedCount;
-            if (spotsLeft < 0) spotsLeft = 0;
-            let progressPercent = (joinedCount / totalSlots) * 100;
+        let actionButtonHTML = "";
+        let cardClickAction = `onclick="openSlotSelection('${docid}')"`;
 
-            let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
-            let participantsList = d.participants || [];
-            let hasJoined = participantsList.includes(currentUsername);
+        if (hasJoined) {
+            actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOINED</button>`;
+        } else {
+            actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
+        }
 
-            let actionButtonHTML = "";
-            let cardClickAction = "";
+        let cardHTML = `
+        <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
+            <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Tournament'}</span>
+            </div>
 
-            if (hasJoined) {
-                actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOINED</button>`;
-                cardClickAction = `onclick="openMatchDetails('${docid}')"`;
-            } else {
-                actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
-                cardClickAction = `onclick="openSlotSelection('${docid}')"`;
-            }
-
-            let cardHTML = `
-            <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
-                <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                    <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Tournament'}</span>
+            <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-top:10px;">
+                <div style="flex:1;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🔥 ENTRY</div>
+                    <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
                 </div>
-
-                <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-top:10px;">
-                    <div style="flex:1;">
-                        <div style="font-size:10px; color:#aaa; font-weight:bold;">🔥 ENTRY</div>
-                        <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
-                    </div>
-                    <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
-                        <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
-                        <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
-                    </div>
-                    <div style="flex:1; text-align:right;">
-                        <div style="font-size:10px; color:#aaa; font-weight:bold;">💥 KILL</div>
-                        <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 0}</div>
-                    </div>
+                <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
+                    <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
                 </div>
-
-                <div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 5px;">
-                        <span>Only ${spotsLeft} Spot${spotsLeft === 1 ? '' : 's'} Left</span>
-                        <span><b>${joinedCount}/${totalSlots}</b></span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
-                            <div style="background: #ff9800; width: ${progressPercent}%; height: 100%;"></div>
-                        </div>
-                    </div>
-                    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-                        ${actionButtonHTML}
-                    </div>
+                <div style="flex:1; text-align:right;">
+                    <div style="font-size:10px; color:#aaa; font-weight:bold;">💥 KILL</div>
+                    <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 0}</div>
                 </div>
-            </div>`;
+            </div>
 
-            container.insertAdjacentHTML('beforeend', cardHTML);
-        });
+            <div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:#aaa;">Max Slots: <b>${totalSlots}</b></span>
+                <div>${actionButtonHTML}</div>
+            </div>
+        </div>`;
 
-        promises.push(p);
+        container.insertAdjacentHTML('beforeend', cardHTML);
     });
 };
 
