@@ -1033,15 +1033,137 @@ window.openTransactions = function() {
     });
 };
 // ==========================================
-// ROBUST CONTESTS TABS HANDLER (Fixes all matching issues)
+// 1. JOIN TOURNAMENT LOGIC (Ek user sirf ek baar join karega)
+// ==========================================
+window.joinTournament = function(tournamentId) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('username') || '';
+    if(!currentUsername) {
+        alert('Pehle login karein!');
+        return;
+    }
+
+    let docRef = db.collection('tournaments').doc(tournamentId);
+    docRef.get().then(doc => {
+        if(doc.exists) {
+            let data = doc.data();
+            let participants = data.participants || [];
+            
+            // Check if already joined
+            if(participants.includes(currentUsername)) {
+                alert('Aapne yeh match pehle hi join kar liya hai!');
+                return;
+            }
+
+            // Add user to participants array & set status to Upcoming if not already
+            participants.push(currentUsername);
+            docRef.update({ 
+                participants: participants,
+                status: 'Upcoming' 
+            }).then(() => {
+                alert('Successfully Joined Tournament! Yeh ab "Upcoming" tab mein dikhega.');
+                location.reload();
+            });
+        }
+    }).catch(err => {
+        alert('Error joining tournament: ' + err.message);
+    });
+};
+
+// ==========================================
+// 2. VIEW PARTICIPANTS / ENTRIES MODAL (Screenshot 4 Jaisa)
+// ==========================================
+window.openViewEntriesModal = function(tournamentTitle, participantsList) {
+    let existing = document.getElementById('participants-modal');
+    if (existing) existing.remove();
+
+    let listHTML = '';
+    if(!participantsList || participantsList.length === 0) {
+        listHTML = `<p style="text-align:center; color:#888; padding:20px;">Koi entries nahi mili.</p>`;
+    } else {
+        participantsList.forEach((user, index) => {
+            listHTML += `<div style="padding:10px 15px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center; color:#fff;">
+                <span>• Team: ${index + 1}, Pos: A</span>
+                <strong style="color:#ffcc00;">${user}</strong>
+            </div>`;
+        });
+    }
+
+    let modalHTML = `
+    <div id="participants-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:flex; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:#12121a; width:100%; max-width:400px; border-radius:12px; border:1px solid #333; overflow:hidden; display:flex; flex-direction:column; max-height:80vh;">
+            <div style="background:#1e1e2f; padding:15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333;">
+                <h3 style="color:#ffcc00; margin:0; font-size:16px;">👥 View Participants (${tournamentTitle})</h3>
+                <button onclick="document.getElementById('participants-modal').remove()" style="background:#ff4444; color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <div style="overflow-y:auto; padding:10px;">
+                ${listHTML}
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+// ==========================================
+// 3. DETAILED JOINED MATCH MODAL (Screenshot 3 & Clutchzone Branding)
+// ==========================================
+window.openJoinedTournamentDetails = function(docId) {
+    db.collection('tournaments').doc(docId).get().then(doc => {
+        if(!doc.exists) return;
+        let d = doc.data();
+
+        let existing = document.getElementById('joined-details-modal');
+        if (existing) existing.remove();
+
+        let modalHTML = `
+        <div id="joined-details-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; flex-direction:column; padding:15px; color:#fff; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <h3 style="color:#ffcc00; margin:0; font-size:18px;">🏆 ${d.title || d.name || 'Tournament Details'}</h3>
+                <button onclick="document.getElementById('joined-details-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">✕ Close</button>
+            </div>
+
+            <!-- Rules & Info Box -->
+            <div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:15px; border:1px solid #333; font-size:13px; color:#bbb;">
+                <p style="margin:0 0 5px 0; color:#ffcc00; font-weight:bold;">* ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH</p>
+                <p style="margin:0;">* STAY IN YOUR GIVEN ROOM SLOT OR YOU WILL BE KICKED FROM THE ROOM</p>
+            </div>
+
+            <!-- Room ID Box with Clutchzone Logo Watermark (Screenshot 3 style) -->
+            <div style="position:relative; background:url('https://i.ibb.co/3s6pC9s/clutchzone-watermark.png') no-repeat center center; background-size:contain; background-color:#161622; height:180px; border-radius:12px; display:flex; justify-content:center; align-items:center; border:1px solid #333; margin-bottom:15px; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(18, 18, 26, 0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;">
+                    <h2 style="color:#fff; font-size:16px; text-align:center; margin:0 0 5px 0; opacity:0.9;">CLUTCHZONE</h2>
+                    <p style="color:#ffcc00; font-size:14px; text-align:center; margin:0;">Room id and Password will be display here</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <button style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer;">VIEW MATCH</button>
+                <button onclick="openViewEntriesModal('${d.title || d.name || 'Match'}', ${JSON.stringify(d.participants || [])})" style="background:#00bcd4; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer;">VIEW ENTRIES</button>
+            </div>
+
+            <!-- Countdown Timer Box -->
+            <div style="background:#673ab7; padding:15px; border-radius:12px; text-align:center; margin-bottom:15px;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:14px; color:#fff;">Game Start In</p>
+                <div style="display:flex; justify-content:space-around; color:#fff;">
+                    <div><h2 style="margin:0; font-size:20px;">0</h2><small>Days</small></div>
+                    <div><h2 style="margin:0; font-size:20px;">13</h2><small>Hours</small></div>
+                    <div><h2 style="margin:0; font-size:20px;">28</h2><small>Minutes</small></div>
+                    <div><h2 style="margin:0; font-size:15px;">15</h2><small>Seconds</small></div>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    });
+};
+
+// ==========================================
+// 4. UPDATED FILTER CONTEXTS (Upcoming tab listing)
 // ==========================================
 window.filterContests = function(statusType) {
     let existing = document.getElementById('contest-modal');
     if (existing) existing.remove();
 
-    // Sabhi possible keys check kar rahe hain jahan username save ho sakta hai
     let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('username') || '';
-    console.log("Logged-in Username being checked:", currentUsername);
 
     let modalHTML = `
     <div id="contest-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
@@ -1057,10 +1179,9 @@ window.filterContests = function(statusType) {
 
     let listContainer = document.getElementById('contest-list-content');
 
-    // Saare tournaments fetch karke JS mein smart match karenge
     db.collection('tournaments').get().then(snapshot => {
         if(snapshot.empty) {
-            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Database mein koi tournament nahi hai.</p>`;
+            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No tournaments found.</p>`;
             return;
         }
         
@@ -1069,37 +1190,31 @@ window.filterContests = function(statusType) {
 
         snapshot.forEach(doc => {
             let d = doc.data();
-            console.log("Checking tournament:", d.title || d.name, "| Status:", d.status, "| Participants:", d.participants);
+            let docId = doc.id;
 
-            // Status match (case-insensitive: 'upcoming' ho ya 'Upcoming', dono chalega)
             let matchesStatus = d.status && d.status.toLowerCase() === statusType.toLowerCase();
-
-            // Participants check (kya user ne join kiya hai?)
             let isJoined = false;
-            if (d.participants) {
-                if (Array.isArray(d.participants)) {
-                    isJoined = d.participants.some(p => p && p.toLowerCase() === currentUsername.toLowerCase());
-                } else if (typeof d.participants === 'string') {
-                    isJoined = d.participants.toLowerCase().includes(currentUsername.toLowerCase());
-                }
+            if (d.participants && Array.isArray(d.participants)) {
+                isJoined = d.participants.some(p => p && p.toLowerCase() === currentUsername.toLowerCase());
             }
 
             if (matchesStatus && isJoined) {
                 foundCount++;
-                html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
-                    <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
+                // Click karne par Screenshot 3 jaisa detailed modal khulega
+                html += `<div onclick="openJoinedTournamentDetails('${docId}')" style="background:#1e1e2f; padding:15px; border-radius:10px; margin-bottom:12px; border:1px solid #333; cursor:pointer;">
+                    <h4 style="color:#ffcc00; margin:0 0 8px 0; font-size:16px;">${d.title || d.name || 'Tournament'}</h4>
                     <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
-                    <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
+                    <span style="display:inline-block; margin-top:8px; padding:4px 10px; border-radius:4px; font-size:12px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
                 </div>`;
             }
         });
 
         if(foundCount === 0) {
-            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne yeh contest join nahi kiya hai ya database mein participants list empty hai.</p>`;
+            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne koi bhi ${statusType.toLowerCase()} contest join nahi kiya hai.</p>`;
         } else {
             listContainer.innerHTML = html;
         }
     }).catch(err => {
-        listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
+        listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error: ${err.message}</p>`;
     });
 };
