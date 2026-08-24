@@ -1,8 +1,6 @@
 // ==========================================
-// COMPLETE PLAYT24 USER APP SCRIPT.JS
+// 1. FIREBASE INITIALIZATION
 // ==========================================
-
-// 1. FIREBASE INITIALIZATION (Database Connection)
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp({
         apiKey: "AIzaSyA1jgyhtyv0fGNicgciT-JjUunyv3zVLJ8",
@@ -10,1155 +8,701 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
         projectId: "ff-tournaments-af47a",
         storageBucket: "ff-tournaments-af47a.appspot.com",
         messagingSenderId: "238745686365",
-        appId: "1:238745686365:web:03e9d5e1dd450dbe2d8b4"
+        appId: "1:238745686365:web:03e9d5e1dd150dbe2d8hd"
     });
 }
 const db = firebase.firestore();
 
-// 2. TAB SWITCHING LOGIC (Home, Wallet, Profile)
-window.switchTab = function(tabName) {
+
+// ==========================================
+// 2. TAB SWITCHING LOGIC
+// ==========================================
+window.smstchTab = function(tabName) {
     document.querySelectorAll('.app-tab-content').forEach(tab => {
         tab.style.display = 'none';
     });
-    
     document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
         item.classList.remove('active');
     });
-
+    
     const target = document.getElementById(tabName + '-tab');
     if (target) {
         target.style.display = 'block';
     }
-
+    
     const navItem = document.getElementById('nav-' + tabName);
     if (navItem) {
         navItem.classList.add('active');
     }
-};
-// --- PROFESSIONAL TOURNAMENT LIST & JOINING FLOW ---
 
+    if (tabName === 'matches' || tabName === 'upcoming' || tabName === 'joined') {
+        loadMyJoinedMatches();
+    }
+    if (tabName === 'profile') {
+        loadUserProfileStats();
+    }
+};
+
+
+// ==========================================
+// 3. TOURNAMENT CATEGORY & LISTING
+// ==========================================
 window.openCategory = function(catName) {
     localStorage.setItem('selectedCategory', catName);
     loadTournamentsForCategory(catName);
 };
 
-
 function loadTournamentsForCategory(categoryName) {
-    // Agar Clash Squad hai toh database ke liye usko 'CS' bana do
     let dbCategory = categoryName;
-    if (categoryName === 'Clash Squad') {
-        dbCategory = 'CS';
-    }
-
+    if (categoryName === 'Clash Squad') dbCategory = 'CS';
+    
     db.collection('tournaments')
-        .where('category', '==', dbCategory)
-        .get()
-        .then((querySnapshot) => {
-            let count = querySnapshot.size;
-            if (count === 0) {
-                alert("No custom rooms found for " + categoryName + " right now. Please create one from Admin panel!");
-            } else {
-                showTournamentListModal(categoryName, querySnapshot);
-            }
-        })
-        .catch((error) => {
-            console.error("Error fetching tournaments: ", error);
-            alert("Error: " + error.message);
-        });
+      .where('category', '==', dbCategory)
+      .get()
+      .then((querySnapshot) => {
+          showTournamentListModal(categoryName, querySnapshot);
+      })
+      .catch((error) => {
+          alert("Error: " + error.message);
+      });
 }
 
-// 1. Tournament List Modal (Cards View)
 window.showTournamentListModal = function(categoryName, querySnapshot) {
     let existingModal = document.getElementById("dynamic-tournament-modal");
-    if(existingModal) existingModal.remove();
+    if (existingModal) existingModal.remove();
 
     let modalHTML = `
-    <div id="dynamic-tournament-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; overflow-y:auto;">
+    <div id="dynamic-tournament-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9998; display:flex; flex-direction:column; padding:15px; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1c1c1c; padding:10px 15px; border-radius:8px;">
-            <h2 style="color:#ff9800; margin:0; font-size:16px; text-transform:uppercase;">${categoryName} TOURNAMENTS</h2>
+            <h2 style="margin:0; font-size:16px; color:#ffcc00; text-transform:uppercase;">${categoryName} Tournaments</h2>
             <button onclick="document.getElementById('dynamic-tournament-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
         </div>
         <div id="tournaments-cards-container" style="flex:1; overflow-y:auto;"></div>
     </div>`;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     let container = document.getElementById("tournaments-cards-container");
-    if(!container) return;
+    if (!container) return;
 
-    if(querySnapshot.empty) {
-        container.innerHTML = `<div style="color:#fff; text-align:center; padding:20px; font-size:14px;">No tournaments found for ${categoryName}!</div>`;
+    if (querySnapshot.empty) {
+        container.innerHTML = `<div style="color:#fff; text-align:center; padding:20px; font-size:14px;">No rooms found for ${categoryName}!</div>`;
         return;
     }
 
-    querySnapshot.forEach((docSnapshot) => {
-        let d = docSnapshot.data();
-        let docid = docSnapshot.id;
-
-        let totalSlots = d.maxSlots || 48;
-        let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
-        let participantsList = d.participants || [];
-        let hasJoined = participantsList.includes(currentUsername);
-
-        let actionButtonHTML = "";
-        let cardClickAction = `onclick="openSlotSelection('${docid}')"`;
-
-        if (hasJoined) {
-            actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOINED</button>`;
-        } else {
-            actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
-        }
+    querySnapshot.forEach((doc) => {
+        let d = doc.data();
+        let docId = doc.id;
+        let title = d.title || d.name || 'Tournament';
+        let entryFee = d.entryFee !== undefined ? d.entryFee : (d.fee || 0);
+        let prize = d.prizePool !== undefined ? d.prizePool : (d.prize || 0);
+        let perKill = d.perKill !== undefined ? d.perKill : (d.kill || 0);
+        
+        let timeVal = d.startTime || d.time;
+        if (timeVal && new Date(timeVal) < new Date()) return; 
+        let timeString = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
         let cardHTML = `
-        <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
-            <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Tournament'}</span>
+        <div style="background: linear-gradient(135deg, #1e1e2f, #2d1b4e); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: #fff; border: 1px solid #4a3d7a;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; font-size: 16px; color: #ffcc00;">${title}</h3>
+                <span style="font-size: 11px; background: #7c4dff; padding: 3px 8px; border-radius: 4px; color:#fff;">${timeString}</span>
             </div>
-
-            <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-top:10px;">
-                <div style="flex:1;">
-                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🔥 ENTRY</div>
-                    <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
-                </div>
-                <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
-                    <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
-                    <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
-                </div>
-                <div style="flex:1; text-align:right;">
-                    <div style="font-size:10px; color:#aaa; font-weight:bold;">💥 KILL</div>
-                    <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 0}</div>
-                </div>
+            <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
+                <div>🔥 ENTRY: <b style="color: #00e676;">₹${entryFee}</b></div>
+                <div>🏆 PRIZE: <b style="color: #ffcc00;">₹${prize}</b></div>
+                <div>💀 KILL: <b style="color: #ff4444;">₹${perKill}</b></div>
             </div>
-
-            <div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:11px; color:#aaa;">Max Slots: <b>${totalSlots}</b></span>
-                <div>${actionButtonHTML}</div>
-            </div>
+            <button onclick="openSlotSelection('${docId}', '${title}', ${entryFee}, '${categoryName}')" style="width:100%; background: #ff9800; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;">JOIN NOW</button>
         </div>`;
-
         container.insertAdjacentHTML('beforeend', cardHTML);
     });
 };
 
 
-
+// ==========================================
+// 4. SLOT SELECTION & DOUBLE-JOIN RESTRICTION
+// ==========================================
 window.openSlotSelection = function(tournamentId, title, entryFee, category) {
-    // Agar CS ya Lone Wolf hai, toh slot selection skip karke seedha payment screen par bhejo
-    if (category === 'CS' || category === 'Lone Wolf') {
-        showPaymentScreen(tournamentId, title, entryFee, 'N/A');
-        return;
-    }
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (!currentUsername) { alert("Pehle login karein!"); return; }
 
-    let modalHTML = `
-    <div id="slot-selection-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:15px; box-sizing:border-box; font-family:sans-serif;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background:#1c1c1c; padding:10px 15px; border-radius:8px; border:1px solid #333;">
-            <button onclick="document.getElementById('slot-selection-modal').remove()" style="background:#f44336; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Close</button>
-            <h2 style="color:#ff9800; margin:0; font-size:16px;">Choose your match slot</h2>
-        </div>
-        <p style="color:#aaa; font-size:13px; margin-bottom:15px; text-align:center;">Tournament: ${title}</p>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-    `;
+    db.collection('tournaments').doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) { alert("Tournament not found!"); return; }
+        let data = doc.data();
+        let bookedSlots = data.slots || {};
+        let participants = data.participants || [];
+
+        if (participants.includes(currentUsername)) {
+            alert("⚠️ Aap pehle hi is tournament mein join kar chuke hain! Dobara join nahi kar sakte.");
+            return;
+        }
 
         let maxSlots = 48;
-    let tLower = (title || "").toLowerCase();
+        let tlower = (title + " " + (category || "")).toLowerCase();
+        if (tlower.includes('1v1') || tlower.includes('lone wolf')) maxSlots = 2;
+        else if (tlower.includes('2v2')) maxSlots = 4;
+        else if (tlower.includes('clash squad') || tlower.includes('cs')) maxSlots = 8;
 
-    if (tLower.includes('1vs1') || tLower.includes('1v1') || tLower.includes('lone wolf')) {
-        maxSlots = 2; // 1vs1 ya Lone Wolf ke liye sirf 2 slots
-    } else if (tLower.includes('2vs2') || tLower.includes('2v2')) {
-        maxSlots = 4; // 2vs2 ke liye 4 slots
-    } else if (tLower.includes('clash squad') || tLower.includes('cs')) {
-        maxSlots = 8; // Clash Squad ke liye 8 slots
+        let slotHTML = `
+        <div id="slot-selection-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; padding:15px; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1c1c1c; padding:10px 15px; border-radius:8px;">
+                <h3 style="margin:0; color:#ffcc00; font-size:15px;">Select Slot & Join</h3>
+                <button onclick="document.getElementById('slot-selection-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
+            </div>
+            
+            <div style="background:#1a1a2e; padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; border:1px solid #3f51b5;">
+                <p style="margin:0 0 5px 0; font-size:13px; color:#aaa;">Tournament: <b style="color:#fff;">${title}</b></p>
+                <p style="margin:0 0 5px 0; font-size:13px; color:#aaa;">Entry Fee: <b style="color:#00e676;">₹${entryFee}</b></p>
+            </div>
+
+            <p style="color:#fff; font-size:13px; margin-bottom:10px; font-weight:bold;">Choose your slot number:</p>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; max-height:220px; overflow-y:auto; background:#111; padding:10px; border-radius:8px;">`;
+
+        for (let i = 1; i <= maxSlots; i++) {
+            let bookedBy = bookedSlots[i];
+            if (bookedBy) {
+                slotHTML += `
+                <div style="background:#2a2a2a; border:1px solid #444; padding:10px; text-align:center; border-radius:6px; opacity:0.6;">
+                    <span style="font-size:11px; color:#aaa;"><b>Slot ${i}</b></span><br>
+                    <span style="font-size:8px; color:#ff5252; display:block; overflow:hidden; text-overflow:ellipsis;">${bookedBy}</span>
+                </div>`;
+            } else {
+                slotHTML += `
+                <div onclick="selectThisSlot(${i}, '${tournamentId}', '${title}', ${entryFee})" id="slot-btn-${i}" class="selectable-slot-btn" style="background:#1e1e1e; border:1px solid #555; padding:10px; text-align:center; border-radius:6px; cursor:pointer;">
+                    <span style="font-size:12px; color:#fff;"><b>Slot ${i}</b></span>
+                </div>`;
+            }
+        }
+        slotHTML += `</div></div>`;
+        document.body.insertAdjacentHTML('beforeend', slotHTML);
+    });
+};
+
+window.selectThisSlot = function(slotNum, tournamentId, title, entryFee) {
+    document.querySelectorAll('.selectable-slot-btn').forEach(el => {
+        el.style.background = '#1e1e1e';
+        el.style.borderColor = '#555';
+    });
+    let btn = document.getElementById(`slot-btn-${slotNum}`);
+    if (btn) {
+        btn.style.background = '#7c4dff';
+        btn.style.borderColor = '#00e676';
     }
 
-    for (let i = 1; i <= maxSlots; i++) {
-
-        modalHTML += `<button onclick="selectThisSlot(${i}, '${tournamentId}', '${title}', ${entryFee})" id="slot-btn-${i}" style="background:#222; color:#fff; border:1px solid #444; padding:12px 0; border-radius:6px; font-weight:bold; cursor:pointer;">${i}</button>`;
-    }
-
-    modalHTML += `</div></div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    setTimeout(() => {
+        let modal = document.getElementById('slot-selection-modal');
+        if (modal) modal.remove();
+        showPaymentScreen(tournamentId, title, entryFee, slotNum);
+    }, 300);
 };
 
 
-let selectedSlotNumber = null;
-window.selectThisSlot = function(slotNum, tournamentId, title, entryFee) {
-    // Purane selected ka color hatao
-    if (selectedSlotNumber) {
-        let prevBtn = document.getElementById(`slot-btn-${selectedSlotNumber}`);
-        if(prevBtn) { prevBtn.style.background = '#222'; prevBtn.style.color = 'white'; }
-    }
-    selectedSlotNumber = slotNum;
-    let currBtn = document.getElementById(`slot-btn-${slotNum}`);
-    if(currBtn) { currBtn.style.background = '#ff9800'; currBtn.style.color = 'black'; }
+// ==========================================
+// 5. PAYMENT & JOIN TRANSACTION
+// ==========================================
+window.showPaymentScreen = function(tournamentId, title, entryFee, slotNum) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    
+    db.collection('users').doc(currentUsername).get().then((doc) => {
+        let userWalletBalance = doc.exists && doc.data().coins !== undefined ? doc.data().coins : 0;
+        let existingModal = document.getElementById("payment-modal");
+        if (existingModal) existingModal.remove();
 
-    // Next step (Payment / Joining details screen par jao)
-    setTimeout(() => {
-        let slotModal = document.getElementById('slot-selection-modal');
-        if(slotModal) slotModal.remove();
-        showPaymentScreen(tournamentId, title, entryFee, slotNum);
-    }, 400);
-}
+        let paymentHTML = `
+        <div id="payment-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; padding:15px; justify-content:center;">
+            <div style="background:#1c1c1c; border-radius:12px; padding:20px; border:1px solid #444; color:#fff; max-width:400px; margin:0 auto; width:100%;">
+                <div style="text-align: center; background: #2a004e; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <span style="font-size: 28px;">💰</span>
+                    <h1 style="margin: 5px 0 0 0; color: #ffcc00;">₹${userWalletBalance}</h1>
+                    <p style="margin: 5px 0 12px 0; font-size: 12px; color: #aaa;">Wallet Balance</p>
+                </div>
 
-// 3. Payment & Player Details Screen
-function showPaymentScreen(tournamentId, title, entryFee, slotNum) {
-    let userWalletBalance = (window.currentUser && window.currentUser.dep_balance) || Number(localStorage.getItem('dep_balance')) || 0;
-    let modalHTML = `
-    <div id="payment-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#1a0033; z-index:10001; overflow-y:auto; padding:20px; color:white; font-family:sans-serif;">
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button onclick="document.getElementById('payment-modal').remove()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; margin-right:15px;">←</button>
-            <h2 style="margin:0; font-size:18px;">Joining Match</h2>
-        </div>
-        
-        <div style="text-align:center; background:#2a004e; padding:15px; border-radius:10px; margin-bottom:20px;">
-            <span style="font-size:28px;">🪙</span>
-            <h1 style="margin:5px 0 0 0; color:#ffcc00;">₹${userWalletBalance}</h1>
-            <p style="margin:5px 0 0 0; font-size:12px; color:#aaa;">Wallet Balance</p>
-        </div>
+                <div style="background: #141046; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #5a189a;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">Enter Free Fire Username</p>
+                    <p style="margin: 0 0 10px 0; font-size: 12px; color:#aaa;">Selected Slot: <b>${slotNum}</b></p>
+                    <input type="text" id="ff-player-name" placeholder="Enter FF Name" style="background: #10002b; border: 1px solid #7b2cbf; color: #fff; padding: 10px; width: 100%; border-radius: 6px; font-size: 14px;">
+                </div>
 
-        <div style="background:#240046; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #5a189a;">
-            <p style="margin:0 0 10px 0; font-size:14px; font-weight:bold;">Enter Player Details (Free Fire Username)</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#3c096c; padding:10px; border-radius:6px;">
-                <span>Slot: <b>${slotNum}</b></span>
-                <input type="text" id="ff-player-name" placeholder="Enter FF Name" style="background:#10002b; border:1px solid #7b2cbf; color:white; padding:8px; border-radius:4px; width:60%; text-align:center;">
+                <p style="text-align:center; font-size:14px; margin-bottom:15px;">Total Payable: <b style="color: #ffcc00;">₹${entryFee}</b></p>
+                <button onclick="confirmAndJoinMatch('${tournamentId}', ${entryFee}, ${slotNum})" style="width: 100%; background: #7b2cbf; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;">CONFIRM & JOIN</button>
+                <button onclick="document.getElementById('payment-modal').remove()" style="width: 100%; background: #333; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 10px;">CANCEL</button>
             </div>
-        </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', paymentHTML);
+    });
+};
 
-        <div style="margin-bottom:25px; font-size:14px; text-align:center;">
-            <p>Match Entry Fee Per Player: 🪙 <b>${entryFee}</b></p>
-            <p style="font-size:18px; color:#ffcc00;">Total Payable Amount: 🪙 <b>${entryFee}</b></p>
-        </div>
-
-        <button onclick="confirmAndJoinMatch('${tournamentId}', ${entryFee}, ${slotNum})" style="width:100%; background:#7b2cbf; color:white; border:none; padding:15px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(123,44,191,0.5);">JOIN NOW</button>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
-
-// 4. Final Join & Wallet Deduction Logic
 window.confirmAndJoinMatch = function(tournamentId, entryFee, slotNum) {
     let playerName = document.getElementById('ff-player-name').value.trim();
-    if (!playerName) {
-        alert("Please enter your Free Fire Player Name!");
-        return;
-    }
+    if (!playerName) { alert("Kripya apna Free Fire Player Name bharein!"); return; }
 
- let currentUsername = localStorage.getItem('loggedInUser') || localStorage.getItem('username') || localStorage.getItem('logged_in_username');
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    let userRef = db.collection('users').doc(currentUsername);
+    let tournamentRef = db.collection('tournaments').doc(tournamentId);
 
-if (!currentUsername) {
-    alert("Tournament join karne ke liye pehle login karein!");
-    return;
-}
-    
-    let userRef = db.collection("users").doc(currentUsername);
+    userRef.get().then((userDoc) => {
+        let currentCoins = userDoc.exists && userDoc.data().coins !== undefined ? userDoc.data().coins : 0;
+        if (entryFee > 0 && currentCoins < entryFee) {
+            alert("⚠️ Insufficient balance! Wallet mein coins kam hain.");
+            return;
+        }
 
-    // Pehle Firebase se user ka balance check karenge
-    userRef.get().then((doc) => {
-        let currentCoins = doc.exists ? (doc.data().coins || 0) : 0;
+        db.runTransaction((transaction) => {
+            return transaction.get(tournamentRef).then((doc) => {
+                let data = doc.data();
+                let bookedSlots = data.slots || {};
+                let participants = data.participants || [];
 
-        // Agar entry fee 0 se zyada hai aur balance kam hai, tabhi roke
-if (entryFee > 0 && currentCoins < entryFee) {
-    alert("⚠️ Insufficient balance! Aapke wallet mein kam coins hain. Please pehle paise add karein.");
-    return;
-}
+                if (participants.includes(currentUsername)) throw "Aap pehle hi join kar chuke hain!";
+                if (bookedSlots[slotNum]) throw "Yeh slot koi aur le chuka hai!";
 
+                bookedSlots[slotNum] = playerName;
+                participants.push(currentUsername);
 
-        // Match save hoga aur username bhi jud jayega
-        db.collection('joined_matches').add({
-            tournamentId: tournamentId,
-            slotNumber: slotNum,
-            playerName: playerName,
-            entryFee: entryFee,
-            username: currentUsername, // 👈 Username save ho raha hai
-            joinedAt: new Date()
+                transaction.update(tournamentRef, { slots: bookedSlots, participants: participants });
+            });
         }).then(() => {
-            let updatedCoins = currentCoins - entryFee;
-            userRef.update({ coins: updatedCoins });
-
-            alert("🎉 Successfully Joined Match at Slot " + slotNum + "!\nEntry fee deducted from wallet.");
-            let pModal = document.getElementById('payment-modal');
-            if (pModal) pModal.remove();
-            let tModal = document.getElementById('dynamic-tournament-modal');
-            if (tModal) tModal.remove();
-            showWhatsAppJoinPopup();
-
-        }).catch((error) => {
-            alert("Error joining match: " + error.message);
-        });
+            userRef.update({ coins: currentCoins - entryFee });
+            db.collection('joined_matches').add({
+                tournamentId: tournamentId, username: currentUsername, playerName: playerName, slotNumber: slotNum, entryFee: entryFee, joinedAt: new Date()
+            });
+            alert("✅ Successfully Joined Match!");
+            document.querySelectorAll('[id$="-modal"]').forEach(m => m.remove());
+            location.reload();
+        }).catch(err => alert(err));
     });
 };
 
 
+// ==========================================
+// 6. JOINED MATCHES & VIEW MORE SCREEN
+// ==========================================
+function loadMyJoinedMatches() {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (!currentUsername) return;
 
+    let container = document.getElementById('joined-matches-container') || document.getElementById('upcoming-matches-container');
+    if (!container) return;
 
-// 5. PROFILE, WALLET & HELPER BUTTON ACTIONS
-window.openTopPlayers = function() {
-    alert("Top Players leaderboard is loading...");
+    db.collection('joined_matches').where('username', '==', currentUsername).get().then((snapshot) => {
+        if (snapshot.empty) {
+            container.innerHTML = `<div style="color:#fff; text-align:center; padding:20px;">Aapne koi match join nahi kiya hai!</div>`;
+            return;
+        }
+        container.innerHTML = "";
+        snapshot.forEach((joinDoc) => {
+            let jData = joinDoc.data();
+            db.collection('tournaments').doc(jData.tournamentId).get().then((tDoc) => {
+                if (!tDoc.exists) return;
+                let tData = tDoc.data();
+                let title = tData.title || tData.name || 'Tournament';
+
+                let itemHTML = `
+                <div onclick="openJoinedMatchDetails('${jData.tournamentId}')" style="background: linear-gradient(135deg, #1e1e2f, #3a1c4e); border-radius: 12px; padding: 15px; margin-bottom: 12px; color: #fff; border: 1px solid #7e22ce; cursor:pointer;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h4 style="margin: 0; font-size: 15px; color: #ffcc00;">${title}</h4>
+                        <span style="font-size: 11px; background: #0d9488; padding: 3px 8px; border-radius: 4px;">JOINED (Slot ${jData.slotNumber})</span>
+                    </div>
+                    <p style="margin:0; font-size:12px; color:#aaa;">Player Name: <b>${jData.playerName}</b></p>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        });
+    });
+}
+
+window.openJoinedMatchDetails = function(tournamentId) {
+    db.collection('tournaments').doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) return;
+        let d = doc.data();
+        let title = d.title || d.name || 'Tournament';
+        let entryFee = d.entryFee || 0;
+        let mapName = d.map || 'BERMUDA';
+        let startTime = d.startTime || d.time || new Date().toISOString();
+
+        let modalHTML = `
+        <div id="match-details-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:10005; display:flex; flex-direction:column; overflow-y:auto; color:#fff;">
+            <div style="display:flex; align-items:center; background:#1c1c1c; padding:15px; border-bottom:1px solid #333;">
+                <button onclick="document.getElementById('match-details-modal').remove()" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer; margin-right:15px;">&#8592;</button>
+                <h2 style="margin:0; font-size:16px;">View More</h2>
+            </div>
+            <div style="padding:15px; flex:1; overflow-y:auto;">
+                <p style="color:#a855f7; font-size:11px; margin:0 0 5px 0;">*ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH</p>
+                
+                <!-- Room ID Box -->
+                <div style="background:#1a1128; border:1px solid #7e22ce; border-radius:8px; height:120px; display:flex; align-items:center; justify-content:center; text-align:center; padding:10px; margin-bottom:15px;">
+                    <span style="color:#ffcc00; font-size:14px; font-weight:bold;">Room id and Password will be display here</span>
+                </div>
+
+                <!-- View Match / View Entries Toggle Buttons -->
+                <div style="display:flex; border-radius:6px; overflow:hidden; margin-bottom:15px; text-align:center; font-weight:bold;">
+                    <div style="flex:1; padding:12px; background:#0d9488; color:#fff;">VIEW MATCH</div>
+                    <div onclick="openViewEntriesModal('${tournamentId}')" style="flex:1; padding:12px; background:#0f766e; color:#fff; cursor:pointer;">VIEW ENTRIES</div>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div style="background:#7e22ce; border-radius:10px; padding:15px; text-align:center; margin-bottom:20px;">
+                    <div style="font-weight:bold; margin-bottom:10px; font-size:14px;">Game Start In</div>
+                    <div style="display:flex; justify-content:center; gap:10px;" id="countdown-timer-container">
+                        <div style="background:rgba(0,0,0,0.3); border-radius:50%; width:45px; height:45px; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span id="cd-days" style="font-size:12px;">0</span><span style="font-size:8px;">Days</span></div>
+                        <div style="background:rgba(0,0,0,0.3); border-radius:50%; width:45px; height:45px; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span id="cd-hours" style="font-size:12px;">0</span><span style="font-size:8px;">Hours</span></div>
+                        <div style="background:rgba(0,0,0,0.3); border-radius:50%; width:45px; height:45px; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span id="cd-mins" style="font-size:12px;">0</span><span style="font-size:8px;">Mins</span></div>
+                        <div style="background:rgba(0,0,0,0.3); border-radius:50%; width:45px; height:45px; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span id="cd-secs" style="font-size:12px;">0</span><span style="font-size:8px;">Secs</span></div>
+                    </div>
+                </div>
+
+                <h3 style="color:#38bdf8; font-size:15px; margin-bottom:10px;">${title}</h3>
+                <div style="display:flex; gap:8px; margin-bottom:12px;">
+                    <span style="background:#262626; padding:6px 10px; border-radius:6px; font-size:12px;">Map: ${mapName}</span>
+                    <span style="background:#262626; padding:6px 10px; border-radius:6px; font-size:12px;">Fee: ₹${entryFee}</span>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        startCountdown(startTime);
+    });
 };
 
-window.openSupport = function() {
-    alert("Connecting to Customer Support...");
+window.openViewEntriesModal = function(tournamentId) {
+    db.collection('tournaments').doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) return;
+        let bookedSlots = doc.data().slots || {};
+        let modalHTML = `
+        <div id="view-entries-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10010; display:flex; align-items:center; justify-content:center; padding:15px;">
+            <div style="background:#fff; color:#000; width:100%; max-width:380px; border-radius:12px; overflow:hidden; max-height:80vh; display:flex; flex-direction:column;">
+                <div style="background:#7e22ce; color:#fff; padding:12px; text-align:center; position:relative;">
+                    <h3 style="margin:0; font-size:15px;">VIEW PARTICIPANTS</h3>
+                    <button onclick="document.getElementById('view-entries-modal').remove()" style="position:absolute; right:12px; top:12px; background:none; border:none; color:#fff; font-size:16px; cursor:pointer;">✕</button>
+                </div>
+                <div style="padding:15px; overflow-y:auto; flex:1; font-size:13px;">`;
+        if (Object.keys(bookedSlots).length === 0) modalHTML += `<p style="text-align:center; color:#666;">No participants yet.</p>`;
+        for (let slot in bookedSlots) {
+            modalHTML += `<div style="padding:6px 0; border-bottom:1px solid #eee;">• Slot ${slot}: <b>${bookedSlots[slot]}</b></div>`;
+        }
+        modalHTML += `</div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    });
 };
 
-window.toggleHelp = function() {
-    alert("App Guide & Instructions: Check room rules before joining.");
-};
-
-// --- MY CONTESTS FILTERING & DISPLAY SYSTEM ---
-
-window.filterContests = function (statusType) {
-    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedInUser') || localStorage.getItem('username');
-
-    if (!currentUsername) {
-        alert("Kripya pehle Login karein!");
-        return;
-    }
-
-    db.collection('joined_matches')
-        .where('username', '==', currentUsername)
-        .get()
-        .then((snapshot) => {
-            let joinedList = [];
-            let promises = [];
-
-            snapshot.forEach((doc) => {
-                let matchData = doc.data();
-                if (!matchData.tournamentId) return;
-
-                let p = db.collection('tournaments').doc(matchData.tournamentId).get().then((tDoc) => {
-                    if (tDoc.exists) {
-                        let tData = tDoc.data();
-                        let currentStatus = tData.status ? tData.status.toLowerCase() : 'upcoming';
-
-                        if (currentStatus === statusType.toLowerCase()) {
-                            let rid = tData.roomId || tData.room_id || tData.roomID;
-if (!rid || rid === "undefined" || rid === "null") {
-    rid = "Not Provided Yet";
+function startCountdown(targetTimeStr) {
+    let targetDate = new Date(targetTimeStr).getTime();
+    let timerInterval = setInterval(() => {
+        let distance = targetDate - new Date().getTime();
+        if (distance < 0) { clearInterval(timerInterval); return; }
+        let dEl = document.getElementById('cd-days');
+        let hEl = document.getElementById('cd-hours');
+        let mEl = document.getElementById('cd-mins');
+        let sEl = document.getElementById('cd-secs');
+        if (dEl) dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+        if (hEl) hEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        if (mEl) mEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        if (sEl) sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000);
+    }, 1000);
 }
 
 
-                            let rPass = tData.roomPassword || tData.room_pass || tData.password;
-                            if (!rPass || rPass === "undefined" || rPass === "null") rPass = 'Not Provided Yet';
+// ==========================================
+// 7. PROFILE PAGE OPTIONS & HOST ID DISPLAY
+// ==========================================
+function loadUserProfileStats() {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (!currentUsername) return;
 
-                            joinedList.push({
-                                title: tData.title || tData.name || 'Custom Room Tournament',
-                                slot: matchData.slotNumber || 1,
-                                playerName: matchData.playerName || currentUsername,
-                                entryFee: matchData.entryFee || 0,
-                                prizePool: tData.prizePool || 0,
-                                roomId: rId,
-                                roomPass: rPass,
-                                status: currentStatus
-                            });
-                        }
-                    }
-                });
-                promises.push(p);
-            });
+    db.collection('joined_matches').where('username', '==', currentUsername).get().then(snap => {
+        let matchesPlayed = snap.size;
+        let matchesEl = document.getElementById('profile-matches-played');
+        if (matchesEl) matchesEl.innerText = matchesPlayed;
+    });
 
-            Promise.all(promises).then(() => {
-                showMyContestsModal(statusType, joinedList);
-            });
-        })
-        .catch((error) => {
-            console.error("Error fetching joined contests: ", error);
-            alert("Error: " + error.message);
-        });
-};
-
-
-
-window.filterContests = function(status) {
-    let dbStatus = status.toLowerCase();
-    let user = auth.currentUser;
-
-    db.collection("tournaments")
-    .where("status", "==", dbStatus)
-    .get()
-    .then((querySnapshot) => {
-        let userTournaments = [];
-        querySnapshot.forEach((doc) => {
+    // Check & Display Host ID below username on Profile Page
+    db.collection('users').doc(currentUsername).get().then(doc => {
+        if (doc.exists) {
             let data = doc.data();
-            // Agar participants array mein user ki ID hai, tabhi dikhayein
-            if (data.participants && data.participants.includes(user ? user.uid : "")) {
-                userTournaments.push({id: doc.id, ...data});
+            let hostId = data.hostId;
+            if (hostId) {
+                let profileTab = document.getElementById('profile-tab');
+                if (profileTab && !document.getElementById('profile-host-badge')) {
+                    let headerBox = profileTab.querySelector('h3') || profileTab.firstElementChild;
+                    if (headerBox) {
+                        headerBox.insertAdjacentHTML('afterend', `<div id="profile-host-badge" style="background:linear-gradient(135deg, #7b2cbf, #2a004e); padding:8px 12px; border-radius:6px; margin:10px 0; text-align:center; border:1px solid #ffcc00;"><span style="font-size:12px; color:#ffcc00; font-weight:bold;">👑 Host ID: ${hostId}</span></div>`);
+                    }
+                }
             }
-        });
-        showMyContestsModal(status, userTournaments);
-    })
-    .catch((error) => {
-        alert("Error: " + error.message);
+        }
+    });
+}
+
+window.openMyProfile = function() {
+    let username = localStorage.getItem('logged_in_username') || 'User';
+    alert("👤 Profile Info:\nUsername: " + username);
+};
+
+window.openMyWallet = function() {
+    let currentUsername = localStorage.getItem('logged_in_username') || '';
+    db.collection('users').doc(currentUsername).get().then(doc => {
+        let coins = doc.exists && doc.data().coins !== undefined ? doc.data().coins : 0;
+        alert("💰 Your Wallet Balance: ₹" + coins);
+    }).catch(() => alert("💰 Wallet Balance: ₹0"));
+};
+
+window.openMyStatistics = function() {
+    let currentUsername = localStorage.getItem('logged_in_username') || '';
+    db.collection('joined_matches').where('username', '==', currentUsername).get().then(snap => {
+        alert("📊 Statistics:\nMatches Played: " + snap.size + "\nTotal Kills: 0\nPlayCoin Won: ₹0");
     });
 };
 
-function showMyContestsModal(statusType, contests) {
-    let existingModal = document.getElementById('my-contests-modal');
-    if (existingModal) existingModal.remove();
+window.openTopPlayers = function() {
+    alert("🏆 Top Players Leaderboard coming soon!");
+};
+
+window.openReferAndEarn = function() {
+    alert("🎁 Refer & Earn:\nShare your referral code with friends and earn ₹10 per referral!");
+};
+
+window.openNotifications = function() {
+    alert("🔔 Notifications:\nNo new notifications right now.");
+};
+
+window.openContactUs = function() {
+    alert("📞 Contact Us:\nEmail support@clutchzone.com or message via Help Center.");
+};
+
+window.openFAQ = function() {
+    alert("❓ FAQ:\n1. How to join match? Select tournament, choose slot and pay fee.\n2. When is Room ID given? 5 mins before match start.");
+};
+
+window.toggleMusic = function() {
+    alert("🎵 Music settings toggled!");
+};
+
+
+// ==========================================
+// 8. BECOME A HOST SYSTEM & PLANS (ClutchZone)
+// ==========================================
+window.openBecomeHost = function() {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (!currentUsername) { alert("Pehle login karein!"); return; }
+
+    db.collection('users').doc(currentUsername).get().then(doc => {
+        let data = doc.exists ? doc.data() : {};
+        if (data.isHost || data.hostId) {
+            // Already a host -> Open Hoster Panel
+            openHosterPanel(data.hostId);
+        } else {
+            // Show Host Subscription Plans
+            showHostPlansModal();
+        }
+    }).catch(() => {
+        showHostPlansModal();
+    });
+};
+
+function showHostPlansModal() {
+    let existing = document.getElementById('host-plans-modal');
+    if (existing) existing.remove();
 
     let modalHTML = `
-    <div id="my-contests-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;">
+    <div id="host-plans-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; padding:15px; justify-content:center; align-items:center;">
+        <div style="background:#1c1c1c; border-radius:12px; padding:20px; border:1px solid #7b2cbf; color:#fff; max-width:400px; width:100%; box-sizing:border-box;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="color:#ff9800; margin:0; text-transform:uppercase;">My ${statusType} Contests</h3>
-                <button onclick="document.getElementById('my-contests-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Close</button>
-            </div>
-            <div id="contests-list-container">`;
-
-    if (contests.length === 0) {
-        modalHTML += `
-                <div style="text-align:center; padding:30px 20px; color:#aaa;">
-                    <p style="font-size:16px;">No ${statusType} contests found!</p>
-                    <p style="font-size:13px; color:#666;">Join a match from categories to see it here.</p>
-                </div>`;
-    } else {
-        contests.forEach(c => {
-            modalHTML += `
-                <div style="background:#222; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:15px;">
-                    <h4 style="margin:0 0 8px 0; color:#fff;">${c.title}</h4>
-                    <div style="display:flex; justify-content:space-between; font-size:13px; color:#ccc; margin-bottom:8px;">
-                        <span>Player: <b>${c.playerName || 'N/A'}</b></span>
-                        <span>Slot: <b style="color:#ff9800;">${c.slot || '1'}</b></span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:13px; color:#ffcc00; margin-bottom:8px;">
-                        <span>Prize Pool: ₹${c.prizePool}</span>
-                        <span>Entry: ₹${c.entryFee}</span>
-                    </div>
-                    <div style="background:#111; border:1px dashed #555; padding:10px; border-radius:6px; font-size:13px;">
-                        <span style="color:#00e676;">🔑 Room ID: <b>${c.roomId || 'Waiting'}</b></span><br>
-                        <span style="color:#00e676;">🔒 Password: <b>${c.roomPass || 'Waiting'}</b></span>
-                    </div>
-                </div>`;
-        });
-    }
-
-    modalHTML += `</div></div></div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
-
-
-
-// --- COMPLETE UPI REDIRECT + QR CODE + UTR ADMIN SYSTEM ---
-
-window.openAddCoinsModal = function() {
-    let existingModal = document.getElementById('add-money-modal');
-    if (existingModal) existingModal.remove();
-
-    let defaultName = localStorage.getItem('temp_deposit_name') || (document.getElementById('profile-username') ? document.getElementById('profile-username').innerText : "User");
-    let defaultAmount = localStorage.getItem('temp_deposit_amount') || '';
-
-    let modalHTML = `
-    <div id="add-money-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px; overflow-y:auto;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.5); text-align:center;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="color:#ff9800; margin:0;">Add Money to Wallet</h3>
-                <button onclick="document.getElementById('add-money-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">X</button>
-            </div>
-            
-            <div style="margin-bottom:10px; text-align:left;">
-                <label style="font-size:12px; color:#ccc;">Aapka Naam:</label>
-                <input type="text" id="depositName" value="${defaultName}" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                <h3 style="margin:0; color:#ffcc00; font-size:16px;">👑 ClutchZone Host Plans</h3>
+                <button onclick="document.getElementById('host-plans-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
             </div>
 
-            <div style="margin-bottom:10px; text-align:left;">
-                <label style="font-size:12px; color:#ccc;">Amount (₹):</label>
-                <input type="number" id="depositAmount" value="${defaultAmount}" placeholder="e.g. 100" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
+            <div style="background:#2a004e; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; border:1px solid #7b2cbf;">
+                <p style="margin:0; font-size:12px; color:#aaa;">Merchant: <b style="color:#fff;">Rajesh Pandit</b> | App: <b style="color:#ffcc00;">ClutchZone</b></p>
             </div>
 
-            <!-- Step 1: Direct UPI App Redirect Button -->
-            <button onclick="redirectToUpiApp()" style="width:100%; background:#00e676; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:10px;">
-                1. Pay via UPI App (GPay/PhonePe)
-            </button>
-
-            <p style="font-size:11px; color:#aaa; margin:6px 0;">— YA PHIR QR CODE SCAN KAREIN —</p>
-            
-            <!-- Naya QR Code Display -->
-            <div style="background:white; padding:6px; border-radius:8px; display:inline-block; margin-bottom:6px;">
-                <img src="https://raw.githubusercontent.com/Abhisheksstore/Clutchzone/main/24455.jpg" alt="QR Code" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='24455.jpg'">
+            <!-- Host Plans Options -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                <div onclick="selectHostPlan('1 Week', 150)" style="background:#222; border:1px solid #555; padding:12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>1 Week Plan</b><br><small style="color:#aaa;">Post custom rooms for 7 days</small></div>
+                    <div style="color:#00e676; font-weight:bold; font-size:16px;">₹150</div>
+                </div>
+                <div onclick="selectHostPlan('1 Month', 250)" style="background:#222; border:1px solid #555; padding:12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>1 Month Plan</b><br><small style="color:#aaa;">Post custom rooms for 30 days</small></div>
+                    <div style="color:#00e676; font-weight:bold; font-size:16px;">₹250</div>
+                </div>
+                <div onclick="selectHostPlan('3 Months', 650)" style="background:#222; border:1px solid #555; padding:12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>3 Months Plan</b><br><small style="color:#aaa;">Post custom rooms for 90 days</small></div>
+                    <div style="color:#00e676; font-weight:bold; font-size:16px;">₹650</div>
+                </div>
             </div>
-            
-            <div style="background:#262626; padding:5px; border-radius:6px; font-size:12px; color:#00e676; margin-bottom:10px; font-weight:bold;">
-                UPI ID: kinggkwrrd@okicici
-            </div>
-
-            <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-
-            <!-- Step 2: UTR Submission -->
-            <div style="text-align:left; margin-bottom:10px;">
-                <label style="font-size:12px; color:#ff9800; font-weight:bold;">2. Enter 12-digit UTR / Ref Number (Payment ke baad):</label>
-                <input type="text" id="depositUtr" placeholder="e.g. 4321XXXXXXXX" style="width:100%; padding:8px; margin-top:3px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-            </div>
-
-            <button onclick="submitDepositRequestToAdmin()" style="width:100%; background:#2196f3; color:white; border:none; padding:11px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">
-                Submit to Admin
-            </button>
         </div>
     </div>`;
-
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+window.selectHostPlan = function(planName, amount) {
+    let existing = document.getElementById('host-plans-modal');
+    if (existing) existing.remove();
+
+    let paymentModalHTML = `
+    <div id="host-pay-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10001; display:flex; flex-direction:column; padding:15px; justify-content:center; align-items:center;">
+        <div style="background:#1c1c1c; border-radius:12px; padding:20px; border:1px solid #7b2cbf; color:#fff; max-width:400px; width:100%; box-sizing:border-box;">
+            <h3 style="margin:0 0 10px 0; color:#ffcc00; font-size:16px; text-align:center;">Pay for ${planName}</h3>
+            <div style="background:#2a004e; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center;">
+                <p style="margin:0; font-size:13px; color:#aaa;">Amount: <b style="color:#00e676;">₹${amount}</b></p>
+                <p style="margin:5px 0 0 0; font-size:12px; color:#ccc;">Merchant: <b>Rajesh Pandit</b> (ClutchZone)</p>
+            </div>
+            
+            <button onclick="payHostPlanViaUpi('${planName}', ${amount})" style="width:100%; background:#7b2cbf; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer; margin-bottom:15px;">PAY VIA PHONEPE / UPI</button>
+            
+            <div style="border-top:1px solid #333; padding-top:15px;">
+                <label style="font-size:12px; display:block; margin-bottom:5px; color:#aaa;">Payment ke baad UTR / Transaction ID daalein:</label>
+                <input type="text" id="host-utr-input" placeholder="Enter 12-digit UTR No" style="background:#10002b; border:1px solid #444; color:#fff; padding:10px; width:100%; border-radius:6px; font-size:13px; margin-bottom:10px; box-sizing:border-box;">
+                <button onclick="submitHostRequest('${planName}', ${amount})" style="width:100%; background:#0d9488; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;">SUBMIT HOST REQUEST</button>
+            </div>
+            <button onclick="document.getElementById('host-pay-modal').remove()" style="width:100%; background:#333; color:#fff; border:none; padding:8px; border-radius:6px; margin-top:10px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', paymentModalHTML);
 };
 
-window.redirectToUpiApp = function() {
-    const amount = parseInt(document.getElementById('depositAmount').value);
-    const name = document.getElementById('depositName').value.trim();
-    
-    if (!amount || amount <= 0) {
-        alert("Kripya pehle sahi amount enter karein!");
-        return;
-    }
-    
-    localStorage.setItem('temp_deposit_amount', amount);
-    localStorage.setItem('temp_deposit_name', name);
-
-    const merchantUpiID = "kinggkwrrd@okicici"; 
-    const merchantName = "Clutchzone";
-    const transactionNote = "Wallet Deposit";
-    const upiUrl = `upi://pay?pa=${merchantUpiID}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
-    
+window.payHostPlanViaUpi = function(planName, amount) {
+    let upiId = "rajeshpandit@okaxis"; 
+    let merchantName = "Rajesh Pandit";
+    let transactionNote = `ClutchZone Host - ${planName}`;
+    let upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
     window.location.href = upiUrl;
 };
 
-window.submitDepositRequestToAdmin = function() {
-    const name = document.getElementById('depositName').value.trim();
-    const amount = parseInt(document.getElementById('depositAmount').value);
-    const utr = document.getElementById('depositUtr').value.trim();
-    
-    if (!name) {
-        alert("Kripya apna naam enter karein!");
-        return;
-    }
-    if (!amount || amount <= 0) {
-        alert("Kripya amount enter karein!");
-        return;
-    }
-    if (!utr || utr.length < 8) {
-        alert("Kripya valid 12-digit UTR / Transaction ID enter karein!");
-        return;
-    }
+window.submitHostRequest = function(planName, amount) {
+    let utr = document.getElementById('host-utr-input').value.trim();
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
 
-    db.collection('deposits').add({
-        username: name,
+    if (!currentUsername) { alert("Pehle login karein!"); return; }
+    if (!utr) { alert("Kripya UTR number daalein!"); return; }
+
+    db.collection('host_requests').add({
+        username: currentUsername,
+        planName: planName,
         amount: amount,
         utr: utr,
         status: 'Pending',
         createdAt: new Date()
     }).then(() => {
-        alert("✅ Aapki deposit request admin ke paas bhej di gayi hai! Verification ke baad coins add kar diye jayenge.");
-        localStorage.removeItem('temp_deposit_amount');
-        localStorage.removeItem('temp_deposit_name');
-        document.getElementById('add-money-modal').remove();
-    }).catch(err => {
-        console.log(err);
-        alert("Kuch error ho gaya, dobara try karein.");
-    });
+        alert("✅ Host request successfully submit ho gayi hai! Admin verify karke aapko Host ID allot kar denge.");
+        let modal = document.getElementById('host-pay-modal');
+        if (modal) modal.remove();
+    }).catch(err => alert("Error: " + err.message));
 };
 
-window.updateWalletUI = function() {
-    let dep = parseInt(localStorage.getItem('dep_balance')) || 0;
-    let win = parseInt(localStorage.getItem('win_balance')) || 0;
-    let bon = parseInt(localStorage.getItem('bon_balance')) || 0;
-    let total = dep + win + bon;
+window.openHosterPanel = function(hostId) {
+    let existing = document.getElementById('hoster-panel-modal');
+    if (existing) existing.remove();
 
-    if(document.getElementById('dep-bal')) document.getElementById('dep-bal').innerText = dep;
-    if(document.getElementById('win-bal')) document.getElementById('win-bal').innerText = win;
-    if(document.getElementById('bon-bal')) document.getElementById('bon-bal').innerText = bon;
-    
-    if(document.getElementById('wallet-total-balance')) document.getElementById('wallet-total-balance').innerText = total;
-    if(document.getElementById('balance')) document.getElementById('balance').innerText = total;
-    if(document.getElementById('user-balance')) document.getElementById('user-balance').innerText = total;
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-    updateWalletUI();
-});
-
-window.openWithdrawalModal = function() {
-    showCustomModal("Withdrawal Request", `
-        <div style="font-size:13px; color:#ccc;">
-            <p style="margin-top:0; color:#aaa; font-size:12px;">Apni winnings withdraw karne ke liye details bharein:</p>
-            
-            <div style="margin-bottom:12px;">
-                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">Withdrawal Amount (₹)</label>
-                <input type="number" id="withdrawAmount" placeholder="e.g. 100" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
+    let html = `
+    <div id="hoster-panel-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:10005; display:flex; flex-direction:column; overflow-y:auto; color:#fff;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:#1c1c1c; padding:15px; border-bottom:1px solid #333;">
+            <div style="display:flex; align-items:center;">
+                <button onclick="document.getElementById('hoster-panel-modal').remove()" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer; margin-right:15px;">&#8592;</button>
+                <h2 style="margin:0; font-size:16px; color:#ffcc00;">👑 ClutchZone Hoster Panel</h2>
             </div>
-
-            <div style="margin-bottom:12px;">
-                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">UPI ID / UPI Number</label>
-                <input type="text" id="withdrawUpi" placeholder="e.g. username@paytm" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
-            </div>
-
-            <div style="margin-bottom:15px;">
-                <label style="display:block; margin-bottom:5px; color:#ff9800; font-weight:bold;">Account Holder Name</label>
-                <input type="text" id="withdrawName" placeholder="Enter your full name" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px; box-sizing:border-box;">
-            </div>
-
-            <button onclick="submitWithdrawalRequest()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;">
-                Submit Request
-            </button>
+            <span style="background:#7b2cbf; padding:4px 8px; border-radius:4px; font-size:11px;">ID: ${hostId || 'HOST'}</span>
         </div>
-    `);
+        <div style="padding:15px; flex:1; overflow-y:auto;">
+            <div style="background:#2a004e; border:1px solid #7b2cbf; border-radius:10px; padding:15px; margin-bottom:15px; text-align:center;">
+                <h3 style="margin:0 0 5px 0; color:#00e676; font-size:16px;">Welcome Back, Host!</h3>
+                <p style="margin:0; font-size:12px; color:#ccc;">Aap yahan se apne custom tournaments manage kar sakte hain.</p>
+            </div>
+
+            <!-- Saturday Payout Notice -->
+            <div style="background:#1e1e2f; border-left:4px solid #ffcc00; padding:12px; border-radius:0 8px 8px 0; margin-bottom:15px;">
+                <h4 style="margin:0 0 5px 0; font-size:14px; color:#ffcc00;">📅 Payout Notice</h4>
+                <p style="margin:0; font-size:12px; color:#bbb;">Hoster ka payout <b>sirf Saturday (Saturday to Saturday)</b> ko process kiya jata hai. Kripya apna withdrawal request Saturday ko hi raise karein.</p>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button onclick="alert('Host Tournament feature is active! Connect with admin to publish rooms.')" style="background:#0d9488; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">CREATE NEW TOURNAMENT</button>
+                <button onclick="alert('Payout requests can only be placed on Saturdays!')" style="background:#7b2cbf; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">REQUEST PAYOUT (SATURDAY ONLY)</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
 };
 
-window.submitWithdrawalRequest = function() {
-    const amount = document.getElementById('withdrawAmount').value.trim();
-    const upiId = document.getElementById('withdrawUpi').value.trim();
-    const name = document.getElementById('withdrawName').value.trim();
 
+// ==========================================
+// 9. DEPOSIT SYSTEM WITH UPI INTENT & MERCHANT: Rajesh Pandit
+// ==========================================
+window.openDepositModal = function() {
+    let existingModal = document.getElementById("deposit-modal");
+    if (existingModal) existingModal.remove();
+
+    let modalHTML = `
+    <div id="deposit-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; padding:15px; justify-content:center; align-items:center;">
+        <div style="background:#1c1c1c; border-radius:12px; padding:20px; border:1px solid #444; color:#fff; max-width:400px; width:100%; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; color:#ffcc00; font-size:16px;">Add Money to Wallet (ClutchZone)</h3>
+                <button onclick="document.getElementById('deposit-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
+            </div>
+
+            <!-- Merchant Info Box -->
+            <div style="background:#2a004e; padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; border:1px solid #7b2cbf;">
+                <p style="margin:0 0 5px 0; font-size:13px; color:#aaa;">Merchant Name: <b style="color:#fff;">Rajesh Pandit</b></p>
+                <p style="margin:0; font-size:12px; color:#00e676;">Secure UPI Deposit</p>
+            </div>
+
+            <!-- Amount Input -->
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px; display:block; margin-bottom:5px; color:#ccc;">Enter Amount (₹)</label>
+                <input type="number" id="deposit-amount-input" placeholder="e.g. 100" style="background:#10002b; border:1px solid #7b2cbf; color:#fff; padding:12px; width:100%; border-radius:6px; font-size:14px; box-sizing:border-box;">
+            </div>
+
+            <!-- Pay via UPI Apps Button -->
+            <button onclick="payViaUpiIntent()" style="width:100%; background:#7b2cbf; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer; margin-bottom:15px;">PAY VIA PHONEPE / UPI</button>
+            
+            <!-- UTR Verification Form -->
+            <div style="border-top:1px solid #333; padding-top:15px;">
+                <label style="font-size:12px; display:block; margin-bottom:5px; color:#aaa;">Payment ke baad yahan UTR / Transaction ID daalein:</label>
+                <input type="text" id="deposit-utr-input" placeholder="Enter 12-digit UTR No" style="background:#10002b; border:1px solid #444; color:#fff; padding:10px; width:100%; border-radius:6px; font-size:13px; margin-bottom:10px; box-sizing:border-box;">
+                <button onclick="submitDepositRequest()" style="width:100%; background:#0d9488; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;">SUBMIT UTR FOR APPROVAL</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.payViaUpiIntent = function() {
+    let amount = document.getElementById('deposit-amount-input').value.trim();
     if (!amount || amount <= 0) {
-        alert("Kripya sahi withdrawal amount daal dein!");
+        alert("Kripya pehle valid amount daalein!");
         return;
     }
-    if (!upiId) {
-        alert("Kripya apni UPI ID daal dein!");
-        return;
+    
+    let upiId = "rajeshpandit@okaxis"; 
+    let merchantName = "Rajesh Pandit";
+    let upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=ClutchZone%20Wallet%20Deposit`;
+    
+    window.location.href = upiUrl;
+};
+
+window.submitDepositRequest = function() {
+    let amount = document.getElementById('deposit-amount-input').value.trim();
+    let utr = document.getElementById('deposit-utr-input').value.trim();
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+
+    if (!currentUsername) { 
+        alert("Pehle login karein!"); 
+        return; 
     }
-    if (!name) {
-        alert("Kripya apna naam daal dein!");
-        return;
+    if (!amount || !utr) { 
+        alert("Kripya Amount aur UTR dono fields bharein!"); 
+        return; 
     }
 
-    // Firebase mein withdrawal request save karna
-    db.collection('withdrawals').add({
-        amount: amount,
-        upiId: upiId,
-        name: name,
+    db.collection('deposits').add({
+        username: currentUsername,
+        amount: Number(amount),
+        utr: utr,
         status: 'Pending',
         createdAt: new Date()
     }).then(() => {
-        alert("Withdrawal request successfully submit ho gayi hai! Jaldi hi payment process kar di jayegi.");
-        let modal = document.getElementById('custom-action-modal');
-        if (modal) modal.remove();
-    }).catch((error) => {
-        alert("Error: " + error.message);
-    });
-};
-
-
-
-
-window.openTransactions = function() {
-    alert("Opening Transaction History...");
-};
-
-window.openStatics = function() {
-    showCustomModal("My Statistics", `
-        <div style="font-size:13px; color:#ccc;">
-            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between;">
-                <span>Total Tournaments Joined:</span>
-                <b style="color:#ff9800;">5</b>
-            </div>
-            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between;">
-                <span>Matches Won:</span>
-                <b style="color:#00e676;">0</b>
-            </div>
-            <div style="background:#222; padding:12px; border-radius:8px; display:flex; justify-content:space-between;">
-                <span>Total Earnings:</span>
-                <b style="color:#00e676;">₹0</b>
-            </div>
-        </div>
-    `);
-};
-
-window.openTopPlayers = function() {
-    showCustomModal("Top Players Leaderboard", `
-        <div style="font-size:13px;">
-            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span>🥇 1. AlphaStark</span>
-                <b style="color:#00e676;">₹2,450 Won</b>
-            </div>
-            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span>🥈 2. KillerX</span>
-                <b style="color:#00e676;">₹1,800 Won</b>
-            </div>
-        </div>
-    `);
-};
-
-window.openRefer = function() {
-    showCustomModal("Refer & Earn", `
-        <div style="text-align:center; font-size:13px; color:#ccc;">
-            <p>Invite friends and get <b style="color:#00e676;">₹10</b> bonus when they join!</p>
-            <div style="background:#111; border:1px dashed #555; padding:12px; border-radius:6px; margin:15px 0; font-size:16px; color:#ff9800; font-weight:bold;">
-                CLUTCH2026
-            </div>
-            <button onclick="alert('Referral link copied!');" style="background:#ff9800; color:black; border:none; padding:10px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer;">
-                Copy Link
-            </button>
-        </div>
-    `);
-};
-
-window.openNotifications = function() {
-    showCustomModal("Notifications", `
-        <div style="font-size:13px; color:#ccc;">
-            <div style="background:#222; padding:12px; border-radius:8px; margin-bottom:10px;">
-                <b style="color:#ff9800;">🔥 New Tournament Live!</b>
-                <p style="margin:5px 0 0 0; color:#aaa; font-size:12px;">Full Map rooms open now. Join fast!</p>
-            </div>
-        </div>
-    `);
-};
-
-window.openSupport = function() {
-    showCustomModal("Contact Support", `
-        <div style="text-align:center; font-size:13px; color:#ccc;">
-            <p>Facing any issue? Join our official Telegram group:</p>
-            <a href="https://t.me/+oRx8lq1lACplOWFl" target="_blank" style="display:block; background:#0088cc; color:white; padding:12px; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:15px;">
-                📢 Join Telegram Support
-            </a>
-        </div>
-    `);
-};
-
-window.openFAQ = function() {
-    showCustomModal("FAQ & Rules", `
-        <div style="font-size:13px; color:#ccc; line-height:1.5;">
-            <div style="background:#222; padding:10px; border-radius:6px; margin-bottom:8px;">
-                <b style="color:#ff9800;">Q: Room ID kab milega?</b>
-                <p style="margin:5px 0 0 0; color:#aaa;">Ans: Match shuru hone se 10 minute pehle aapke 'Ongoing Contests' mein dikhega.</p>
-            </div>
-        </div>
-    `);
-};
-
-window.openAbout = function() {
-    showCustomModal("About Clutchzone", `
-        <div style="font-size:13px; color:#ccc; line-height:1.6; text-align:left;">
-            <p style="text-align:center; color:#ff9800; font-weight:bold; font-size:15px;">CLUTCHZONE v1.11</p>
-            <p>India's ultimate competitive eSports platform built for Free Fire gamers to compete in custom rooms and win cash rewards.</p>
-        </div>
-    `);
-};
-
-window.openPrivacy = function() {
-    showCustomModal("Privacy Policy", `
-        <div style="font-size:12px; color:#ccc; line-height:1.5; max-height:260px; overflow-y:auto; padding-right:5px; text-align:left;">
-            <p><b style="color:#ff9800;">1. Information We Collect:</b><br>We collect your Free Fire username and match stats strictly for managing tournaments.</p>
-            <p><b style="color:#ff9800;">2. Data Security:</b><br>Your details are kept secure and never shared with third parties.</p>
-        </div>
-    `);
-};
-
-window.openTerms = function() {
-    showCustomModal("Terms & Conditions", `
-        <div style="font-size:12px; color:#ccc; line-height:1.5; max-height:260px; overflow-y:auto; padding-right:5px; text-align:left;">
-            <p><b style="color:#ff9800;">1. Fair Play Policy:</b><br>Hacks or third-party tools are strictly prohibited. Violators will be banned.</p>
-            <p><b style="color:#ff9800;">2. Room Credentials:</b><br>Shared inside the app 10 minutes prior to match start.</p>
-        </div>
-    `);
-};
-
-// Modal Helper Function (Popups dikhane ke liye zaroori hai)
-function showCustomModal(title, contentHTML) {
-    let existing = document.getElementById('custom-action-modal');
-    if (existing) existing.remove();
-    let modalHTML = `
-    <div id="custom-action-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10002; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:360px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                <h3 style="color:#ff9800; margin:0; font-size:16px;">${title}</h3>
-                <button onclick="document.getElementById('custom-action-modal').remove()" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">X</button>
-            </div>
-            ${contentHTML}
-        </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
-
-window.logout = function() {
-    if(confirm("Are you sure you want to logout?")) {
-        // Yahan saara login data clear karna zaroori hai
-        localStorage.removeItem('is_logged_in');
-        localStorage.removeItem('loggedInUser');
-        localStorage.removeItem('username');
-        localStorage.removeItem('logged_in_username');
-        
-        alert("Logged out successfully!");
-        window.location.reload();
-    }
-};
-
-
-// Initializer
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("PLAYT24 User App Loaded Successfully!");
-});
-// --- NEW LOGIN & REGISTER SYSTEM (Add this at the very bottom of script.js) ---
-
-document.addEventListener("DOMContentLoaded", () => {
-    checkAuthStatus();
-});
-
-window.checkAuthStatus = function() {
-    let isLoggedIn = localStorage.getItem('is_logged_in');
-    if (!isLoggedIn) {
-        showAuthModal();
-    } else {
-        let userName = localStorage.getItem('logged_in_username') || "User";
-        let profileEl = document.getElementById('profile-username');
-        if(profileEl) profileEl.innerText = userName;
-    }
-};
-
-window.showAuthModal = function() {
-    let existing = document.getElementById('auth-modal');
-    if (existing) existing.remove();
-
-    let modalHTML = `
-    <div id="auth-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:20000; display:flex; justify-content:center; align-items:center; font-family:sans-serif; color:white; padding:15px; overflow-y:auto;">
-        <div style="background:#1e1e1e; border:1px solid #444; border-radius:12px; padding:20px; width:100%; max-width:350px; box-shadow:0 4px 20px rgba(0,0,0,0.8); text-align:center;">
-            <h2 id="auth-title" style="color:#ff9800; margin-top:0;">Login to Clutchzone</h2>
-            
-            <div style="display:flex; margin-bottom:15px; border-bottom:1px solid #444;">
-                <button id="tab-login-btn" onclick="switchAuthTab('login')" style="flex:1; background:none; border:none; color:#ff9800; padding:10px; font-weight:bold; cursor:pointer; border-bottom:2px solid #ff9800;">Login</button>
-                <button id="tab-reg-btn" onclick="switchAuthTab('register')" style="flex:1; background:none; border:none; color:#aaa; padding:10px; font-weight:bold; cursor:pointer;">Register</button>
-            </div>
-
-            <div id="login-form-div">
-                <div style="margin-bottom:12px; text-align:left;">
-                    <label style="font-size:12px; color:#ccc;">Mobile Number or Email:</label>
-                    <input type="text" id="login-identifier" placeholder="Enter mobile or email" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                </div>
-                <div style="margin-bottom:15px; text-align:left;">
-                    <label style="font-size:12px; color:#ccc;">Password:</label>
-                    <input type="password" id="login-password" placeholder="Enter password" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                </div>
-                <button onclick="handleLogin()" style="width:100%; background:#00e676; color:black; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">Login</button>
-            </div>
-
-            <div id="register-form-div" style="display:none;">
-                <div style="margin-bottom:10px; text-align:left;">
-                    <label style="font-size:12px; color:#ccc;">Full Name:</label>
-                    <input type="text" id="reg-name" placeholder="Enter your name" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                </div>
-                <div style="margin-bottom:10px; text-align:left;">
-                    <label style="font-size:12px; color:#ccc;">Mobile Number or Email:</label>
-                    <input type="text" id="reg-identifier" placeholder="Enter mobile or email" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                </div>
-                <div style="margin-bottom:15px; text-align:left;">
-                    <label style="font-size:12px; color:#ccc;">Password:</label>
-                    <input type="password" id="reg-password" placeholder="Create password" style="width:100%; padding:9px; margin-top:4px; background:#111; border:1px solid #555; color:white; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                </div>
-                <button onclick="handleRegister()" style="width:100%; background:#2196f3; color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:14px; cursor:pointer;">Register & Login</button>
-            </div>
-        </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-};
-
-window.switchAuthTab = function(tab) {
-    let loginDiv = document.getElementById('login-form-div');
-    let regDiv = document.getElementById('register-form-div');
-    let loginBtn = document.getElementById('tab-login-btn');
-    let regBtn = document.getElementById('tab-reg-btn');
-    let title = document.getElementById('auth-title');
-
-    if (tab === 'login') {
-        loginDiv.style.display = 'block';
-        regDiv.style.display = 'none';
-        loginBtn.style.color = '#ff9800';
-        loginBtn.style.borderBottom = '2px solid #ff9800';
-        regBtn.style.color = '#aaa';
-        regBtn.style.borderBottom = 'none';
-        title.innerText = 'Login to Clutchzone';
-    } else {
-        loginDiv.style.display = 'none';
-        regDiv.style.display = 'block';
-        regBtn.style.color = '#2196f3';
-        regBtn.style.borderBottom = '2px solid #2196f3';
-        loginBtn.style.color = '#aaa';
-        loginBtn.style.borderBottom = 'none';
-        title.innerText = 'Register on Clutchzone';
-    }
-};
-window.handleRegister = function() {
-    let name = document.getElementById('reg-name').value.trim();
-    let identifier = document.getElementById('reg-identifier').value.trim();
-    let password = document.getElementById('reg-password').value.trim();
-
-    if (!name || !identifier || !password) {
-        alert("Kripya sabhi fields bharein!");
-        return;
-    }
-
-    db.collection('users').doc(identifier).get().then((doc) => {
-        if (doc.exists) {
-            alert("Yeh mobile/email pehle se registered hai! Kripya Login karein.");
-            switchAuthTab('login');
-        } else {
-            db.collection('users').doc(identifier).set({
-                name: name,
-                identifier: identifier,
-                mobile: identifier,
-                email: identifier,
-                password: password,
-                createdAt: new Date()
-            }).then(() => {
-                localStorage.setItem('is_logged_in', 'true');
-                localStorage.setItem('logged_in_username', name);
-                localStorage.setItem('logged_in_identifier', identifier);
-                alert("✅ Registration successful!");
-                let modal = document.getElementById('auth-modal');
-                if (modal) modal.remove();
-                location.reload();
-            }).catch((err) => {
-                console.log(err);
-                alert("Registration failed. Try again.");
-            });
-        }
-    }).catch((err) => {
-        console.log(err);
-        alert("Error checking user. Try again.");
-    });
-};
-
-
-
-window.handleLogin = function() {
-    let identifier = document.getElementById('login-identifier').value.trim();
-    let password = document.getElementById('login-password').value.trim();
-
-    if (!identifier || !password) {
-        alert("Kripya mobile/email aur password daalein!");
-        return;
-    }
-
-    db.collection('users').doc(identifier).get().then((doc) => {
-        if (!doc.exists) {
-            alert("Yeh user registered nahi hai! Kripya pehle Register karein.");
-            switchAuthTab('register');
-        } else {
-            let userData = doc.data();
-            if (userData.password === password) {
-                localStorage.setItem('is_logged_in', 'true');
-                localStorage.setItem('logged_in_username', userData.name);
-                localStorage.setItem('logged_in_identifier', userData.identifier);
-                alert("✅ Login successful!");
-                let modal = document.getElementById('auth-modal');
-                if (modal) modal.remove();
-                location.reload();
-            } else {
-                alert("❌ Galat password! Kripya dobara try karein.");
-            }
-        }
+        alert("✅ Deposit request successfully submit ho gayi hai! Admin verify karke wallet mein balance add kar denge.");
+        document.getElementById('deposit-modal').remove();
     }).catch(err => {
-        console.log(err);
-        alert("Login error. Try again.");
+        alert("Error: " + err.message);
     });
 };
-
-window.logoutUser = function() {
-    localStorage.removeItem('is_logged_in');
-    localStorage.removeItem('logged_in_username');
-    localStorage.removeItem('logged_in_identifier');
-    alert("Aap logout ho chuke hain.");
-    location.reload();
-};
-// User ka unique name ya ID
-let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedInUser') || localStorage.getItem('username');
-
-
-// Wallet balance load karne ka function
-function loadUserWallet() {
-    if (!currentUsername) return;
-
-    db.collection("users").doc(currentUsername).get().then((doc) => {
-        let coins = 0;
-        if (doc.exists && doc.data().coins !== undefined) {
-            coins = doc.data().coins;
-            localStorage.setItem('userCoins', coins);
-        } else {
-            db.collection("users").doc(currentUsername).set({
-                coins: 0,
-                username: currentUsername
-            }, { merge: true });
-            coins = 0;
-        }
-
-        // Screen par jahan wallet balance dikhta hai wahan update kar do
-        let balanceElements = document.querySelectorAll('.wallet-amount, #wallet-amount');
-        balanceElements.forEach(el => {
-            el.innerText = coins;
-        });
-
-        let balanceElement = document.getElementById('wallet-balance-text');
-        if (balanceElement) {
-            balanceElement.innerText = "₹ " + coins;
-        }
-    }).catch((error) => {
-        console.error("Wallet load karne mein error: ", error);
-    });
-}
-
-// Page khulte hi balance load hoga
-window.addEventListener("DOMContentLoaded", function() {
-    loadUserWallet();
-});
-window.loadMatchLeaderboard = function(matchId, tournamentTitle, prizePool, perKill) {
-    db.collection("joined_matches")
-        .where("matchId", "==", matchId)
-        .orderBy("kills", "desc")
-        .get()
-        .then((snapshot) => {
-            let html = `
-            <div style="background:#0f172a; color:#fff; padding:15px; border-radius:10px; max-height:80vh; overflow-y:auto;">
-                <h3 style="color:#f97316; margin-bottom:5px; font-size:16px;">${tournamentTitle || "Match Result"}</h3>
-                <p style="font-size:12px; color:#aaa; margin-bottom:15px;">Full Results & Leaderboard</p>
-                
-                <div style="display:flex; justify-content:space-between; background:#1e293b; padding:10px; border-radius:8px; margin-bottom:15px; font-size:13px; border:1px solid #334155;">
-                    <div>Prize Pool: <b style="color:#f97316;">₹${prizePool || 0}</b></div>
-                    <div>Per Kill: <b style="color:#eab308;">₹${perKill || 0}</b></div>
-                </div>
-                
-                <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                    <thead>
-                        <tr style="background:#0284c7; color:#fff;">
-                            <th style="padding:10px; text-align:center; width:40px; border-top-left-radius:6px; border-bottom-left-radius:6px;">#</th>
-                            <th style="padding:10px; text-align:left;">Player Name</th>
-                            <th style="padding:10px; text-align:center;">Kill</th>
-                            <th style="padding:10px; text-align:center; border-top-right-radius:6px; border-bottom-right-radius:6px;">Winning</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-            
-            if(snapshot.empty) {
-                html += `<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">Is match mein koi player nahi mila.</td></tr>`;
-            } else {
-                let rank = 1;
-                snapshot.forEach((doc) => {
-                    let data = doc.data();
-                    let playerName = data.playerName || data.username || "Player";
-                    let kills = data.kills || 0;
-                    let earnings = data.earnings || 0;
-                    
-                    html += `
-                    <tr style="border-bottom:1px solid #334155;">
-                        <td style="padding:10px; text-align:center; font-weight:bold; color:#f97316;">${rank}</td>
-                        <td style="padding:10px; font-weight:bold; color:#fff;">${playerName}</td>
-                        <td style="padding:10px; text-align:center; color:#38bdf8; font-weight:bold;">${kills}</td>
-                        <td style="padding:10px; text-align:center; color:#22c55e; font-weight:bold;">₹${earnings}</td>
-                    </tr>`;
-                    rank++;
-                });
-            }
-            
-            html += `</tbody></table></div>`;
-            showCustomModal("Match Result", html);
-        })
-        .catch((err) => {
-            console.error("Leaderboard error:", err);
-            alert("Leaderboard load karne mein error aaya.");
-        });
-};
-window.filterContests = function(status) {
-    let dbStatus = status.toLowerCase(); 
-    db.collection("tournaments")
-    .where("status", "==", dbStatus)
-    .get()
-    .then((querySnapshot) => {
-        showTournamentListModal(status + " Contests", querySnapshot);
-    })
-    .catch((error) => {
-        alert("Error: " + error.message);
-    });
-};
-window.joinTournament = function(tournamentId, entryFee) {
-    // 1. LocalStorage se current logged-in username lein
-    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('loggedInUser');
-    
-    if (!currentUsername) {
-        alert("Please login first!");
-        return;
-    }
-
-    let ffNameInput = document.querySelector('input[placeholder*="FF Name"]') || document.getElementById('playerNameInput');
-    let playerName = ffNameInput ? ffNameInput.value.trim() : "";
-
-    if (!playerName) {
-        alert("Please enter your Free Fire Username!");
-        return;
-    }
-
-    let userRef = db.collection("users").doc(currentUsername);
-    let tournamentRef = db.collection("tournaments").doc(tournamentId);
-
-    Promise.all([userRef.get(), tournamentRef.get()]).then(([userDoc, tournamentDoc]) => {
-        if (!tournamentDoc.exists) {
-            alert("Tournament not found!");
-            return;
-        }
-
-        let tournamentData = tournamentDoc.data();
-        let participants = tournamentData.participants || [];
-
-        if (participants.includes(currentUsername)) {
-            alert("You have already joined this match!");
-            return;
-        }
-
-        let userData = userDoc.exists ? userDoc.data() : {};
-        // Coins ya balance field check karein
-        let walletBalance = userData.coins !== undefined ? userData.coins : (userData.balance || 0); 
-
-        if (entryFee > 0 && walletBalance < entryFee) {
-            alert("❌ Insufficient Balance! Aapke wallet mein ₹" + walletBalance + " hain, lekin entry fee ₹" + entryFee + " hai. Pehle Add Money karein.");
-            return; 
-        }
-
-        let newBalance = walletBalance;
-        if (entryFee > 0) {
-            newBalance = walletBalance - entryFee;
-        }
-
-        let batch = db.batch();
-        // Dono fields (coins aur balance) update kar dein taaki kahin mismatch na ho
-        batch.set(userRef, { coins: newBalance, balance: newBalance }, { merge: true });
-
-        participants.push(currentUsername);
-        batch.update(tournamentRef, { participants: participants });
-
-        batch.commit().then(() => {
-            if (entryFee > 0) {
-                alert("🎉 Successfully Joined Match!\n₹" + entryFee + " deducted from your wallet.\nRemaining Balance: ₹" + newBalance);
-            } else {
-                alert("🎉 Successfully Joined Free Match!");
-            }
-            location.reload();
-        });
-
-    }).catch((error) => {
-        alert("Error: " + error.message);
-    });
-};       
-// 1. Expired Matches ko hatane aur Time/Fee theek karne ka function
-window.renderTournamentCard = function(docId, data) {
-    let title = data.title || data.name || 'Tournament';
-    let entryFee = data.entryFee !== undefined ? data.entryFee : (data.fee || 0);
-    let prize = data.prizePool !== undefined ? data.prizePool : (data.prize || 0);
-    let maxSlots = data.maxSlots || 48;
-    
-    // Time check: Agar match ka time nikal chuka hai, toh yeh card list mein nahi dikhega
-    let timeVal = data.startTime || data.time;
-    if (timeVal) {
-        let matchTime = new Date(timeVal);
-        if (matchTime < new Date()) {
-            return ""; // Purana/Expired match hide ho jayega
-        }
-    }
-
-    let timeString = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-
-    return `
-    <div style="background: linear-gradient(135deg, #1e1e2f, #2d1b4e); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: #fff; border: 1px solid #4a3d7a;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 16px; color: #ffcc00;">${title}</h3>
-            <span style="font-size: 11px; background: #7c4dff; padding: 3px 8px; border-radius: 4px; color:#fff;">${timeString}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
-            <div>🔥 ENTRY: <b style="color: #00e676;">₹${entryFee}</b></div>
-            <div>🏆 PRIZE: <b style="color: #ffcc00;">₹${prize}</b></div>
-            <div>👥 SLOTS: <b>${maxSlots}</b></div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-            <button onclick="openMatchDetails('${docId}')" style="flex: 1; background: #00acc1; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">VIEW MORE</button>
-            <button onclick="openSlotSelection('${docId}')" style="flex: 1; background: #ff9800; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">JOIN NOW</button>
-        </div>
-    </div>`;
-};
-
