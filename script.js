@@ -93,10 +93,10 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
         let d = doc.data();
         let docId = doc.id;
         let title = d.title || d.name || 'Tournament';
-        let entryFee = d.entryFee !== undefined ? d.entryFee : (d.fee || 0);
-        let prize = d.prizePool !== undefined ? d.prizePool : (d.prize || 0);
-        let perKill = d.perKill !== undefined ? d.perKill : (d.kill || 0);
-        
+        let entryFee = d.entry !== undefined ? d.entry : (d.entryFee || 0);
+let prize = d.prize !== undefined ? d.prize : (d.prizePool || 0);
+let perKill = d.kill !== undefined ? d.kill : (d.perKill || 0);
+
         let timeVal = d.startTime || d.time;
         if (timeVal && new Date(timeVal) < new Date()) return; 
         let timeString = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
