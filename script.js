@@ -1126,3 +1126,150 @@ window.joinTournament = function(tournamentId, entryFee) {
         alert("Error: " + error.message);
     });
 };
+// 1. TOURNAMENT CARD RENDER FUNCTION (Time & Correct Fields ke sath)
+window.renderTournamentCard = function(docId, data) {
+    let title = data.title || data.name || 'Tournament';
+    let entryFee = data.entryFee !== undefined ? data.entryFee : (data.fee || 0);
+    let prize = data.prizePool !== undefined ? data.prizePool : (data.prize || 0);
+    let maxSlots = data.maxSlots || 48;
+    let startTime = data.startTime ? new Date(data.startTime) : null;
+    
+    // Time-based check: Agar match ka time nikal chuka hai, toh card mat dikhao (optional)
+    if (startTime && startTime < new Date()) {
+        return ""; // Expired match hide ho jayega
+    }
+
+    let timeString = startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+    return `
+    <div style="background: linear-gradient(135deg, #1e1e2f, #2d1b4e); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: #fff; border: 1px solid #4a3d7a;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 16px; color: #ffcc00;">${title}</h3>
+            <span style="font-size: 11px; background: #7c4dff; padding: 3px 8px; border-radius: 4px;">${timeString}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
+            <div>🔥 ENTRY: <b style="color: #00e676;">₹${entryFee}</b></div>
+            <div>🏆 PRIZE: <b style="color: #ffcc00;">₹${prize}</b></div>
+            <div>👥 SLOTS: <b>${maxSlots}</b></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="openMatchDetails('${docId}')" style="flex: 1; background: #00acc1; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">VIEW MORE</button>
+            <button onclick="openSlotSelection('${docId}')" style="flex: 1; background: #ff9800; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">JOIN NOW</button>
+        </div>
+    </div>`;
+};
+
+// 2. SLOT SELECTION & JOINING SCREEN (Fixing 'undefined' entry fee)
+window.openSlotSelection = function(tournamentId) {
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    db.collection('tournaments').doc(tournamentId).get().then((doc) => {
+        if (!doc.exists) { alert("Tournament not found!"); return; }
+        let data = doc.data();
+        let bookedSlots = data.slots || {};
+        let participants = data.participants || [];
+        
+        let entryFee = data.entryFee !== undefined ? data.entryFee : (data.fee || 0);
+        let prize = data.prizePool !== undefined ? data.prizePool : (data.prize || 0);
+
+        if (participants.includes(currentUsername)) {
+            alert("Aap pehle hi is tournament mein join hain!");
+            return;
+        }
+
+        let slotHTML = `
+        <div id="slot-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; flex-direction:column; padding:15px; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1c1c1c; padding:10px 15px; border-radius:8px;">
+                <h3 style="margin:0; color:#ffcc00; font-size:15px;">Select Slot & Join</h3>
+                <button onclick="document.getElementById('slot-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
+            </div>
+            
+            <div style="background:#1a1a2e; padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; border:1px solid #3f51b5;">
+                <p style="margin:0 0 5px 0; font-size:13px; color:#aaa;">Match Entry Fee: <b style="color:#00e676;">₹${entryFee}</b></p>
+                <p style="margin:0; font-size:13px; color:#aaa;">Total Payable Amount: <b style="color:#ffcc00;">₹${entryFee}</b></p>
+            </div>
+
+            <p style="color:#fff; font-size:13px; margin-bottom:10px; font-weight:bold;">Choose your slot number:</p>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; max-height:220px; overflow-y:auto; background:#111; padding:10px; border-radius:8px;">`;
+
+        let maxSlots = data.maxSlots || 48;
+        for (let i = 1; i <= maxSlots; i++) {
+            let isBooked = bookedSlots[i] ? true : false;
+            if (isBooked) {
+                slotHTML += `
+                <div style="background:#2a2a2a; border:1px solid #444; padding:10px; text-align:center; border-radius:6px; opacity:0.5;">
+                    <span style="font-size:11px; color:#fff;"><b>${i}</b></span><br>
+                    <span style="font-size:8px; color:#aaa; display:block; overflow:hidden; text-overflow:ellipsis;">${bookedSlots[i]}</span>
+                </div>`;
+            } else {
+                slotHTML += `
+                <div onclick="selectSlotNumber(${i})" id="slot-box-${i}" class="selectable-slot" style="background:#1e1e1e; border:1px solid #555; padding:10px; text-align:center; border-radius:6px; cursor:pointer;">
+                    <span style="font-size:12px; color:#fff;"><b>Slot ${i}</b></span>
+                </div>`;
+            }
+        }
+
+        slotHTML += `</div>
+            <button onclick="confirmSlotBooking('${tournamentId}')" style="width:100%; background:#00acc1; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer;">CONFIRM & JOIN NOW</button>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', slotHTML);
+    }).catch(err => alert(err.message || err));
+};
+
+let selectedSlotNumber = null;
+window.selectSlotNumber = function(slotNum) {
+    document.querySelectorAll('.selectable-slot').forEach(el => {
+        el.style.background = '#1e1e1e';
+        el.style.borderColor = '#555';
+    });
+    selectedSlotNumber = slotNum;
+    let box = document.getElementById(`slot-box-${slotNum}`);
+    if (box) {
+        box.style.background = '#7c4dff';
+        box.style.borderColor = '#00e676';
+    }
+};
+
+window.confirmSlotBooking = function(tournamentId) {
+    if (!selectedSlotNumber) {
+        alert("Pehle koi ek khali slot select karein!");
+        return;
+    }
+
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (!currentUsername) {
+        alert("User not logged in!");
+        return;
+    }
+
+    let tournamentRef = db.collection('tournaments').doc(tournamentId);
+
+    db.runTransaction((transaction) => {
+        return transaction.get(tournamentRef).then((doc) => {
+            if (!doc.exists) throw "Tournament does not exist!";
+            let data = doc.data();
+            let bookedSlots = data.slots || {};
+
+            if (bookedSlots[selectedSlotNumber]) {
+                throw "Yeh slot abhi-abhi kisi aur ne book kar liya hai! Dusra slot chunhein.";
+            }
+
+            bookedSlots[selectedSlotNumber] = currentUsername;
+            let participants = data.participants || [];
+            if (!participants.includes(currentUsername)) {
+                participants.push(currentUsername);
+            }
+
+            transaction.update(tournamentRef, {
+                slots: bookedSlots,
+                participants: participants
+            });
+        });
+    }).then(() => {
+        alert("Match successfully joined on Slot " + selectedSlotNumber + "!");
+        let modal = document.getElementById('slot-modal');
+        if(modal) modal.remove();
+        location.reload();
+    }).catch((error) => {
+        alert(error.message || error);
+    });
+};
