@@ -195,7 +195,19 @@ window.openSlotSelection = function(tournamentId, title, entryFee, category) {
         <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
     `;
 
-    for (let i = 1; i <= 48; i++) {
+        let maxSlots = 48;
+    let tLower = (title || "").toLowerCase();
+
+    if (tLower.includes('1vs1') || tLower.includes('1v1') || tLower.includes('lone wolf')) {
+        maxSlots = 2; // 1vs1 ya Lone Wolf ke liye sirf 2 slots
+    } else if (tLower.includes('2vs2') || tLower.includes('2v2')) {
+        maxSlots = 4; // 2vs2 ke liye 4 slots
+    } else if (tLower.includes('clash squad') || tLower.includes('cs')) {
+        maxSlots = 8; // Clash Squad ke liye 8 slots
+    }
+
+    for (let i = 1; i <= maxSlots; i++) {
+
         modalHTML += `<button onclick="selectThisSlot(${i}, '${tournamentId}', '${title}', ${entryFee})" id="slot-btn-${i}" style="background:#222; color:#fff; border:1px solid #444; padding:12px 0; border-radius:6px; font-weight:bold; cursor:pointer;">${i}</button>`;
     }
 
