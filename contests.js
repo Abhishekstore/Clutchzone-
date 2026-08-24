@@ -60,13 +60,11 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
     let modalHTML = `
     <div id="participants-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 15px;">
         <div style="background: #fff; width: 100%; max-width: 380px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 80vh;">
-            <!-- Header -->
             <div style="background: #512da8; padding: 15px; position: relative; color: #fff;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: bold;">VIEW PARTICIPANTS</h3>
                 <small style="font-size: 12px; opacity: 0.8;">Match # ${matchId || '95216'}</small>
                 <button onclick="document.getElementById('participants-modal').remove()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer;">✕</button>
             </div>
-            <!-- List Content -->
             <div style="overflow-y: auto; padding: 10px; background: #fff; max-height: 60vh;">
                 ${listHTML}
             </div>
@@ -76,14 +74,14 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
 };
 
 // ==============================
-// 3. BANNER MANAGER FOR ALL MODES (Root Path Fixed)
+// 3. BANNER MANAGER FOR ALL MODES
 // ==============================
 function getBannerByType(type, mode) {
     let t = (type || '').toLowerCase();
     let m = (mode || '').toLowerCase();
     let combined = (t + ' ' + m).trim();
 
-    let bannerPath = 'banners/'; // Agar folder ka naam 'Banners' (Capital B) hai toh yahan 'Banners/' kar dein
+    let bannerPath = 'banners/';
 
     if (combined.includes('4v4') || combined.includes('4*4')) {
         return '/' + bannerPath + 'IMG_20260824_221300.jpg';
@@ -104,9 +102,107 @@ function getBannerByType(type, mode) {
     }
 }
 
+// ==============================
+// 4. DETAILED MATCH VIEW (When clicking 'View Match')
+// ==============================
+window.openMatchDetailsView = function(docId) {
+    db.collection('tournaments').doc(docId).get().then(doc => {
+        if(!doc.exists) return;
+        let d = doc.data();
+        let bannerImg = getBannerByType(d.type, d.mode || d.title);
+        let matchTitle = d.title || d.name || 'SOLO BR • GUN ATTRIBUTES OFF';
+        let matchIdNum = doc.id;
+
+        let existing = document.getElementById('match-details-full-modal');
+        if(existing) existing.remove();
+
+        let modalHTML = `
+        <div id="match-details-full-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 99999; overflow-y: auto; font-family: sans-serif; color: #fff;">
+            <!-- Top Bar -->
+            <div style="display: flex; align-items: center; background: #1f1f1f; padding: 15px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 10;">
+                <button onclick="document.getElementById('match-details-full-modal').remove()" style="background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; margin-right: 15px;">←</button>
+                <h3 style="margin: 0; font-size: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${matchTitle}</h3>
+            </div>
+
+            <!-- Banner -->
+            <div style="width: 100%; height: 200px; background: #222; overflow: hidden;">
+                <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/banners/IMG_20260824_221547.jpg'">
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; background: #1a1a1a; border-bottom: 1px solid #333; text-align: center; font-weight: bold; font-size: 13px;">
+                <div style="flex: 1; padding: 12px; color: #00bcd4; border-bottom: 2px solid #00bcd4;">DESCRIPTION</div>
+                <div style="flex: 1; padding: 12px; color: #aaa;">JOINED MEMBER</div>
+            </div>
+
+            <!-- Match Info Box -->
+            <div style="padding: 15px; background: #181818;">
+                <h2 style="font-size: 16px; color: #00bcd4; margin: 0 0 10px 0; line-height: 1.4;">${matchTitle} • #${matchIdNum}</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <div style="background: #222; padding: 10px; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 11px; color: #888; display: block;">Type</span>
+                        <strong style="font-size: 13px; color: #fff;">${d.type || 'Solo'}</strong>
+                    </div>
+                    <div style="background: #222; padding: 10px; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 11px; color: #888; display: block;">Version</span>
+                        <strong style="font-size: 13px; color: #fff;">${d.version || 'TTP'}</strong>
+                    </div>
+                    <div style="background: #222; padding: 10px; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 11px; color: #888; display: block;">Map</span>
+                        <strong style="font-size: 13px; color: #fff;">${d.map || 'BERMUDA'}</strong>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; background: #222; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 13px;">
+                    <span>Match Type: <strong style="color: #00e676;">PAID</strong></span>
+                    <span>Entry Fee: <strong style="color: #ffcc00;">🪙 ${d.entryFee || 0}</strong></span>
+                </div>
+
+                <div style="background: #222; padding: 10px 15px; border-radius: 8px; font-size: 13px; margin-bottom: 15px;">
+                    Matches Schedule: <strong style="color: #ff9800;">${d.schedule || d.time || '25-08-2026 10:10:00 am'}</strong>
+                </div>
+
+                <h4 style="color: #00bcd4; margin: 0 0 10px 0; font-size: 14px;">About This Match</h4>
+                
+                <div style="background: #1e1e1e; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.6; border: 1px solid #333;">
+                    <p style="margin: 0 0 8px 0; font-weight: bold; color: #ffcc00;">Instructions Before Joining :</p>
+                    <p style="margin: 0 0 6px 0;">🛡️ <strong>FULL MAP — OFFICIAL MATCH RULES</strong><br>PLAYT24 / HORSE BAN 🐎</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🚫 <strong>TEAMING & UNREGISTERED PLAYERS</strong><br>❌ Team-Up STRICTLY NOT ALLOWED<br>❌ Unregistered Players NOT ALLOWED<br>🏆 BOOYAH PRIZE only if 48 slots are full<br>⚠️ If caught teaming / calling unregistered → ₹100 PENALTY<br>🔄 Repeat offense → PERMANENT BAN (NO WARNING)</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">📜 <strong>GENERAL RULES</strong><br>❌ Breaking any rule → ₹30 PENALTY<br>❌ Missing your match → NO REFUND</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">👤 <strong>CHARACTERS</strong><br>✔ All Characters ALLOWED<br>❌ RYDEN BANNED (If used → ₹20 PENALTY + KICK)</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🔫 <strong>GUN RULES</strong><br>✔ All Guns ALLOWED<br>❌ 2x Vector / M79 NOT ALLOWED<br>✔ Only 1 Vector allowed</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🚗 <strong>VEHICLES</strong><br>✔ Vehicles ALLOWED</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">⚙️ <strong>GUN ATTRIBUTES</strong><br>Will be ALLOWED / NOT ALLOWED as per match settings (announced before the match)</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🎮 <strong>ROOM JOINING RULE</strong><br>• Once you join the room → STAY IN YOUR SLOT<br>• If you move (solo match): ❌ KICK + NO REFUND</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">💬 <strong>CHAT BEHAVIOUR</strong><br>❌ Abusing in room chat → INSTANT KICK</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">⚔️ <strong>FAIR GAMEPLAY</strong><br>Strictly NOT ALLOWED: Bugs, Glitches, Team-Up</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🎥 <strong>SCREEN RECORDING — MUST</strong><br>• Recording MUST BE ON from the moment ID & Password is shared<br>• If you don't have recording when asked → ❌ NO PRIZE, ❌ NO REFUND</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">🛑 <strong>KICKED / ROOM FULL — REFUND POLICY</strong><br>Refund only if you provide VALID PROOF: Screen Recording from start / from room joining<br>⚠️ Without valid proof → NO REFUND</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0 0 6px 0;">📢 <strong>IDP (ID & PASS) RULE</strong><br>• IDP is always released ON THE APP FIRST<br>• If you wait only for notification and miss IDP → ❌ WE ARE NOT RESPONSIBLE, ❌ NO REFUND</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
+                    <p style="margin: 0;">🚫 <strong>MISSED MATCH</strong><br>Fail to join on time → NO REFUND</p>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    });
+};
 
 // ==============================
-// 4. DETAILED JOINED MATCH MODAL
+// 5. DETAILED JOINED MATCH MODAL (With Live Countdown)
 // ==============================
 window.openJoinedTournamentDetails = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
@@ -123,14 +219,12 @@ window.openJoinedTournamentDetails = function(docId) {
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
-            <!-- Top Bar -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <button onclick="document.getElementById('joined-details-modal').remove()" style="background: none; border: none; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer;">✕</button>
                 <h3 style="margin: 0; font-size: 18px; color: #0ff; font-weight: normal;">View More</h3>
                 <div style="width: 20px;"></div>
             </div>
 
-            <!-- Rules Text -->
             <div style="font-size: 11px; color: #a280ff; margin-bottom: 15px; line-height: 1.4; font-weight: bold;">
                 <p style="margin: 0 0 4px 0;">*ROOM ID AND PASSWORD WILL DISPLAYED HERE 4 TO 6 MINS PRIOR TO MATCH</p>
                 <p style="margin: 0;">*STAY IN YOUR GIVEN ROOM SLOT OR YOU WILL BE KICKED FROM THE ROOM</p>
@@ -138,7 +232,6 @@ window.openJoinedTournamentDetails = function(docId) {
 
             <p style="font-size: 12px; text-align: center; color: #ccc; margin-bottom: 8px;">*HOW TO JOIN CUSTOM ROOM ?*</p>
 
-            <!-- Banner with Watermark -->
             <div style="width: 100%; height: 170px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; position: relative; background: url('${bannerImg}') center/cover no-repeat;">
                 <div style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
                 <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 10px;">
@@ -146,34 +239,76 @@ window.openJoinedTournamentDetails = function(docId) {
                 </div>
             </div>
 
-            <!-- Action Buttons (View Match & View Entries) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">View Match</button>
+                <button onclick="openMatchDetailsView('${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">View Match</button>
                 <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">View Entries</button>
             </div>
 
-            <!-- Countdown Timer Box -->
             <div style="background: #0673ab; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
                 <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #fff;">Game Start In</p>
                 <div style="display: flex; justify-content: space-around; color: #fff;">
-                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
-                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
-                    <div style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
+                    <div id="cdt-hours" style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
+                    <div id="cdt-mins" style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
+                    <div id="cdt-secs" style="width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">00</div>
                 </div>
             </div>
 
-            <!-- Bottom Buttons (My Entries & Watch Full) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto;">
                 <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">My Entries</button>
                 <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Watch Full</button>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Start Live Countdown Timer
+        if (window.activeCountdownInterval) clearInterval(window.activeCountdownInterval);
+        
+        let scheduleStr = d.schedule || d.time || '';
+        let targetTime = new Date().getTime() + (3600 * 1000 * 2); // Default 2 hours if not parsed
+        try {
+            let parsed = Date.parse(scheduleStr);
+            if (!isNaN(parsed)) {
+                targetTime = parsed;
+            } else {
+                let parts = scheduleStr.split(' ');
+                let dateParts = parts[0].split('-');
+                if (dateParts.length === 3) {
+                    let iso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${parts[1] || '00:00:00'}`;
+                    let p2 = Date.parse(iso);
+                    if (!isNaN(p2)) targetTime = p2;
+                }
+            }
+        } catch(e) {}
+
+        window.activeCountdownInterval = setInterval(() => {
+            let now = new Date().getTime();
+            let distance = targetTime - now;
+            if (distance < 0) {
+                let h = document.getElementById('cdt-hours');
+                let m = document.getElementById('cdt-mins');
+                let s = document.getElementById('cdt-secs');
+                if(h) h.innerText = '00';
+                if(m) m.innerText = '00';
+                if(s) s.innerText = '00';
+                clearInterval(window.activeCountdownInterval);
+                return;
+            }
+            let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            let h = document.getElementById('cdt-hours');
+            let m = document.getElementById('cdt-mins');
+            let s = document.getElementById('cdt-secs');
+            if(h) h.innerText = String(hours).padStart(2, '0');
+            if(m) m.innerText = String(minutes).padStart(2, '0');
+            if(s) s.innerText = String(seconds).padStart(2, '0');
+        }, 1000);
     });
 };
 
 // ==============================
-// 5. FILTER CONTESTS (Status Filtering)
+// 6. FILTER CONTESTS (Status Filtering)
 // ==============================
 window.filterContests = function(statusType) {
     let existing = document.getElementById("contest-modal");
@@ -232,17 +367,13 @@ window.filterContests = function(statusType) {
                     
                     html += `
                     <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer;">
-                        <!-- Banner Image -->
-                        <div style="width: 100%; height: 160px; overflow: hidden;">
-                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/${bannerImg}'">
-                            
+                        <div style="width: 100%; height: 160px; overflow: hidden; background: #222;">
+                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/banners/IMG_20260824_221547.jpg'">
                         </div>
-                        <!-- Tournament Details -->
                         <div style="padding: 12px;">
                             <h3 style="color: #ffcc00; margin: 0 0 5px 0; font-size: 16px;">${d.title || d.name || 'Tournament'}</h3>
                             <p style="color: #ff5555; font-size: 11px; margin: 0 0 10px 0; font-weight: bold;">${d.subtitle || 'BR • GUN ATTRIBUTES OFF'}</p>
 
-                            <!-- Entry Fee, Prize Pool, Per Kill Box -->
                             <div style="display: flex; justify-content: space-between; background: #111; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
                                 <div>
                                     <span style="font-size: 9px; color: #888; display: block;">ENTRY FEE</span>
@@ -258,14 +389,12 @@ window.filterContests = function(statusType) {
                                 </div>
                             </div>
 
-                            <!-- Time, Type, Map Details -->
                             <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 12px;">
                                 <div>Time: <strong style="color: #ffaa00;">${d.time || 'N/A'}</strong></div>
                                 <div>Type: <strong style="color: #fff;">${d.type || d.mode || 'Solo'}</strong></div>
                                 <div>Map: <strong style="color: #fff;">${d.map || 'Bermuda'}</strong></div>
                             </div>
 
-                            <!-- Status Badge -->
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span style="padding: 4px 10px; border-radius: 4px; font-size: 11px; background: ${matchStatus === 'completed' ? '#ff9800' : '#00e676'}; color: #000; font-weight: bold;">${matchStatus.toUpperCase()}</span>
                                 <span style="color: #00bcd4; font-size: 12px; font-weight: bold;">TAP TO VIEW ➔</span>
