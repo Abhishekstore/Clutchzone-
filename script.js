@@ -1083,3 +1083,67 @@ window.filterContests = function(status) {
         alert("Error: " + error.message);
     });
 };
+window.joinTournament = function(tournamentId, entryFee) {
+    let user = auth.currentUser;
+    if (!user) {
+        alert("Please login first!");
+        return;
+    }
+
+    let ffNameInput = document.querySelector('input[placeholder*="FF Name"]') || document.getElementById('playerNameInput');
+    let playerName = ffNameInput ? ffNameInput.value.trim() : "";
+
+    if (!playerName) {
+        alert("Please enter your Free Fire Username!");
+        return;
+    }
+
+    let userRef = db.collection("users").doc(user.uid);
+    let tournamentRef = db.collection("tournaments").doc(tournamentId);
+
+    Promise.all([userRef.get(), tournamentRef.get()]).then(([userDoc, tournamentDoc]) => {
+        if (!tournamentDoc.exists) {
+            alert("Tournament not found!");
+            return;
+        }
+
+        let tournamentData = tournamentDoc.data();
+        let participants = tournamentData.participants || [];
+
+        if (participants.includes(user.uid)) {
+            alert("You have already joined this match!");
+            return;
+        }
+
+        let userData = userDoc.exists ? userDoc.data() : {};
+        let walletBalance = userData.balance || userData.wallet || userData.coins || 0; 
+
+        if (entryFee > 0 && walletBalance < entryFee) {
+            alert("❌ Insufficient Balance! Aapke wallet mein ₹" + walletBalance + " hain, lekin entry fee ₹" + entryFee + " hai. Pehle Add Money karein.");
+            return; 
+        }
+
+        let newBalance = walletBalance;
+        if (entryFee > 0) {
+            newBalance = walletBalance - entryFee;
+        }
+
+        let batch = db.batch();
+        batch.set(userRef, { balance: newBalance, coins: newBalance }, { merge: true });
+
+        participants.push(user.uid);
+        batch.update(tournamentRef, { participants: participants });
+
+        batch.commit().then(() => {
+            if (entryFee > 0) {
+                alert("🎉 Successfully Joined Match!\n₹" + entryFee + " deducted from your wallet.\nRemaining Balance: ₹" + newBalance);
+            } else {
+                alert("🎉 Successfully Joined Free Match!");
+            }
+            location.reload();
+        });
+
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+};
