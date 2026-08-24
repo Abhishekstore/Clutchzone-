@@ -1,4 +1,51 @@
 // ==============================
+// 0. HELPER: BASE PATH & DATE PARSER
+// ==============================
+function getBannerBasePath() {
+    let loc = window.location.pathname;
+    let pathSegments = loc.split('/').filter(Boolean);
+    // If hosted on GitHub pages with a repo name, use repo path, else root relative
+    if (pathSegments.length > 0 && !loc.endsWith('.html') && !loc.endsWith('/')) {
+        // Just in case
+    }
+    // Using relative path mechanism that works on GitHub Pages subpaths
+    let basePath = '';
+    if (window.location.hostname.includes('github.io') && pathSegments.length > 0) {
+        basePath = '/' + pathSegments[0] + '/';
+    } else {
+        basePath = './';
+    }
+    return basePath;
+}
+
+function parseTournamentTime(scheduleStr) {
+    if (!scheduleStr) return new Date().getTime() + (3600 * 1000 * 2);
+    let parsed = Date.parse(scheduleStr);
+    if (!isNaN(parsed)) return parsed;
+
+    try {
+        let parts = scheduleStr.trim().split(' ');
+        let datePart = parts[0]; // e.g. 25-08-2026
+        let timePart = parts[1] || '00:00:00';
+        
+        let dParts = datePart.split('-');
+        if (dParts.length === 3) {
+            let year, month, day;
+            if (dParts[0].length === 4) {
+                year = dParts[0]; month = dParts[1]; day = dParts[2];
+            } else {
+                day = dParts[0]; month = dParts[1]; year = dParts[2];
+            }
+            let isoStr = `${year}-${month}-${day}T${timePart}`;
+            let t = Date.parse(isoStr);
+            if (!isNaN(t)) return t;
+        }
+    } catch(e) {}
+
+    return new Date().getTime() + (3600 * 1000 * 2);
+}
+
+// ==============================
 // 1. JOIN TOURNAMENT LOGIC
 // ==============================
 window.joinTournament = function(tournamentId) {
@@ -76,29 +123,26 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
 // ==============================
 // 3. BANNER MANAGER FOR ALL MODES
 // ==============================
-function getBannerByType(type, mode) {
-    let t = (type || '').toLowerCase();
-    let m = (mode || '').toLowerCase();
-    let combined = (t + ' ' + m).trim();
-
-    let bannerPath = 'banners/';
+function getBannerByType(type, mode, title, subtitle) {
+    let combined = ((type || '') + ' ' + (mode || '') + ' ' + (title || '') + ' ' + (subtitle || '')).toLowerCase();
+    let prefix = getBannerBasePath() + 'banners/';
 
     if (combined.includes('4v4') || combined.includes('4*4')) {
-        return '/' + bannerPath + 'IMG_20260824_221300.jpg';
+        return prefix + 'IMG_20260824_221300.jpg';
     } else if (combined.includes('3v3') || combined.includes('3*3')) {
-        return '/' + bannerPath + 'IMG_20260824_221319.jpg';
+        return prefix + 'IMG_20260824_221319.jpg';
     } else if (combined.includes('2v2') || combined.includes('2*2')) {
-        return '/' + bannerPath + 'IMG_20260824_221338.jpg';
+        return prefix + 'IMG_20260824_221338.jpg';
     } else if (combined.includes('1v1') || combined.includes('1*1')) {
-        return '/' + bannerPath + 'IMG_20260824_221414.jpg';
+        return prefix + 'IMG_20260824_221414.jpg';
     } else if (combined.includes('squad')) {
-        return '/' + bannerPath + 'IMG_20260824_221457.jpg';
+        return prefix + 'IMG_20260824_221457.jpg';
     } else if (combined.includes('duo')) {
-        return '/' + bannerPath + 'IMG_20260824_221432.jpg';
+        return prefix + 'IMG_20260824_221432.jpg';
     } else if (combined.includes('solo')) {
-        return '/' + bannerPath + 'IMG_20260824_221547.jpg';
+        return prefix + 'IMG_20260824_221547.jpg';
     } else {
-        return '/' + bannerPath + 'IMG_20260824_221547.jpg';
+        return prefix + 'IMG_20260824_221547.jpg';
     }
 }
 
@@ -109,9 +153,10 @@ window.openMatchDetailsView = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
         if(!doc.exists) return;
         let d = doc.data();
-        let bannerImg = getBannerByType(d.type, d.mode || d.title);
+        let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
         let matchTitle = d.title || d.name || 'SOLO BR • GUN ATTRIBUTES OFF';
         let matchIdNum = doc.id;
+        let matchTimeDisplay = d.time || d.schedule || d.matchTime || d.date || '25-08-2026 10:10:00 am';
 
         let existing = document.getElementById('match-details-full-modal');
         if(existing) existing.remove();
@@ -126,7 +171,7 @@ window.openMatchDetailsView = function(docId) {
 
             <!-- Banner -->
             <div style="width: 100%; height: 200px; background: #222; overflow: hidden;">
-                <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/banners/IMG_20260824_221547.jpg'">
+                <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${getBannerBasePath()}banners/IMG_20260824_221547.jpg'">
             </div>
 
             <!-- Tabs -->
@@ -160,7 +205,7 @@ window.openMatchDetailsView = function(docId) {
                 </div>
 
                 <div style="background: #222; padding: 10px 15px; border-radius: 8px; font-size: 13px; margin-bottom: 15px;">
-                    Matches Schedule: <strong style="color: #ff9800;">${d.schedule || d.time || '25-08-2026 10:10:00 am'}</strong>
+                    Matches Schedule: <strong style="color: #ff9800;">${matchTimeDisplay}</strong>
                 </div>
 
                 <h4 style="color: #00bcd4; margin: 0 0 10px 0; font-size: 14px;">About This Match</h4>
@@ -202,7 +247,7 @@ window.openMatchDetailsView = function(docId) {
 };
 
 // ==============================
-// 5. DETAILED JOINED MATCH MODAL (With Live Countdown)
+// 5. DETAILED JOINED MATCH MODAL (With Live Accurate Countdown)
 // ==============================
 window.openJoinedTournamentDetails = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
@@ -213,7 +258,7 @@ window.openJoinedTournamentDetails = function(docId) {
         let existing = document.getElementById('joined-details-modal');
         if(existing) existing.remove();
 
-        let bannerImg = getBannerByType(d.type, d.mode || d.title);
+        let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
 
@@ -260,49 +305,39 @@ window.openJoinedTournamentDetails = function(docId) {
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-        // Start Live Countdown Timer
+        // Start Live Accurate Countdown Timer
         if (window.activeCountdownInterval) clearInterval(window.activeCountdownInterval);
         
-        let scheduleStr = d.schedule || d.time || '';
-        let targetTime = new Date().getTime() + (3600 * 1000 * 2); // Default 2 hours if not parsed
-        try {
-            let parsed = Date.parse(scheduleStr);
-            if (!isNaN(parsed)) {
-                targetTime = parsed;
-            } else {
-                let parts = scheduleStr.split(' ');
-                let dateParts = parts[0].split('-');
-                if (dateParts.length === 3) {
-                    let iso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${parts[1] || '00:00:00'}`;
-                    let p2 = Date.parse(iso);
-                    if (!isNaN(p2)) targetTime = p2;
-                }
-            }
-        } catch(e) {}
+        let rawSchedule = d.time || d.schedule || d.matchTime || d.date || '';
+        let targetTime = parseTournamentTime(rawSchedule);
 
         window.activeCountdownInterval = setInterval(() => {
             let now = new Date().getTime();
             let distance = targetTime - now;
-            if (distance < 0) {
-                let h = document.getElementById('cdt-hours');
-                let m = document.getElementById('cdt-mins');
-                let s = document.getElementById('cdt-secs');
-                if(h) h.innerText = '00';
-                if(m) m.innerText = '00';
-                if(s) s.innerText = '00';
+            
+            let hElem = document.getElementById('cdt-hours');
+            let mElem = document.getElementById('cdt-mins');
+            let sElem = document.getElementById('cdt-secs');
+
+            if (!hElem || !mElem || !sElem) {
                 clearInterval(window.activeCountdownInterval);
                 return;
             }
-            let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            if (distance < 0) {
+                hElem.innerText = '00';
+                mElem.innerText = '00';
+                sElem.innerText = '00';
+                clearInterval(window.activeCountdownInterval);
+                return;
+            }
+            let hours = Math.floor(distance / (1000 * 60 * 60));
             let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             let seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            let h = document.getElementById('cdt-hours');
-            let m = document.getElementById('cdt-mins');
-            let s = document.getElementById('cdt-secs');
-            if(h) h.innerText = String(hours).padStart(2, '0');
-            if(m) m.innerText = String(minutes).padStart(2, '0');
-            if(s) s.innerText = String(seconds).padStart(2, '0');
+            hElem.innerText = String(hours).padStart(2, '0');
+            mElem.innerText = String(minutes).padStart(2, '0');
+            sElem.innerText = String(seconds).padStart(2, '0');
         }, 1000);
     });
 };
@@ -363,12 +398,13 @@ window.filterContests = function(statusType) {
 
                 if (matchesTab) {
                     foundCount++;
-                    let bannerImg = getBannerByType(d.type, d.mode || d.title);
+                    let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
+                    let displayTime = d.time || d.schedule || d.matchTime || d.date || 'N/A';
                     
                     html += `
                     <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer;">
                         <div style="width: 100%; height: 160px; overflow: hidden; background: #222;">
-                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/banners/IMG_20260824_221547.jpg'">
+                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${getBannerBasePath()}banners/IMG_20260824_221547.jpg'">
                         </div>
                         <div style="padding: 12px;">
                             <h3 style="color: #ffcc00; margin: 0 0 5px 0; font-size: 16px;">${d.title || d.name || 'Tournament'}</h3>
@@ -390,7 +426,7 @@ window.filterContests = function(statusType) {
                             </div>
 
                             <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 12px;">
-                                <div>Time: <strong style="color: #ffaa00;">${d.time || 'N/A'}</strong></div>
+                                <div>Time: <strong style="color: #ffaa00;">${displayTime}</strong></div>
                                 <div>Type: <strong style="color: #fff;">${d.type || d.mode || 'Solo'}</strong></div>
                                 <div>Map: <strong style="color: #fff;">${d.map || 'Bermuda'}</strong></div>
                             </div>
