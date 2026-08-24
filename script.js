@@ -824,21 +824,19 @@ window.openSupport = function() {
     `;
     showClutchzoneModal("Support - Clutchzone", content);
 };
-
 // ==========================================
-// CLUTCHZONE COMPLETE WALLET & UPI/QR SYSTEM
+// CLUTCHZONE COMPLETE WALLET & UPI SYSTEM
 // ==========================================
 
-// 1. ADD COINS MODAL (With Instructions, QR Code & Confirmation Popup)
+// 1. ADD COINS MODAL (With Instructions & Confirmation Popup)
 window.openAddCoinsModal = function() {
     let existing = document.getElementById('add-coins-modal');
     if (existing) existing.remove();
 
     let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || 'User';
     
-    // ⚠️ Yahan apni UPI ID aur QR Code ka image link/path dalein
-    let adminUpi = "kinggkwrd@okicici"; 
-    let adminQrUrl = "qr.png"; // Yahan apne QR code ka link ya image file ka naam dalein (Jaise: "https://yourwebsite.com/qr.png")
+    // ⚠️ Yahan apni UPI ID daalein
+    let adminUpi = "clutchzone@paytm"; 
 
     let modalHTML = `
     <div id="add-coins-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff;">
@@ -853,16 +851,9 @@ window.openAddCoinsModal = function() {
             <!-- Instructions Box -->
             <div style="background:rgba(255,204,0,0.1); border:1px dashed #ffcc00; padding:10px; border-radius:6px; margin-bottom:12px; font-size:12px; color:#ffd54f; line-height:1.4;">
                 <b>📌 Kaise Add Karein? (Steps):</b><br>
-                1. <b>'Pay via UPI'</b> dabayein ya niche diye gaye <b>QR Code</b> ko scan karke payment karein.<br>
+                1. Amount daal kar <b>'Pay via UPI'</b> dabayein aur payment complete karein.<br>
                 2. Payment app se <b>12-digit UTR / Ref ID</b> copy karein.<br>
                 3. UTR yahan paste karke <b>'Submit Request'</b> dabayein!
-            </div>
-
-            <!-- QR Code Section for Shop/Friends scan -->
-            <div style="text-align:center; margin-bottom:12px; background:#121212; padding:10px; border-radius:8px; border:1px solid #333;">
-                <p style="font-size:12px; color:#aaa; margin-bottom:6px;">📸 Scan QR Code (Dukaan ya Dost se pay karwayein):</p>
-                <img src="${adminQrUrl}" alt="Admin QR Code" style="width:130px; height:130px; border-radius:6px; background:#fff; padding:4px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/130?text=QR+Not+Found'">
-                <p style="font-size:10px; color:#888; margin-top:4px;">(Aap iska screenshot lekar bhi bhej sakte hain)</p>
             </div>
 
             <div style="margin-bottom:12px;">
@@ -901,7 +892,7 @@ window.payViaUpi = function(upiId) {
 
 window.submitDepositRequest = function(username) {
     let amount = Number(document.getElementById('deposit-amount').value);
-    let utr = document.getElementById('deposit-utr'].value.trim();
+    let utr = document.getElementById('deposit-utr').value.trim(); // Fixed bracket error here
 
     if(!amount || amount <= 0) {
         alert("Kripya amount bharein!");
@@ -1028,7 +1019,7 @@ window.openTransactions = function() {
                 html += '<p style="color:#888; font-size:13px;">No withdrawal history found.</p>';
             } else {
                 snapshot2.forEach(doc => {
-                    let d = doc2.data();
+                    let d = doc.data(); // Fixed doc2 typo here
                     html += `<div style="background:#1e1e2f; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                         <div><b>₹${d.amount}</b><br><small style="color:#aaa;">UPI: ${d.upi}</small></div>
                         <span style="padding:4px 8px; border-radius:4px; font-size:12px; background:${d.status=='Approved'?'#00e676':(d.status=='Rejected'?'#ff4444':'#ffcc00')}; color:#000; font-weight:bold;">${d.status}</span>
