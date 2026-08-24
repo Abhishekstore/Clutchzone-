@@ -1125,4 +1125,40 @@ window.joinTournament = function(tournamentId, entryFee) {
     }).catch((error) => {
         alert("Error: " + error.message);
     });
-};        
+};       
+// 1. Expired Matches ko hatane aur Time/Fee theek karne ka function
+window.renderTournamentCard = function(docId, data) {
+    let title = data.title || data.name || 'Tournament';
+    let entryFee = data.entryFee !== undefined ? data.entryFee : (data.fee || 0);
+    let prize = data.prizePool !== undefined ? data.prizePool : (data.prize || 0);
+    let maxSlots = data.maxSlots || 48;
+    
+    // Time check: Agar match ka time nikal chuka hai, toh yeh card list mein nahi dikhega
+    let timeVal = data.startTime || data.time;
+    if (timeVal) {
+        let matchTime = new Date(timeVal);
+        if (matchTime < new Date()) {
+            return ""; // Purana/Expired match hide ho jayega
+        }
+    }
+
+    let timeString = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+    return `
+    <div style="background: linear-gradient(135deg, #1e1e2f, #2d1b4e); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: #fff; border: 1px solid #4a3d7a;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 16px; color: #ffcc00;">${title}</h3>
+            <span style="font-size: 11px; background: #7c4dff; padding: 3px 8px; border-radius: 4px; color:#fff;">${timeString}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
+            <div>🔥 ENTRY: <b style="color: #00e676;">₹${entryFee}</b></div>
+            <div>🏆 PRIZE: <b style="color: #ffcc00;">₹${prize}</b></div>
+            <div>👥 SLOTS: <b>${maxSlots}</b></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="openMatchDetails('${docId}')" style="flex: 1; background: #00acc1; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">VIEW MORE</button>
+            <button onclick="openSlotSelection('${docId}')" style="flex: 1; background: #ff9800; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">JOIN NOW</button>
+        </div>
+    </div>`;
+};
+
