@@ -106,9 +106,24 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
             let spotsLeft = totalSlots - joinedCount;
             if (spotsLeft < 0) spotsLeft = 0;
             let progressPercent = (joinedCount / totalSlots) * 100;
+let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+let participantsList = d.participants || [];
+let hasJoined = participantsList.includes(currentUsername);
+
+let actionButtonHTML = "";
+let cardClickAction = "";
+
+if (hasJoined) {
+    actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px;">JOINED</button>`;
+    cardClickAction = `onclick="openMatchDetails('${docid}')"`;
+} else {
+    actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
+    cardClickAction = `onclick="openSlotSelection('${docid}')"`;
+}
 
             let cardHTML = `
-    <div style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px;">
+    <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
+    
     
 
                     <!-- Top Banner Box -->
@@ -167,7 +182,9 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
                             <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
                                 <div style="background: #ff9900; width: ${progressPercent}%; height: 100%;"></div>
                             </div>
-                            <button onclick="openSlotSelection('${docId}', '${d.title}', ${d.entry || 0}, ${d.entry || 0}, 0)" style="background: #fff; color: #000; font-weight: bold; padding: 8px 22px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">JOIN</button>
+                            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+    ${actionButtonHTML}
+</div>
 
                         </div>
                     </div>
