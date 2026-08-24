@@ -213,7 +213,6 @@ window.filterContests = function(statusType) {
             }
 
             if (isJoined) {
-                                            if (isJoined) {
         let matchStatus = (d.status || 'upcoming').toLowerCase();
 
         let matchesTab = false;
