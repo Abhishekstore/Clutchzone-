@@ -706,65 +706,34 @@ window.submitDepositRequest = function() {
         alert("Error: " + err.message);
     });
 };
-// Bottom Navigation aur Top Buttons ke liye yeh functions add karein:
-window.openMyProfile = function() {
-    alert("Profile section open ho raha hai...");
-    // Agar aapke paas profile modal ya tab hai toh uska code yahan likhein
-};
+// ==========================================
+// PROPER TAB SWITCHING HANDLER
+// ==========================================
+window.switchTab = function(tabName) {
+    // 1. Sabhi tabs ko hide karein
+    document.querySelectorAll('.app-tab-content').forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+    });
 
-window.openMyWallet = function() {
-    alert("Wallet section open ho raha hai...");
+    // 2. Jis tab par click kiya hai use show karein
+    let targetTab = document.getElementById(tabName + '-tab');
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    } else if (tabName === 'home') {
+        let homeTab = document.getElementById('home-tab');
+        if (homeTab) {
+            homeTab.style.display = 'block';
+            homeTab.classList.add('active');
+        }
+    }
 };
 
 window.openTopPlayers = function() {
-    alert("Top players ranking...");
+    alert("🏆 Top Players Leaderboard coming soon!");
 };
 
-// Bottom bar tabs ke liye agar function missing hain:
-window.switchTab = function(tabName) {
-    console.log("Switching to: " + tabName);
-    // Yahan apne tabs ko show/hide karne ka logic lagayein
+window.openSupport = function() {
+    alert("📞 Support: Contact admin via Telegram/WhatsApp");
 };
-// ==========================================
-// 10. AUTO-FIXER & EVENT BINDINGS FOR BUTTONS
-// ==========================================
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Fix Wallet Balance (₹11 ki jagah actual database value ya 0)
-    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
-    if (currentUsername) {
-        db.collection('users').doc(currentUsername).get().then(doc => {
-            let coins = doc.exists && doc.data().coins !== undefined ? doc.data().coins : 0;
-            document.querySelectorAll('.wallet-amount, #wallet-balance, [id*="balance"]').forEach(el => {
-                el.innerText = "₹" + coins;
-            });
-        }).catch(() => {});
-    }
-
-    // 2. Auto-bind Home Screen Buttons based on text
-    document.querySelectorAll('div, button, a, span').forEach(el => {
-        let text = el.innerText ? el.innerText.trim().toLowerCase() : '';
-        
-        if (text === 'my profile') {
-            el.style.cursor = 'pointer';
-            el.onclick = function() { 
-                if(typeof smstchTab === 'function') smstchTab('profile'); 
-                else alert("Profile section");
-            };
-        }
-        if (text === 'my wallet') {
-            el.style.cursor = 'pointer';
-            el.onclick = function() { 
-                if(typeof openDepositModal === 'function') openDepositModal(); 
-                else alert("Wallet section");
-            };
-        }
-        if (text === 'top player' || text === 'top players') {
-            el.style.cursor = 'pointer';
-            el.onclick = function() { alert("🏆 Top Players Leaderboard coming soon!"); };
-        }
-        if (text === 'contact us') {
-            el.style.cursor = 'pointer';
-            el.onclick = function() { alert("📞 Support Support Contact"); };
-        }
-    });
-});
