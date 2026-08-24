@@ -79,25 +79,25 @@ function getBannerByType(type, mode) {
 
     // Aap yahan apni uploaded images ke links paste kar sakte hain:
     if (combined.includes('4vs4') || combined.includes('4v4')) {
-        return 'YAHAN_4VS4_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221300.jpg'; 
     } 
     else if (combined.includes('3vs3') || combined.includes('3v3')) {
-        return 'YAHAN_3VS3_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221319.jpg'; 
     } 
     else if (combined.includes('2vs2') || combined.includes('2v2')) {
-        return 'YAHAN_2VS2_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221318.jpg'; 
     } 
     else if (combined.includes('1vs1') || combined.includes('1v1')) {
-        return 'YAHAN_1VS1_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221414.jpg'; 
     } 
     else if (combined.includes('squad')) {
-        return 'YAHAN_SQUAD_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221457.jpg'; 
     } 
     else if (combined.includes('duo')) {
-        return 'YAHAN_DUO_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221432.jpg'; 
     } 
     else if (combined.includes('solo')) {
-        return 'YAHAN_SOLO_APNA_IMAGE_LINK_DALO'; 
+        return 'IMG_20260824_221547.jpg'; 
     } 
     else {
         return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc'; // Default Fallback
