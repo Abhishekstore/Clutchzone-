@@ -108,7 +108,8 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
             let progressPercent = (joinedCount / totalSlots) * 100;
 
             let cardHTML = `
-    <div onclick="openMatchDetails('${docid}')" style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
+    <div style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px;">
+    
 
                     <!-- Top Banner Box -->
                     <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:flex-end; padding:10px; margin-bottom:10px;">
