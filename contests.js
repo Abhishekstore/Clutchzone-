@@ -226,11 +226,50 @@ window.filterContests = function(statusType) {
 
                 if (matchesTab) {
                     foundCount++;
-                    html += `<div onclick="openJoinedTournamentDetails('${docId}')" style="background:#1e1e2f; padding:15px; border-radius:10px; margin-bottom:12px; border:1px solid #333; cursor:pointer;">
-                        <h4 style="color:#ffcc00; margin:0 0 8px 0; font-size:16px;">${d.title || d.name || 'Tournament'}</h4>
-                        <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
-                        <span style="display:inline-block; margin-top:8px; padding:4px 10px; border-radius:4px; font-size:12px; background:${matchStatus === 'completed' ? '#ff9800' : '#00e676'}; color:#000; font-weight:bold;">${matchStatus.toUpperCase()}</span>
-                    </div>`;
+                                let bannerImg = getBannerByType(d.type, d.mode || d.title);
+            
+            html += `
+            <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer; font-family: sans-serif;">
+                <!-- Banner Image -->
+                <div style="width: 100%; height: 160px; overflow: hidden;">
+                    <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <!-- Tournament Details -->
+                <div style="padding: 12px;">
+                    <h3 style="color: #ffcc00; margin: 0 0 5px 0; font-size: 16px;">${d.title || d.name || 'Tournament'}</h3>
+                    <p style="color: #ff5555; font-size: 11px; margin: 0 0 10px 0; font-weight: bold;">${d.subtitle || 'BR • GUN ATTRIBUTES OFF'}</p>
+
+                    <!-- Entry Fee, Prize Pool, Per Kill Box -->
+                    <div style="display: flex; justify-content: space-between; background: #111; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+                        <div>
+                            <span style="font-size: 9px; color: #888; display: block;">ENTRY FEE</span>
+                            <span style="color: #2ecc71; font-weight: bold; font-size: 14px;">₹${d.entryFee || 0}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 9px; color: #888; display: block;">PRIZE POOL</span>
+                            <span style="color: #f1c40f; font-weight: bold; font-size: 14px;">₹${d.prize || 0}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 9px; color: #888; display: block;">PER KILL</span>
+                            <span style="color: #e74c3c; font-weight: bold; font-size: 14px;">₹${d.perKill || 0}</span>
+                        </div>
+                    </div>
+
+                    <!-- Time, Type, Map Details -->
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 12px;">
+                        <div>Time: <strong style="color: #ffaa00;">${d.time || 'N/A'}</strong></div>
+                        <div>Type: <strong style="color: #fff;">${d.type || d.mode || 'Solo'}</strong></div>
+                        <div>Map: <strong style="color: #fff;">${d.map || 'Bermuda'}</strong></div>
+                    </div>
+
+                    <!-- Status Badge -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="padding: 4px 10px; border-radius: 4px; font-size: 11px; background: ${matchStatus === 'completed' ? '#ff9800' : '#00e676'}; color: #000; font-weight: bold;">${matchStatus.toUpperCase()}</span>
+                        <span style="color: #00bcd4; font-size: 12px; font-weight: bold;">TAP TO VIEW ➔</span>
+                    </div>
+                </div>
+            </div>`;
+
                 }
             }
         });
