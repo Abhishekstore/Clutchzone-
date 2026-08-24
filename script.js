@@ -1084,8 +1084,10 @@ window.filterContests = function(status) {
     });
 };
 window.joinTournament = function(tournamentId, entryFee) {
-    let user = auth.currentUser;
-    if (!user) {
+    // 1. LocalStorage se current logged-in username lein
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('loggedInUser');
+    
+    if (!currentUsername) {
         alert("Please login first!");
         return;
     }
@@ -1098,7 +1100,7 @@ window.joinTournament = function(tournamentId, entryFee) {
         return;
     }
 
-    let userRef = db.collection("users").doc(user.uid);
+    let userRef = db.collection("users").doc(currentUsername);
     let tournamentRef = db.collection("tournaments").doc(tournamentId);
 
     Promise.all([userRef.get(), tournamentRef.get()]).then(([userDoc, tournamentDoc]) => {
@@ -1110,13 +1112,14 @@ window.joinTournament = function(tournamentId, entryFee) {
         let tournamentData = tournamentDoc.data();
         let participants = tournamentData.participants || [];
 
-        if (participants.includes(user.uid)) {
+        if (participants.includes(currentUsername)) {
             alert("You have already joined this match!");
             return;
         }
 
         let userData = userDoc.exists ? userDoc.data() : {};
-        let walletBalance = userData.balance || userData.wallet || userData.coins || 0; 
+        // Coins ya balance field check karein
+        let walletBalance = userData.coins !== undefined ? userData.coins : (userData.balance || 0); 
 
         if (entryFee > 0 && walletBalance < entryFee) {
             alert("❌ Insufficient Balance! Aapke wallet mein ₹" + walletBalance + " hain, lekin entry fee ₹" + entryFee + " hai. Pehle Add Money karein.");
@@ -1129,9 +1132,10 @@ window.joinTournament = function(tournamentId, entryFee) {
         }
 
         let batch = db.batch();
-        batch.set(userRef, { balance: newBalance, coins: newBalance }, { merge: true });
+        // Dono fields (coins aur balance) update kar dein taaki kahin mismatch na ho
+        batch.set(userRef, { coins: newBalance, balance: newBalance }, { merge: true });
 
-        participants.push(user.uid);
+        participants.push(currentUsername);
         batch.update(tournamentRef, { participants: participants });
 
         batch.commit().then(() => {
