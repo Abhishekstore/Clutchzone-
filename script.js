@@ -69,28 +69,28 @@ function loadTournamentsForCategory(categoryName) {
 
 // 1. Tournament List Modal (Cards View)
 window.showTournamentListModal = function(categoryName, querySnapshot) {
-    let existingModal = document.getElementById('dynamic-tournament-modal');
-    if (existingModal) existingModal.remove();
+    let existingModal = document.getElementById("dynamic-tournament-modal");
+    if(existingModal) existingModal.remove();
 
     let modalHTML = `
-        <div id="dynamic-tournament-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1c1c1c; padding:10px 15px; border-radius:8px;">
-                <h2 style="color:#ff9800; margin:0; font-size:16px; text-transform:uppercase;">${categoryName} TOURNAMENTS</h2>
-                <button onclick="document.getElementById('dynamic-tournament-modal').remove()" style="background:#f44336; color:#fff; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">Close</button>
-            </div>
-            <div id="tournaments-cards-container"></div>
+    <div id="dynamic-tournament-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1c1c1c; padding:10px 15px; border-radius:8px;">
+            <h2 style="color:#ff9800; margin:0; font-size:16px; text-transform:uppercase;">${categoryName} TOURNAMENTS</h2>
+            <button onclick="document.getElementById('dynamic-tournament-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
         </div>
-    `;
+        <div id="tournaments-cards-container" style="flex:1; overflow-y:auto;"></div>
+    </div>`;
+    
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+    let container = document.getElementById("tournaments-cards-container");
+    if(!container) return;
 
-    let container = document.getElementById('tournaments-cards-container');
     let promises = [];
 
-    querySnapshot.forEach((docSnap) => {
-        let d = docSnap.data();
-        let docId = docSnap.id;
+    querySnapshot.forEach((docSnapshot) => {
+        let d = docSnapshot.data();
+        let docid = docSnapshot.id;
 
-        // Time khatam hone par match hide karne ka check
         if (d.startTime) {
             let matchTime = new Date(d.startTime);
             let currentTime = new Date();
@@ -100,101 +100,71 @@ window.showTournamentListModal = function(categoryName, querySnapshot) {
 
         let totalSlots = d.maxSlots || 48;
 
-        // Firebase se check karenge ki is tournament mein kitne log join kar chuke hain
-        let p = db.collection('joined_matches').where('tournamentId', '==', docId).get().then((joinedSnap) => {
+        let p = db.collection('joined_matches').where('tournamentId', '==', docid).get().then((joinedSnap) => {
             let joinedCount = joinedSnap.size;
             let spotsLeft = totalSlots - joinedCount;
             if (spotsLeft < 0) spotsLeft = 0;
             let progressPercent = (joinedCount / totalSlots) * 100;
-let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
-let participantsList = d.participants || [];
-let hasJoined = participantsList.includes(currentUsername);
 
-let actionButtonHTML = "";
-let cardClickAction = "";
+            let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+            let participantsList = d.participants || [];
+            let hasJoined = participantsList.includes(currentUsername);
 
-if (hasJoined) {
-    actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px;">JOINED</button>`;
-    cardClickAction = `onclick="openMatchDetails('${docid}')"`;
-} else {
-    actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
-    cardClickAction = `onclick="openSlotSelection('${docid}')"`;
-}
+            let actionButtonHTML = "";
+            let cardClickAction = "";
+
+            if (hasJoined) {
+                actionButtonHTML = `<button style="background:#fff; color:#0056b3; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOINED</button>`;
+                cardClickAction = `onclick="openMatchDetails('${docid}')"`;
+            } else {
+                actionButtonHTML = `<button onclick="openSlotSelection('${docid}')" style="background:#ff9800; color:#fff; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">JOIN</button>`;
+                cardClickAction = `onclick="openSlotSelection('${docid}')"`;
+            }
 
             let cardHTML = `
-    <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
-    
-    
+            <div ${cardClickAction} style="background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:12px; cursor:pointer;">
+                <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                    <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Tournament'}</span>
+                </div>
 
-                    <!-- Top Banner Box -->
-                    <div style="width:100%; height:110px; background:linear-gradient(135deg, #2b1055, #7597de); border-radius:8px; display:flex; align-items:flex-end; padding:10px; margin-bottom:10px;">
-                        <span style="font-weight:bold; font-size:15px; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${d.title || 'Tournament'}</span>
+                <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-top:10px;">
+                    <div style="flex:1;">
+                        <div style="font-size:10px; color:#aaa; font-weight:bold;">🔥 ENTRY</div>
+                        <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
                     </div>
-
-                    <!-- Logo & Subtitle Section -->
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                        <div style="width:38px; height:38px; border-radius:50%; background:#ff9800; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#000;">P24</div>
-                        <div>
-                            <div style="font-size:14px; font-weight:bold; color:#fff;">${d.title || 'Tournament'}</div>
-                            <div style="font-size:11px; color:#aaa;">Gun Attributes Off • Paid Match</div>
-                        </div>
+                    <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
+                        <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
+                        <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
                     </div>
-
-                            <!-- Entry Fee, Prize Pool, Per Kill -->
-        <div style="background:#262626; border-radius:8px; padding:10px; display:flex; justify-content:space-between; margin-bottom:12px;">
-            <div style="flex:1;">
-                <div style="font-size:10px; color:#aaa; font-weight:bold;">👑 ENTRY</div>
-                <div style="font-size:14px; color:#fff; font-weight:bold; margin-top:3px;">₹${d.entry || 0}</div>
-            </div>
-            <div style="flex:1; border-left:1px solid #444; border-right:1px solid #444; padding:0 10px;">
-                <div style="font-size:10px; color:#aaa; font-weight:bold;">🏆 PRIZE</div>
-                <div style="font-size:14px; color:#ffeb3b; font-weight:bold; margin-top:3px;">₹${d.prize || 0}</div>
-            </div>
-            <div style="flex:1; text-align:right;">
-                <div style="font-size:10px; color:#aaa; font-weight:bold;">🎯 KILL</div>
-                <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || d.kill || 0}</div>
-            </div>
-        </div>
-
-                    <!-- Time, Type, Map Section -->
-                    <div style="display:flex; justify-content:space-between; text-align:center; font-size:12px; margin-bottom:10px;">
-                        <div style="flex:1; text-align:left;">
-                            <div style="font-size:10px; color:#aaa;">TIME</div>
-                            <div style="font-size:11px; color:#ffeb3b; font-weight:bold; margin-top:2px;">${d.startTime ? new Date(d.startTime).toLocaleString() : 'TBD'}</div>
-                        </div>
-                        <div style="flex:1; text-align:center;">
-                            <div style="font-size:10px; color:#aaa;">TYPE</div>
-                            <div style="font-size:11px; color:#fff; font-weight:bold; margin-top:2px;">${d.subMode || 'Solo'} (${totalSlots} Players)</div>
-                        </div>
-                        <div style="flex:1; text-align:right;">
-                            <div style="font-size:10px; color:#aaa;">MAP</div>
-                            <div style="font-size:11px; color:#fff; font-weight:bold; margin-top:2px;">${d.map || 'Bermuda'}</div>
-                        </div>
-                    </div>
-
-                    <!-- Live Dynamic Progress Bar & Join Button -->
-                    <div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 5px;">
-                            <span>Only ${spotsLeft} Spot${spotsLeft === 1 ? '' : 's'} Left</span>
-                            <span><b>${joinedCount}/${totalSlots}</b></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
-                                <div style="background: #ff9900; width: ${progressPercent}%; height: 100%;"></div>
-                            </div>
-                            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-    ${actionButtonHTML}
-</div>
-
-                        </div>
+                    <div style="flex:1; text-align:right;">
+                        <div style="font-size:10px; color:#aaa; font-weight:bold;">💥 KILL</div>
+                        <div style="font-size:14px; color:#ff9800; font-weight:bold; margin-top:3px;">₹${d.perKill || 0}</div>
                     </div>
                 </div>
-            `;
+
+                <div style="margin-top: 12px; border-top: 1px solid #333; padding-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 5px;">
+                        <span>Only ${spotsLeft} Spot${spotsLeft === 1 ? '' : 's'} Left</span>
+                        <span><b>${joinedCount}/${totalSlots}</b></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; background: #333; height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div style="background: #ff9800; width: ${progressPercent}%; height: 100%;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                        ${actionButtonHTML}
+                    </div>
+                </div>
+            </div>`;
+
             container.insertAdjacentHTML('beforeend', cardHTML);
         });
+
         promises.push(p);
     });
 };
+
 
 
 window.openSlotSelection = function(tournamentId, title, entryFee, category) {
