@@ -224,17 +224,6 @@ window.filterContests = function(statusType) {
             matchesTab = true;
         }
 
-
-                
-                let matchesTab = false;
-                if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
-                    matchesTab = true;
-                } else if (targetTab === 'completed' && (matchStatus === 'completed' || matchStatus === 'finished')) {
-                    matchesTab = true;
-                } else if (targetTab === 'ongoing' && matchStatus === 'ongoing') {
-                    matchesTab = true;
-                }
-
                 if (matchesTab) {
                     foundCount++;
                                 let bannerImg = getBannerByType(d.type, d.mode || d.title);
