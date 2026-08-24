@@ -725,3 +725,46 @@ window.switchTab = function(tabName) {
     console.log("Switching to: " + tabName);
     // Yahan apne tabs ko show/hide karne ka logic lagayein
 };
+// ==========================================
+// 10. AUTO-FIXER & EVENT BINDINGS FOR BUTTONS
+// ==========================================
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Fix Wallet Balance (₹11 ki jagah actual database value ya 0)
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('logged_in_identifier');
+    if (currentUsername) {
+        db.collection('users').doc(currentUsername).get().then(doc => {
+            let coins = doc.exists && doc.data().coins !== undefined ? doc.data().coins : 0;
+            document.querySelectorAll('.wallet-amount, #wallet-balance, [id*="balance"]').forEach(el => {
+                el.innerText = "₹" + coins;
+            });
+        }).catch(() => {});
+    }
+
+    // 2. Auto-bind Home Screen Buttons based on text
+    document.querySelectorAll('div, button, a, span').forEach(el => {
+        let text = el.innerText ? el.innerText.trim().toLowerCase() : '';
+        
+        if (text === 'my profile') {
+            el.style.cursor = 'pointer';
+            el.onclick = function() { 
+                if(typeof smstchTab === 'function') smstchTab('profile'); 
+                else alert("Profile section");
+            };
+        }
+        if (text === 'my wallet') {
+            el.style.cursor = 'pointer';
+            el.onclick = function() { 
+                if(typeof openDepositModal === 'function') openDepositModal(); 
+                else alert("Wallet section");
+            };
+        }
+        if (text === 'top player' || text === 'top players') {
+            el.style.cursor = 'pointer';
+            el.onclick = function() { alert("🏆 Top Players Leaderboard coming soon!"); };
+        }
+        if (text === 'contact us') {
+            el.style.cursor = 'pointer';
+            el.onclick = function() { alert("📞 Support Support Contact"); };
+        }
+    });
+});
