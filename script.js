@@ -1032,3 +1032,49 @@ window.openTransactions = function() {
         listContainer.innerHTML = '<p style="color:#ff4444;">Error loading history: ' + err.message + '</p>';
     });
 };
+// ==========================================
+// CONTESTS TABS HANDLER (Ongoing, Upcoming, Completed)
+// ==========================================
+window.openContestTab = function(statusType) {
+    let existing = document.getElementById('contest-modal');
+    if (existing) existing.remove();
+
+    let modalHTML = `
+    <div id="contest-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+            <h3 style="color:#ffcc00; margin:0; font-size:18px;">🏆 ${statusType} Contests</h3>
+            <button onclick="document.getElementById('contest-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">✕ Close</button>
+        </div>
+        <div id="contest-list-content" style="font-size:14px; color:#ddd;">
+            <p style="text-align:center; color:#888;">Loading contests...</p>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    let listContainer = document.getElementById('contest-list-content');
+
+    // Firebase se tournaments / contests fetch karna
+    // Note: Agar aapke database mein collection ka naam 'tournaments' ki jagah kuch aur hai, toh yahan change kar sakte hain.
+    db.collection('tournaments')
+      .where('status', '==', statusType)
+      .get()
+      .then(snapshot => {
+          if(snapshot.empty) {
+              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No ${statusType.toLowerCase()} contests found.</p>`;
+              return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+              let d = doc.data();
+              html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
+                  <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
+                  <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
+                  <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
+              </div>`;
+          });
+          listContainer.innerHTML = html;
+      })
+      .catch(err => {
+          listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
+      });
+};
