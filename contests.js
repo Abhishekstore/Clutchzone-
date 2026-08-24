@@ -76,31 +76,34 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
 };
 
 // ==============================
-// 3. BANNER MANAGER FOR ALL MODES (Only Local Banners)
+// 3. BANNER MANAGER FOR ALL MODES (Root Path Fixed)
 // ==============================
 function getBannerByType(type, mode) {
     let t = (type || '').toLowerCase();
     let m = (mode || '').toLowerCase();
     let combined = (t + ' ' + m).trim();
 
+    let bannerPath = 'banners/'; // Agar folder ka naam 'Banners' (Capital B) hai toh yahan 'Banners/' kar dein
+
     if (combined.includes('4v4') || combined.includes('4*4')) {
-        return 'banners/IMG_20260824_221300.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221300.jpg';
     } else if (combined.includes('3v3') || combined.includes('3*3')) {
-        return 'banners/IMG_20260824_221319.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221319.jpg';
     } else if (combined.includes('2v2') || combined.includes('2*2')) {
-        return 'banners/IMG_20260824_221338.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221338.jpg';
     } else if (combined.includes('1v1') || combined.includes('1*1')) {
-        return 'banners/IMG_20260824_221414.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221414.jpg';
     } else if (combined.includes('squad')) {
-        return 'banners/IMG_20260824_221457.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221457.jpg';
     } else if (combined.includes('duo')) {
-        return 'banners/IMG_20260824_221432.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221432.jpg';
     } else if (combined.includes('solo')) {
-        return 'banners/IMG_20260824_221547.jpg';
+        return '/' + bannerPath + 'IMG_20260824_221547.jpg';
     } else {
-        return 'banners/IMG_20260824_221547.jpg'; // Default bhi aapka hi solo banner rahega
+        return '/' + bannerPath + 'IMG_20260824_221547.jpg';
     }
 }
+
 
 // ==============================
 // 4. DETAILED JOINED MATCH MODAL
