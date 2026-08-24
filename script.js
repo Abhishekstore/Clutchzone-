@@ -824,3 +824,212 @@ window.openSupport = function() {
     `;
     showClutchzoneModal("Support - Clutchzone", content);
 };
+// ==========================================
+// CLUTCHZONE COMPLETE WALLET & UPI SYSTEM
+// ==========================================
+
+// 1. ADD COINS MODAL (With Instructions & Confirmation Popup)
+window.openAddCoinsModal = function() {
+    let existing = document.getElementById('add-coins-modal');
+    if (existing) existing.remove();
+
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || 'User';
+    
+    // ⚠️ Yahan apni asli UPI ID daalein (Jaise: yourname@paytm)
+    let adminUpi = "clutchzone@paytm"; 
+
+    let modalHTML = `
+    <div id="add-coins-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff;">
+        <div style="background:#1e1e2f; width:100%; max-width:400px; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5); max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="color:#ffcc00; margin:0; font-size:18px;">💰 Add Money to Clutchzone</h3>
+                <button onclick="document.getElementById('add-coins-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            
+            <p style="font-size:13px; color:#aaa; margin-bottom:10px;">Username: <b style="color:#ffcc00;">${currentUsername}</b></p>
+            
+            <!-- Instructions Box -->
+            <div style="background:rgba(255,204,0,0.1); border:1px dashed #ffcc00; padding:10px; border-radius:6px; margin-bottom:12px; font-size:12px; color:#ffd54f; line-height:1.4;">
+                <b>📌 Kaise Add Karein? (Steps):</b><br>
+                1. Amount daal kar <b>'Pay via UPI'</b> dabayein aur payment complete karein.<br>
+                2. Payment app se <b>12-digit UTR / Ref ID</b> copy karein.<br>
+                3. UTR yahan paste karke <b>'Submit Request'</b> dabayein!
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="font-size:13px; display:block; margin-bottom:5px;">Enter Amount (₹):</label>
+                <input type="number" id="deposit-amount" placeholder="e.g. 100" style="width:100%; padding:10px; background:#121212; border:1px solid #444; color:#fff; border-radius:6px; font-size:15px;">
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px; display:block; margin-bottom:5px;">12-Digit UTR / Transaction ID:</label>
+                <input type="text" id="deposit-utr" placeholder="Enter UPI Ref No. after payment" style="width:100%; padding:10px; background:#121212; border:1px solid #444; color:#fff; border-radius:6px; font-size:14px;">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button onclick="payViaUpi('${adminUpi}')" style="flex:1; background:#00e676; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px;">1. Pay via UPI</button>
+                <button onclick="submitDepositRequest('${currentUsername}')" style="flex:1; background:#ffcc00; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px;">2. Submit Request</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.payViaUpi = function(upiId) {
+    let amtInput = document.getElementById('deposit-amount').value;
+    if(!amtInput || amtInput <= 0) {
+        alert("Kripya pehle valid amount enter karein!");
+        return;
+    }
+
+    // Alert popup jo user ko yaad dilayega ki wapas aakar UTR dalna hai
+    let confirmPay = confirm("⚠️ Zaroori Soochna:\n\nPayment complete karne ke baad wapas is app par aakar 12-digit UTR (Transaction ID) zaroor daalein!\n\nOK dabate hi aap payment app par redirect ho jayenge.");
+    
+    if (confirmPay) {
+        let upiLink = `upi://pay?pa=${upiId}&pn=Clutchzone&am=${amtInput}&cu=INR`;
+        window.location.href = upiLink;
+    }
+};
+
+window.submitDepositRequest = function(username) {
+    let amount = Number(document.getElementById('deposit-amount').value);
+    let utr = document.getElementById('deposit-utr').value.trim();
+
+    if(!amount || amount <= 0) {
+        alert("Kripya amount bharein!");
+        return;
+    }
+    if(!utr) {
+        alert("Kripya payment karne ke baad UTR / Transaction ID enter karein!");
+        return;
+    }
+
+    db.collection('deposits').add({
+        username: username,
+        amount: amount,
+        utr: utr,
+        status: 'Pending',
+        createdAt: new Date()
+    }).then(() => {
+        alert("✅ Deposit request successfully submit ho gayi hai! Admin verify karke wallet mein balance add kar dega.");
+        document.getElementById('add-coins-modal').remove();
+    }).catch(err => {
+        alert("Error: " + err.message);
+    });
+};
+
+
+// 2. WITHDRAWAL MODAL
+window.openWithdrawModal = function() {
+    let existing = document.getElementById('withdraw-modal');
+    if (existing) existing.remove();
+
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || 'User';
+
+    let modalHTML = `
+    <div id="withdraw-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; color:#fff;">
+        <div style="background:#1e1e2f; width:100%; max-width:400px; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:#ffcc00; margin:0; font-size:18px;">💸 Withdraw Winning Coins</h3>
+                <button onclick="document.getElementById('withdraw-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <p style="font-size:13px; color:#aaa; margin-bottom:15px;">Username: <b style="color:#ffcc00;">${currentUsername}</b></p>
+            
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px; display:block; margin-bottom:5px;">Withdrawal Amount (₹):</label>
+                <input type="number" id="withdraw-amount" placeholder="e.g. 200" style="width:100%; padding:10px; background:#121212; border:1px solid #444; color:#fff; border-radius:6px; font-size:16px;">
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px; display:block; margin-bottom:5px;">Your UPI ID for Payment:</label>
+                <input type="text" id="withdraw-upi" placeholder="e.g. username@paytm" style="width:100%; padding:10px; background:#121212; border:1px solid #444; color:#fff; border-radius:6px; font-size:14px;">
+            </div>
+
+            <button onclick="submitWithdrawRequest('${currentUsername}')" style="width:100%; background:#ffcc00; color:#000; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:15px;">Submit Withdrawal Request</button>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.submitWithdrawRequest = function(username) {
+    let amount = Number(document.getElementById('withdraw-amount').value);
+    let upi = document.getElementById('withdraw-upi').value.trim();
+
+    if(!amount || amount < 50) {
+        alert("Minimum withdrawal amount is ₹50!");
+        return;
+    }
+    if(!upi) {
+        alert("Kripya apni UPI ID enter karein!");
+        return;
+    }
+
+    db.collection('withdrawals').add({
+        username: username,
+        amount: amount,
+        upi: upi,
+        status: 'Pending',
+        createdAt: new Date()
+    }).then(() => {
+        alert("✅ Withdrawal request submitted successfully! Admin will review and send payment.");
+        document.getElementById('withdraw-modal').remove();
+    }).catch(err => {
+        alert("Error: " + err.message);
+    });
+};
+
+
+// 3. TRANSACTIONS HISTORY MODAL
+window.openTransactions = function() {
+    let existing = document.getElementById('transactions-modal');
+    if (existing) existing.remove();
+
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || '';
+
+    let modalHTML = `
+    <div id="transactions-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+            <h3 style="color:#ffcc00; margin:0; font-size:18px;">📜 Recent Transactions</h3>
+            <button onclick="document.getElementById('transactions-modal').remove()" style="background:#ff4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">✕ Close</button>
+        </div>
+        <div id="transactions-list" style="font-size:14px; color:#ddd;">
+            <p style="text-align:center; color:#888;">Loading history...</p>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    let listContainer = document.getElementById('transactions-list');
+    let html = '<h4 style="color:#00e676; margin-bottom:10px;">Deposits:</h4>';
+    
+    db.collection('deposits').where('username', '==', currentUsername).get().then(snapshot => {
+        if(snapshot.empty) {
+            html += '<p style="color:#888; font-size:13px;">No deposit history found.</p>';
+        } else {
+            snapshot.forEach(doc => {
+                let d = doc.data();
+                html += `<div style="background:#1e1e2f; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>₹${d.amount}</b><br><small style="color:#aaa;">UTR: ${d.utr}</small></div>
+                    <span style="padding:4px 8px; border-radius:4px; font-size:12px; background:${d.status=='Approved'?'#00e676':(d.status=='Rejected'?'#ff4444':'#ffcc00')}; color:#000; font-weight:bold;">${d.status}</span>
+                </div>`;
+            });
+        }
+        
+        html += '<h4 style="color:#ffcc00; margin:15px 0 10px 0;">Withdrawals:</h4>';
+        db.collection('withdrawals').where('username', '==', currentUsername).get().then(snapshot2 => {
+            if(snapshot2.empty) {
+                html += '<p style="color:#888; font-size:13px;">No withdrawal history found.</p>';
+            } else {
+                snapshot2.forEach(doc => {
+                    let d = doc2.data();
+                    html += `<div style="background:#1e1e2f; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><b>₹${d.amount}</b><br><small style="color:#aaa;">UPI: ${d.upi}</small></div>
+                        <span style="padding:4px 8px; border-radius:4px; font-size:12px; background:${d.status=='Approved'?'#00e676':(d.status=='Rejected'?'#ff4444':'#ffcc00')}; color:#000; font-weight:bold;">${d.status}</span>
+                    </div>`;
+                });
+            }
+            listContainer.innerHTML = html;
+        });
+    }).catch(err => {
+        listContainer.innerHTML = '<p style="color:#ff4444;">Error loading history: ' + err.message + '</p>';
+    });
+};
