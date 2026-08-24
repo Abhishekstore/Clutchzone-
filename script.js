@@ -1033,13 +1033,15 @@ window.openTransactions = function() {
     });
 };
 // ==========================================
-// CONTESTS TABS HANDLER (JS-side Filtering - No Index Required)
+// ROBUST CONTESTS TABS HANDLER (Fixes all matching issues)
 // ==========================================
 window.filterContests = function(statusType) {
     let existing = document.getElementById('contest-modal');
     if (existing) existing.remove();
 
-    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || '';
+    // Sabhi possible keys check kar rahe hain jahan username save ho sakta hai
+    let currentUsername = localStorage.getItem('logged_in_username') || localStorage.getItem('loggedUserName') || localStorage.getItem('username') || '';
+    console.log("Logged-in Username being checked:", currentUsername);
 
     let modalHTML = `
     <div id="contest-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; padding:20px; color:#fff; overflow-y:auto;">
@@ -1055,39 +1057,49 @@ window.filterContests = function(statusType) {
 
     let listContainer = document.getElementById('contest-list-content');
 
-    // Sirf status ke basis par fetch karenge taaki index error na aaye
-    db.collection('tournaments')
-      .where('status', '==', statusType)
-      .get()
-      .then(snapshot => {
-          if(snapshot.empty) {
-              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No ${statusType.toLowerCase()} contests found.</p>`;
-              return;
-          }
-          
-          let html = '';
-          let foundCount = 0;
+    // Saare tournaments fetch karke JS mein smart match karenge
+    db.collection('tournaments').get().then(snapshot => {
+        if(snapshot.empty) {
+            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Database mein koi tournament nahi hai.</p>`;
+            return;
+        }
+        
+        let html = '';
+        let foundCount = 0;
 
-          snapshot.forEach(doc => {
-              let d = doc.data();
-              // Check karenge ki participants array mein current user ka naam hai ya nahi
-              if (d.participants && Array.isArray(d.participants) && d.participants.includes(currentUsername)) {
-                  foundCount++;
-                  html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
-                      <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
-                      <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
-                      <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
-                  </div>`;
-              }
-          });
+        snapshot.forEach(doc => {
+            let d = doc.data();
+            console.log("Checking tournament:", d.title || d.name, "| Status:", d.status, "| Participants:", d.participants);
 
-          if(foundCount === 0) {
-              listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne koi bhi ${statusType.toLowerCase()} contest join nahi kiya hai.</p>`;
-          } else {
-              listContainer.innerHTML = html;
-          }
-      })
-      .catch(err => {
-          listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
-      });
+            // Status match (case-insensitive: 'upcoming' ho ya 'Upcoming', dono chalega)
+            let matchesStatus = d.status && d.status.toLowerCase() === statusType.toLowerCase();
+
+            // Participants check (kya user ne join kiya hai?)
+            let isJoined = false;
+            if (d.participants) {
+                if (Array.isArray(d.participants)) {
+                    isJoined = d.participants.some(p => p && p.toLowerCase() === currentUsername.toLowerCase());
+                } else if (typeof d.participants === 'string') {
+                    isJoined = d.participants.toLowerCase().includes(currentUsername.toLowerCase());
+                }
+            }
+
+            if (matchesStatus && isJoined) {
+                foundCount++;
+                html += `<div style="background:#1e1e2f; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
+                    <h4 style="color:#ffcc00; margin:0 0 5px 0;">${d.title || d.name || 'Tournament'}</h4>
+                    <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
+                    <span style="display:inline-block; margin-top:5px; padding:3px 8px; border-radius:4px; font-size:11px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
+                </div>`;
+            }
+        });
+
+        if(foundCount === 0) {
+            listContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">Aapne yeh contest join nahi kiya hai ya database mein participants list empty hai.</p>`;
+        } else {
+            listContainer.innerHTML = html;
+        }
+    }).catch(err => {
+        listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error loading contests: ${err.message}</p>`;
+    });
 };
