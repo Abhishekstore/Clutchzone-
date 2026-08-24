@@ -76,7 +76,7 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
 };
 
 // ==============================
-// 3. BANNER MANAGER FOR ALL MODES
+// 3. BANNER MANAGER FOR ALL MODES (Only Local Banners)
 // ==============================
 function getBannerByType(type, mode) {
     let t = (type || '').toLowerCase();
@@ -98,7 +98,7 @@ function getBannerByType(type, mode) {
     } else if (combined.includes('solo')) {
         return 'banners/IMG_20260824_221547.jpg';
     } else {
-        return 'https://images.unsplash.com/photo-15348110705-c7104e0365fc';
+        return 'banners/IMG_20260824_221547.jpg'; // Default bhi aapka hi solo banner rahega
     }
 }
 
