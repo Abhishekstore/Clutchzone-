@@ -267,6 +267,54 @@
         <button onclick="document.getElementById('app-install-banner').style.display='none'" style="background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
     </div>
 </div>
+<!-- Match Result Screen Modal -->
+<div id="match-result-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; overflow-y: auto; padding: 15px; box-sizing: border-box; color: #fff;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <button onclick="closeMatchResult()" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; margin-right: 15px;">←</button>
+        <h2 style="font-size: 18px; margin: 0;">Match Result</h2>
+    </div>
+
+    <div style="width: 100%; height: 160px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: #222;">
+        <img id="res-banner" src="" alt="Banner" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+
+    <div id="res-title" style="font-size: 15px; font-weight: bold; color: #ff9800; margin-bottom: 8px;">TOURNAMENT</div>
+    <div id="res-subtitle" style="font-size: 12px; color: #aaa; margin-bottom: 12px;">Category • Mode</div>
+
+    <div style="background: #1e1e1e; padding: 10px; border-radius: 6px; font-size: 12px; color: #ddd; margin-bottom: 12px;">
+        📅 Organised on <span id="res-date">--</span>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <div style="flex: 1; background: #1e1e1e; padding: 10px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 11px; color: #aaa;">Winning Prize</div>
+            <div style="font-size: 14px; font-weight: bold; color: #f1c40f; margin-top: 4px;">🪙 <span id="res-prize">0</span></div>
+        </div>
+        <div style="flex: 1; background: #1e1e1e; padding: 10px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 11px; color: #aaa;">Per Kill</div>
+            <div style="font-size: 14px; font-weight: bold; color: #f1c40f; margin-top: 4px;">🪙 <span id="res-kill-rate">0</span></div>
+        </div>
+        <div style="flex: 1; background: #1e1e1e; padding: 10px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 11px; color: #aaa;">Entry Fee</div>
+            <div style="font-size: 14px; font-weight: bold; color: #f1c40f; margin-top: 4px;">🪙 <span id="res-entry">0</span></div>
+        </div>
+    </div>
+
+    <div style="background: #1a1a1a; border-radius: 8px; overflow: hidden; border: 1px solid #333;">
+        <div style="background: #2c3e50; padding: 10px; text-align: center; font-weight: bold; font-size: 14px; color: #fff;">FULL RESULTS</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+            <thead>
+                <tr style="background: #243342; color: #3498db; border-bottom: 1px solid #333;">
+                    <th style="padding: 10px; width: 40px;">#</th>
+                    <th style="padding: 10px;">Player Name</th>
+                    <th style="padding: 10px; text-align: center; width: 60px;">Kill</th>
+                    <th style="padding: 10px; text-align: right; width: 80px;">Winning</th>
+                </tr>
+            </thead>
+            <tbody id="res-table-body"></tbody>
+        </table>
+    </div>
+</div>
 
 </body>
 </html>
