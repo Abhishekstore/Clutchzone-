@@ -190,8 +190,26 @@ window.updateRoomCredentials = function () {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        const matchIdInput = document.querySelector('#room-section input') || document.querySelector('input[placeholder*="Match ID"]');
-        const matchId = matchIdInput ? matchIdInput.value.trim() : '';
+        const inputs = document.querySelectorAll('input');
+        let matchId = '', roomId = '', roomPassword = '';
+
+        inputs.forEach(input => {
+            const placeholder = (input.placeholder || '').toLowerCase();
+            const val = input.value.trim();
+            if (placeholder.includes('match') || placeholder.includes('uio')) {
+                if (val) matchId = val;
+            } else if (placeholder.includes('room') || placeholder.toLowerCase() === 'room id') {
+                if (val) roomId = val;
+            } else if (placeholder.includes('pass')) {
+                if (val) roomPassword = val;
+            }
+        });
+
+        // Fallback agar inputs upar wale tarike se na pakde jayein
+        if (!matchId) {
+            const matchIdInput = document.querySelector('#room-section input') || document.querySelector('input');
+            matchId = matchIdInput ? matchIdInput.value.trim() : '';
+        }
 
         if (!matchId) {
             alert("Please enter Match ID!");
@@ -199,6 +217,8 @@ window.updateRoomCredentials = function () {
         }
 
         db.collection('tournaments').doc(matchId).set({
+            roomId: roomId,
+            roomPassword: roomPassword,
             roomIdUpdated: true,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).then(() => {
@@ -207,10 +227,12 @@ window.updateRoomCredentials = function () {
         }).catch((error) => {
             alert("Error updating room: " + error.message);
         });
+
     } catch (err) {
         alert("Error: " + err.message);
     }
 };
+
 
 // --- 7. SUBMIT RESULT ---
 window.submitResult = function () {
