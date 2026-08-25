@@ -322,16 +322,23 @@ window.openJoinedTournamentDetails = function(docId) {
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
         
-                let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.id || d.code || '';
+                    let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.matchId || d.id || d.code || '';
     let rPass = d.roomPassword || d.room_password || d.roompassword || d.password || d.pass || d.roomPass || '';
 
-    let roomBoxContent = `
-        <div style="background: rgba(0,0,0,0.95); padding: 10px; border-radius: 8px; text-align: left; max-height: 120px; overflow-y: auto;">
-            <p style="color: #ffcc00; font-size: 11px; margin: 0 0 4px 0; font-weight: bold;">🔍 DEBUG DATA:</p>
-            <p style="color: #00e676; font-size: 10px; margin: 0; word-break: break-all;">ID: ${rId || 'EMPTY'} | Pass: ${rPass || 'EMPTY'}</p>
-            <p style="color: #fff; font-size: 9px; margin: 4px 0 0 0; opacity: 0.8; word-break: break-all;">Full Obj: ${JSON.stringify(d)}</p>
-        </div>
-    `;
+    let roomBoxContent = '';
+    if (rId || rPass) {
+        roomBoxContent = `
+            <div style="background: rgba(0,0,0,0.85); border: 1px dashed #00e676; padding: 10px; border-radius: 8px; text-align: center; width: 100%;">
+                <p style="color: #00e676; font-size: 13px; margin: 0 0 3px 0; font-weight: bold;">🎯 ROOM DETAILS</p>
+                <p style="color: #fff; font-size: 12px; margin: 0 0 2px 0;">ID: <strong style="color: #ffcc00; user-select: all;">${rId}</strong></p>
+                <p style="color: #fff; font-size: 12px; margin: 0;">Pass: <strong style="color: #ffcc00; user-select: all;">${rPass}</strong></p>
+            </div>
+        `;
+    } else {
+        roomBoxContent = `
+            <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
+        `;
+    }
 
 
         let modalHTML = `
