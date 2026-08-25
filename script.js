@@ -1218,3 +1218,37 @@ window.filterContests = function(statusType) {
         listContainer.innerHTML = `<p style="color:#ff4444; text-align:center;">Error: ${err.message}</p>`;
     });
 };
+window.openMatchResultModal = function(matchData) {
+    const modal = document.getElementById('match-result-modal');
+    if (!modal) return;
+
+    document.getElementById('res-title').textContent = matchData.title || 'Tournament';
+    document.getElementById('res-subtitle').textContent = `${matchData.category || ''} • ${matchData.submode || ''}`;
+    document.getElementById('res-date').textContent = matchData.date || 'N/A';
+    document.getElementById('res-prize').textContent = matchData.prize || '0';
+    document.getElementById('res-kill-rate').textContent = matchData.perKill || '0';
+    document.getElementById('res-entry').textContent = matchData.entry || '0';
+    document.getElementById('res-banner').src = matchData.banner || 'https://via.placeholder.com/600x200/222/fff?text=Tournament+Result';
+
+    const tbody = document.getElementById('res-table-body');
+    tbody.innerHTML = '';
+
+    if (matchData.participants && matchData.participants.length > 0) {
+        matchData.participants.forEach((p, index) => {
+            tbody.innerHTML += `<tr style="border-bottom: 1px solid #2c2c2c;">
+                <td style="padding: 10px; color: #aaa;">${index + 1}</td>
+                <td style="padding: 10px; color: #fff;">${p.name || 'Player'}</td>
+                <td style="padding: 10px; text-align: center; color: #fff;">${p.kills || 0}</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #2ecc71;">${p.prize || 0}</td>
+            </tr>`;
+        });
+    } else {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #777;">No results found</td></tr>`;
+    }
+    modal.style.display = 'block';
+};
+
+window.closeMatchResult = function() {
+    const modal = document.getElementById('match-result-modal');
+    if (modal) modal.style.display = 'none';
+};
