@@ -321,16 +321,8 @@ window.openJoinedTournamentDetails = function(docId) {
         let bannerImg = getTournamentBanner(d);
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
+        let roomBoxContent = 'Room Id and Password will be display here before 5-10 min of match start';
         
-        console.log("Match Data from Firebase:", d); // Console mein check karne ke liye
-    let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.id || d.code || '';
-    let rPass = d.roomPassword || d.room_password || d.roompassword || d.password || d.pass || d.roomPass || '';
-
-    
-    let roomBoxContent = '';
-            
-    let roomBoxContent = 'Room Id and Password will be display here before 5-10 min of match start';
-
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
