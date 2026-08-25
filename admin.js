@@ -714,3 +714,43 @@ window.saveMatchKills = function(docId, targetUsername) {
         alert("Error: " + error.message);
     });
 };
+window.markMatchComplete = function () {
+    try {
+        const db = getDb();
+        if (!db) { alert("Database not connected!"); return; }
+
+        let matchId = '';
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            const placeholder = (input.placeholder || '').toLowerCase();
+            const val = input.value.trim();
+            if (!val) return;
+            if (placeholder.includes('match') || placeholder.includes('uio') || val === 'Uio') {
+                if (!matchId) matchId = val;
+            }
+        });
+
+        if (!matchId && inputs.length > 0) {
+            matchId = inputs[0].value.trim();
+        }
+
+        if (!matchId) {
+            alert("Please enter Match ID!");
+            return;
+        }
+
+        db.collection('tournaments').doc(matchId).set({
+            status: 'completed',
+            completed: true,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).then(() => {
+            alert("🏁 Match Marked as Complete Successfully!");
+            location.reload();
+        }).catch((error) => {
+            alert("Error marking match complete: " + error.message);
+        });
+
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+};
