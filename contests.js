@@ -357,6 +357,9 @@ window.openJoinedTournamentDetails = function(docId) {
 // ==============================
 // 5. FILTER CONTESTS (Status Filtering)
 // ==============================
+// ==============================
+// 5. FILTER CONTESTS (Status Filtering with Auto-Time Expiry)
+// ==============================
 window.filterContests = function(statusType) {
     let existing = document.getElementById("contest-modal");
     if (existing) existing.remove();
@@ -386,6 +389,7 @@ window.filterContests = function(statusType) {
 
         let html = '';
         let foundCount = 0;
+        let nowTime = new Date().getTime();
 
         snapshot.forEach(doc => {
             let d = doc.data();
@@ -398,6 +402,13 @@ window.filterContests = function(statusType) {
 
             if (isJoined) {
                 let matchStatus = (d.status || 'upcoming').toLowerCase();
+                let displayTime = getTournamentTime(d);
+                let targetMatchTime = parseTournamentTime(displayTime);
+
+                // SMART TIME OVERRIDE: Agar match ka time nikal chuka hai, toh status ko automatic completed maan lo
+                if (matchStatus === 'upcoming' && targetMatchTime < nowTime) {
+                    matchStatus = 'completed';
+                }
 
                 let matchesTab = false;
                 if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
@@ -411,7 +422,6 @@ window.filterContests = function(statusType) {
                 if (matchesTab) {
                     foundCount++;
                     let bannerImg = getTournamentBanner(d);
-                    let displayTime = getTournamentTime(d);
                     
                     html += `
                     <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer;">
