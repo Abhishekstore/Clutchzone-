@@ -200,16 +200,27 @@ window.updateRoomCredentials = function () {
 
             if (placeholder.includes('match') || placeholder.includes('uio') || val === 'Uio') {
                 matchId = val;
-            } else if (placeholder.includes('room') || placeholder.includes('id')) {
+            } else if (placeholder.includes('room') && !placeholder.includes('host')) {
                 if (val !== matchId) roomId = val;
             } else if (placeholder.includes('pass')) {
                 roomPassword = val;
             }
         });
 
+        // Agar placeholder se match na ho, toh position ke hisab se sahi input uthana
         if (!matchId && inputs.length > 0) matchId = inputs[0].value.trim();
-        if (!roomId && inputs.length > 1) roomId = inputs[1].value.trim();
-        if (!roomPassword && inputs.length > 2) roomPassword = inputs[2].value.trim();
+        // Index 1 ya 2 par dhyan dein ki Room ID kahan hai
+        for (let i = 1; i < inputs.length; i++) {
+            let v = inputs[i].value.trim();
+            let ph = (inputs[i].placeholder || '').toLowerCase();
+            if (v && v !== matchId) {
+                if (ph.includes('pass')) {
+                    roomPassword = v;
+                } else if (!roomId) {
+                    roomId = v;
+                }
+            }
+        }
 
         if (!matchId) {
             alert("Please enter Match ID!");
