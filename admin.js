@@ -186,6 +186,7 @@ window.saveHostPlan = function () {
 
 // --- 6. UPDATE ROOM CREDENTIALS ---
 window.updateRoomCredentials = function () {
+window.updateRoomCredentials = function () {
     try {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
@@ -196,20 +197,20 @@ window.updateRoomCredentials = function () {
         inputs.forEach(input => {
             const placeholder = (input.placeholder || '').toLowerCase();
             const val = input.value.trim();
-            if (placeholder.includes('match') || placeholder.includes('uio')) {
-                if (val) matchId = val;
-            } else if (placeholder.includes('room') || placeholder.toLowerCase() === 'room id') {
-                if (val) roomId = val;
+            if (!val) return;
+
+            if (placeholder.includes('match') || placeholder.includes('uio') || val === 'Uio') {
+                matchId = val;
+            } else if (placeholder.includes('room') || placeholder.includes('id')) {
+                if (val !== matchId) roomId = val;
             } else if (placeholder.includes('pass')) {
-                if (val) roomPassword = val;
+                roomPassword = val;
             }
         });
 
-        // Fallback agar inputs upar wale tarike se na pakde jayein
-        if (!matchId) {
-            const matchIdInput = document.querySelector('#room-section input') || document.querySelector('input');
-            matchId = matchIdInput ? matchIdInput.value.trim() : '';
-        }
+        if (!matchId && inputs.length > 0) matchId = inputs[0].value.trim();
+        if (!roomId && inputs.length > 1) roomId = inputs[1].value.trim();
+        if (!roomPassword && inputs.length > 2) roomPassword = inputs[2].value.trim();
 
         if (!matchId) {
             alert("Please enter Match ID!");
