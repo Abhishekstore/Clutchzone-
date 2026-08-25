@@ -360,5 +360,22 @@
 </script>
 
 <script src="admin.js?v=2"></script>
+    <script>
+    // Page load hote hi automatic 1, 2, 3... sequence set karne ke liye
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof db !== 'undefined') {
+            db.collection('tournaments').get().then(snapshot => {
+                const nextId = snapshot.size + 1;
+                const matchIdInput = document.getElementById('tournament-match-id');
+                if (matchIdInput) {
+                    matchIdInput.value = nextId;
+                }
+            }).catch(err => {
+                console.log("Error fetching tournaments count:", err);
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
