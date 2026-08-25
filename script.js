@@ -1257,14 +1257,19 @@ window.closeMatchResult = function() {
     if (modal) modal.style.display = 'none';
 };
 window.handleMatchClick = function(docId, status) {
-    // Yahan hum check kar rahe hain ki status completed hai ya nahi
-    if (status && (status.toLowerCase() === 'completed' || status === 'true' || status === true)) {
-        db.collection('tournaments').doc(docId).get().then(doc => {
-            if (doc.exists) {
-                openWatchResultModal(doc.data());
+    db.collection('tournaments').doc(docId).get().then(doc => {
+        if (doc.exists) {
+            let d = doc.data();
+            if (d.status === 'completed' || d.status === 'Completed' || status === 'completed' || status === 'true') {
+                openWatchResultModal(d);
+            } else {
+                openJoinedTournamentDetails(docId);
             }
-        });
-    } else {
+        } else {
+            openJoinedTournamentDetails(docId);
+        }
+    }).catch(err => {
+        console.log("Error:", err);
         openJoinedTournamentDetails(docId);
-    }
+    });
 };
