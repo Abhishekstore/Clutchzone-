@@ -186,7 +186,6 @@ window.saveHostPlan = function () {
 
 // --- 6. UPDATE ROOM CREDENTIALS ---
 window.updateRoomCredentials = function () {
-window.updateRoomCredentials = function () {
     try {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
