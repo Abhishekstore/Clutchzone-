@@ -482,7 +482,8 @@ if (d.completed === true) {
                 
 
                 let matchesTab = false;
-                if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
+                if (targetTab === 'upcoming' && matchStatus === 'upcoming' && targetMatchTime >= nowTime) {
+                    
                     matchesTab = true;
                 } else if (targetTab === 'completed' && (matchStatus === 'completed' || matchStatus === 'finished')) {
                     matchesTab = true;
