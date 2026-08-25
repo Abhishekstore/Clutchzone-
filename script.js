@@ -1204,7 +1204,8 @@ window.matchCache[docId] = d;
             if (matchesStatus && isJoined) {
                 foundCount++;
                 // Click karne par Screenshot 3 jaisa detailed modal khulega
-               html += `<div onclick="handleMatchClick('${docId}', '${d.status}')" style=...`
+                html += `<div onclick="handleMatchClick('${docId}', '${d.status || ''}')" style="background: #1e1e2f; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;">`;
+
     <h4 style="color:#ffcc00; margin:0 0 8px 0; font-size:16px;">${d.title || 'Tournament'}</h4>
     <p style="margin:3px 0; font-size:13px; color:#aaa;">Entry Fee: ₹${d.entryFee || 0} | Prize: ₹${d.prize || 0}</p>
     <span style="display:inline-block; margin-top:8px; padding:4px 10px; border-radius:4px; font-size:12px; background:#00e676; color:#000; font-weight:bold;">${d.status}</span>
