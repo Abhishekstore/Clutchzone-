@@ -88,31 +88,40 @@ window.switchSection = function (sectionId, btn) {
 };
 
 // --- 4. CREATE TOURNAMENT ---
-window.createTournament = function() {
+window.createTournament = async function() {
     try {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        const matchId = document.getElementById('tournament-match-id')?.value.trim() || "";
-        const hostCode = document.getElementById('host-code')?.value.trim() || "ADMIN";
-        const title = document.getElementById('tournament-title')?.value.trim() || document.getElementById('title')?.value.trim() || "";
-        const category = document.getElementById('tournament-category')?.value || "Full Map";
-        const submode = document.getElementById('tournament-submode')?.value || "Solo";
+        // 1. Automatic Match ID (1, 2, 3...) generate karne ke liye counter
+        const counterRef = db.collection('settings').doc('matchCounter');
+        const counterDoc = await counterRef.get();
         
-        // Yahan input IDs ko aapke form ke mutabiq set kar diya hai
-        const entry = Number(document.getElementById('tournament-entry')?.value || document.getElementById('entry')?.value) || 0;
-        const prize = Number(document.getElementById('tournament-prize')?.value || document.getElementById('prize')?.value) || 0;
-        const perKill = Number(document.getElementById('kill')?.value || document.getElementById('tournament-perkill')?.value) || 0;
-        
-        const startTime = document.getElementById('tournament-time')?.value || "";
+        let nextId = 1;
+        if (counterDoc.exists) {
+            nextId = (counterDoc.data().lastId || 0) + 1;
+        }
+        const matchIdStr = nextId.toString();
 
-        if (!matchId || !title) {
-            alert("Kripya Match ID aur Title zaroor bharein!");
+        // 2. Aapke purane form fields se values lena
+        const hostCode = document.getElementById('host-code')?.value.trim() || 'ADMIN';
+        const title = document.getElementById('tournament-title')?.value.trim() || 'Tournament';
+        const category = document.getElementById('tournament-category')?.value.trim() || 'Full Map';
+        const submode = document.getElementById('tournament-submode')?.value || 'Solo';
+        
+        const entry = Number(document.getElementById('tournament-entry')?.value) || 0;
+        const prize = Number(document.getElementById('tournament-prize')?.value) || 0;
+        const perKill = Number(document.getElementById('kill')?.value) || 0;
+        const startTime = document.getElementById('tournament-time')?.value || '';
+
+        if (!startTime) {
+            alert("Please select Start Date and Time!");
             return;
         }
 
-        db.collection("tournaments").doc(matchId).set({
-            matchId: matchId,
+        // 3. Auto-generated Match ID ke sath tournament save karna
+        await db.collection('tournaments').doc(matchIdStr).set({
+            matchId: matchIdStr,
             hostCode: hostCode,
             title: title,
             category: category,
@@ -121,19 +130,22 @@ window.createTournament = function() {
             prize: prize,
             perKill: perKill,
             startTime: startTime,
-            status: "upcoming",
+            status: 'upcoming',
+            participants: [],
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert("🚀 Tournament Launch ho gaya! (Entry: ₹" + entry + ", Prize: ₹" + prize + ", Kill: ₹" + perKill + ")");
-            location.reload();
-        }).catch((error) => {
-            alert("Firebase Error: " + error.message);
         });
 
+        // 4. Counter ko update karke agle match ke liye +1 kar dena
+        await counterRef.set({ lastId: nextId }, { merge: true });
+
+        alert("🎉 Tournament Launch ho gaya! Match ID: " + matchIdStr);
+        location.reload();
+
     } catch (err) {
-        alert("Error: " + err.message);
+        alert("Error creating tournament: " + err.message);
     }
 };
+
 
 
 // --- 5. SAVE HOST PLAN ---
