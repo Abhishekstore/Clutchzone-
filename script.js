@@ -1257,19 +1257,33 @@ window.closeMatchResult = function() {
     if (modal) modal.style.display = 'none';
 };
 window.handleMatchClick = function(docId, status) {
+    if (!docId) return;
+    
     db.collection('tournaments').doc(docId).get().then(doc => {
-        if (doc.exists) {
-            let d = doc.data();
-            if (d.status === 'completed' || d.status === 'Completed' || status === 'completed' || status === 'true') {
-                openWatchResultModal(d);
+        if (doc && doc.exists) {
+            let d = doc.data() || {};
+            let matchStatus = d.status ? d.status.toString().toLowerCase() : '';
+            
+            if (matchStatus === 'completed' || status === 'completed' || status === 'true' || status === true) {
+                if (typeof openWatchResultModal === 'function') {
+                    openWatchResultModal(d);
+                } else {
+                    console.log("openWatchResultModal function not found");
+                }
             } else {
-                openJoinedTournamentDetails(docId);
+                if (typeof openJoinedTournamentDetails === 'function') {
+                    openJoinedTournamentDetails(docId);
+                }
             }
         } else {
-            openJoinedTournamentDetails(docId);
+            if (typeof openJoinedTournamentDetails === 'function') {
+                openJoinedTournamentDetails(docId);
+            }
         }
     }).catch(err => {
-        console.log("Error:", err);
-        openJoinedTournamentDetails(docId);
+        console.log("Error in handleMatchClick:", err);
+        if (typeof openJoinedTournamentDetails === 'function') {
+            openJoinedTournamentDetails(docId);
+        }
     });
 };
