@@ -719,32 +719,47 @@ window.markMatchComplete = function () {
         const db = getDb();
         if (!db) { alert("Database not connected!"); return; }
 
-        let matchId = '';
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            const placeholder = (input.placeholder || '').toLowerCase();
-            const val = input.value.trim();
-            if (!val) return;
-            if (placeholder.includes('match') || placeholder.includes('uio') || val === 'Uio') {
-                if (!matchId) matchId = val;
+        // "Declare Results" section ko dhoondhna taaki galti na ho
+        let resultSection = null;
+        const allDivs = document.querySelectorAll('div');
+        for (let div of allDivs) {
+            if (div.innerText && div.innerText.includes('Declare Results')) {
+                resultSection = div;
+                break;
             }
-        });
+        }
 
-        if (!matchId && inputs.length > 0) {
-            matchId = inputs[0].value.trim();
+        let matchId = '';
+        if (resultSection) {
+            const inputs = resultSection.querySelectorAll('input');
+            if (inputs.length > 0) {
+                matchId = inputs[0].value.trim(); // Pehla input hamesha Match ID hota hai
+            }
+        }
+
+        // Fallback agar section na mile
+        if (!matchId) {
+            const allInputs = document.querySelectorAll('input');
+            for (let input of allInputs) {
+                if ((input.placeholder || '').toLowerCase().includes('match')) {
+                    matchId = input.value.trim();
+                    break;
+                }
+            }
         }
 
         if (!matchId) {
-            alert("Please enter Match ID!");
+            alert("Please enter Match ID in Declare Results section!");
             return;
         }
 
+        // Sirf ussi specific Match ID ko update karega
         db.collection('tournaments').doc(matchId).set({
             status: 'completed',
             completed: true,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).then(() => {
-            alert("🏁 Match Marked as Complete Successfully!");
+            alert("🏁 Match ID (" + matchId + ") Marked as Complete Successfully!");
             location.reload();
         }).catch((error) => {
             alert("Error marking match complete: " + error.message);
