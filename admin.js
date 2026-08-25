@@ -251,71 +251,112 @@ window.updateRoomCredentials = function () {
 
 
 // --- 7. SUBMIT RESULT ---
-window.submitResult = function () {
-    try {
-        const db = getDb();
-        if (!db) { alert("Database not connected!"); return; }
+// 1. Match ID se saare joined players ko load karna
+window.loadMatchPlayersForResults = function() {
+    const matchId = document.getElementById('declareMatchId').value.trim();
+    const container = document.getElementById('playersResultContainer');
 
-        const inputs = document.querySelectorAll('input');
-        let matchId = '', uid = '', kills = 0, earnings = 0;
+    if (!matchId) {
+        alert("Please enter Match ID first!");
+        return;
+    }
 
-        inputs.forEach(input => {
-            const placeholder = (input.placeholder || '').toLowerCase();
-            if (placeholder.includes('match')) matchId = input.value.trim();
-            if (placeholder.includes('uid') || placeholder.includes('player')) uid = input.value.trim();
-            if (placeholder.includes('kill')) kills = Number(input.value) || 0;
-            if (placeholder.includes('earning') || placeholder.includes('prize')) earnings = Number(input.value) || 0;
-        });
+    container.innerHTML = '<p style="color: #aaa; text-align: center;">Loading players...</p>';
 
-        if (!matchId || !uid) {
-            alert("Please enter Match ID and Player UID!");
+    const db = getDb();
+    db.collection('tournaments').doc(matchId).get().then((doc) => {
+        if (!doc.exists) {
+            container.innerHTML = '<p style="color: #ff4444; text-align: center;">Match not found!</p>';
             return;
         }
 
-        db.collection('results').add({
-            matchId: matchId,
-            playerUid: uid,
+        const data = doc.data();
+        const participants = data.participants || [];
+
+        if (participants.length === 0) {
+            container.innerHTML = '<p style="color: #ff4444; text-align: center;">No players joined this match yet!</p>';
+            return;
+        }
+
+        let html = '';
+        participants.forEach((player, index) => {
+            let playerName = typeof player === 'string' ? player : (player.username || player.name || 'Player ' + (index + 1));
+            
+            html += `
+                <div class="player-result-row" data-player="${playerName}" style="background: #1a1a1a; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #333;">
+                    <div style="color: #ffcc00; font-weight: bold; margin-bottom: 5px;">${index + 1}. ${playerName}</div>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: #888;">Kills</label>
+                            <input type="number" class="p-kills" value="0" style="width: 100%; padding: 6px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: #888;">Earnings (₹)</label>
+                            <input type="number" class="p-earnings" value="0" style="width: 100%; padding: 6px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }).catch((err) => {
+        container.innerHTML = '<p style="color: #ff4444; text-align: center;">Error: ' + err.message + '</p>';
+    });
+};
+
+// 2. Sabhi ka result save karna aur wallets mein automatic paisa bhejna
+window.saveAllMatchResults = function() {
+    const matchId = document.getElementById('declareMatchId').value.trim();
+    if (!matchId) {
+        alert("Please enter Match ID!");
+        return;
+    }
+
+    const rows = document.querySelectorAll('.player-result-row');
+    if (rows.length === 0) {
+        alert("No players loaded to save!");
+        return;
+    }
+
+    const db = getDb();
+    let batch = db.batch();
+    let resultsData = {};
+
+    rows.forEach(row => {
+        let playerName = row.getAttribute('data-player');
+        let kills = parseInt(row.querySelector('.p-kills').value) || 0;
+        let earnings = parseFloat(row.querySelector('.p-earnings').value) || 0;
+
+        resultsData[playerName] = {
             kills: kills,
-            earnings: earnings,
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert("✅ Result Submitted & Saved Successfully!");
-            location.reload();
-        }).catch((error) => {
-            alert("Error submitting result: " + error.message);
-        });
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
-};
+            earnings: earnings
+        };
 
-// --- 8. MARK MATCH COMPLETE ---
-window.markWatchComplete = function () {
-    try {
-        const db = getDb();
-        if (!db) { alert("Database not connected!"); return; }
-
-        const matchIdInput = document.querySelector('input[placeholder*="Watch ID"]');
-        const matchId = matchIdInput ? matchIdInput.value.trim() : '';
-
-        if (!matchId) {
-            alert("Please enter Watch ID!");
-            return;
+        if (earnings > 0) {
+            let userRef = db.collection('users').doc(playerName);
+            batch.update(userRef, {
+                wallet: firebase.firestore.FieldValue.increment(earnings)
+            });
         }
+    });
 
-        db.collection('tournaments').doc(matchId).set({
-            status: 'Completed',
-            completedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).then(() => {
-            alert("🏁 Match Marked Complete Successfully!");
-            location.reload();
-        }).catch((error) => {
-            alert("Error: " + error.message);
-        });
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
+    let matchRef = db.collection('tournaments').doc(matchId);
+    batch.update(matchRef, {
+        results: resultsData,
+        completed: true,
+        status: 'completed',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    batch.commit().then(() => {
+        alert("🎉 Results Saved Successfully & Wallets Updated Automatically!");
+        location.reload();
+    }).catch((error) => {
+        alert("Error saving results: " + error.message);
+    });
 };
+
 
 // --- 9. NUMBERED USERS & DEPOSITS DISPLAY FUNCTIONS ---
 window.renderNumberedUsersList = function () {
