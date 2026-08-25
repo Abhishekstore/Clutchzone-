@@ -472,13 +472,14 @@ window.filterContests = function(statusType) {
 
             if (isJoined) {
                 let matchStatus = (d.status || 'upcoming').toLowerCase();
+if (d.completed === true) {
+    matchStatus = 'completed';
+}
+
                 let displayTime = getTournamentTime(d);
                 let targetMatchTime = parseTournamentTime(displayTime);
 
-                // SMART TIME OVERRIDE: Agar match ka time nikal chuka hai, toh status ko automatic completed maan lo
-                if (matchStatus === 'upcoming' && targetMatchTime < nowTime) {
-                    matchStatus = 'completed';
-                }
+                
 
                 let matchesTab = false;
                 if (targetTab === 'upcoming' && matchStatus === 'upcoming') {
