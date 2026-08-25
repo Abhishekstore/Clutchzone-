@@ -1257,10 +1257,11 @@ window.closeMatchResult = function() {
     if (modal) modal.style.display = 'none';
 };
 window.handleMatchClick = function(docId, status) {
-    if (status === 'completed') {
+    // Yahan humne 'true' aur 'completed' dono ke liye condition laga di hai
+    if (status === 'completed' || status === 'true' || status === true) {
         db.collection('tournaments').doc(docId).get().then(doc => {
             if (doc.exists) {
-                openMatchResultModal(doc.data());
+                openWatchResultModal(doc.data());
             }
         });
     } else {
