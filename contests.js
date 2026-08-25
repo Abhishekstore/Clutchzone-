@@ -335,7 +335,7 @@ window.openJoinedTournamentDetails = function(docId) {
             </p>
         </div>
     `;
-l
+
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
