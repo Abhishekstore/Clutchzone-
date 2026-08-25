@@ -322,8 +322,10 @@ window.openJoinedTournamentDetails = function(docId) {
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
         
-    let rId = d.roomId || d.room_id || d.roomID || '';
-    let rPass = d.roomPassword || d.password || d.pass || '';
+        console.log("Match Data from Firebase:", d); // Console mein check karne ke liye
+    let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.id || d.code || '';
+    let rPass = d.roomPassword || d.room_password || d.roompassword || d.password || d.pass || d.roomPass || '';
+
     
     let roomBoxContent = '';
     if (rId || rPass) {
