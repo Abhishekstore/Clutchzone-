@@ -321,6 +321,24 @@ window.openJoinedTournamentDetails = function(docId) {
         let bannerImg = getTournamentBanner(d);
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
+        
+    let rId = d.roomId || d.room_id || d.roomID || '';
+    let rPass = d.roomPassword || d.password || d.pass || '';
+    
+    let roomBoxContent = '';
+    if (rId || rPass) {
+        roomBoxContent = `
+            <div style="background: rgba(0,0,0,0.85); border: 1px dashed #00e676; padding: 10px; border-radius: 8px; text-align: center;">
+                <p style="color: #00e676; font-size: 14px; margin: 0 0 5px 0; font-weight: bold;">🎯 ROOM DETAILS AVAILABLE</p>
+                <p style="color: #fff; font-size: 13px; margin: 0 0 3px 0;">ID: <strong style="color: #ffcc00; user-select: all;">${rId || 'N/A'}</strong></p>
+                <p style="color: #fff; font-size: 13px; margin: 0;">Password: <strong style="color: #ffcc00; user-select: all;">${rPass || 'N/A'}</strong></p>
+            </div>
+        `;
+    } else {
+        roomBoxContent = `
+            <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
+        `;
+    }
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
@@ -340,7 +358,7 @@ window.openJoinedTournamentDetails = function(docId) {
             <div style="width: 100%; height: 170px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; position: relative; background: url('${bannerImg}') center/cover no-repeat;">
                 <div style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.4);"></div>
                 <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 10px;">
-                    <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
+                    ${roomBoxContent}
                 </div>
             </div>
 
