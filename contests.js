@@ -328,19 +328,14 @@ window.openJoinedTournamentDetails = function(docId) {
 
     
     let roomBoxContent = '';
-    if (rId || rPass) {
-        roomBoxContent = `
-            <div style="background: rgba(0,0,0,0.85); border: 1px dashed #00e676; padding: 10px; border-radius: 8px; text-align: center;">
-                <p style="color: #00e676; font-size: 14px; margin: 0 0 5px 0; font-weight: bold;">🎯 ROOM DETAILS AVAILABLE</p>
-                <p style="color: #fff; font-size: 13px; margin: 0 0 3px 0;">ID: <strong style="color: #ffcc00; user-select: all;">${rId || 'N/A'}</strong></p>
-                <p style="color: #fff; font-size: 13px; margin: 0;">Password: <strong style="color: #ffcc00; user-select: all;">${rPass || 'N/A'}</strong></p>
-            </div>
-        `;
-    } else {
-        roomBoxContent = `
-            <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
-        `;
-    }
+        let roomBoxContent = `
+        <div style="background: rgba(0,0,0,0.9); padding: 15px; border-radius: 8px; text-align: center;">
+            <p style="color: #ffcc00; font-size: 14px; margin: 0; font-weight: bold;">
+                DB ID: ${rId ? rId : 'BLANK'} | Pass: ${rPass ? rPass : 'BLANK'}
+            </p>
+        </div>
+    `;
+l
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
