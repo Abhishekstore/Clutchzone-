@@ -1,48 +1,111 @@
 // ==============================
-// 0. HELPER: BASE PATH & DATE PARSER
+// 0. SMART TIME & BANNER DETECTOR
 // ==============================
-function getBannerBasePath() {
-    let loc = window.location.pathname;
-    let pathSegments = loc.split('/').filter(Boolean);
-    // If hosted on GitHub pages with a repo name, use repo path, else root relative
-    if (pathSegments.length > 0 && !loc.endsWith('.html') && !loc.endsWith('/')) {
-        // Just in case
+function getTournamentTime(d) {
+    if (!d) return 'TBD';
+    let candidates = [d.time, d.schedule, d.matchTime, d.match_time, d.date, d.startTime, d.timeSlot, d.timing, d.matchSchedule];
+    for (let val of candidates) {
+        if (val && typeof val === 'string' && val.trim() !== '' && val !== 'N/A') {
+            return val;
+        }
     }
-    // Using relative path mechanism that works on GitHub Pages subpaths
-    let basePath = '';
-    if (window.location.hostname.includes('github.io') && pathSegments.length > 0) {
-        basePath = '/' + pathSegments[0] + '/';
-    } else {
-        basePath = './';
+    for (let key in d) {
+        let val = d[key];
+        if (val && typeof val === 'string' && (val.includes(':') || val.toLowerCase().includes('am') || val.toLowerCase().includes('pm'))) {
+            return val;
+        }
     }
-    return basePath;
+    return 'TBD';
 }
 
 function parseTournamentTime(scheduleStr) {
-    if (!scheduleStr) return new Date().getTime() + (3600 * 1000 * 2);
-    let parsed = Date.parse(scheduleStr);
+    if (!scheduleStr || scheduleStr === 'TBD') return new Date().getTime() + (3600 * 1000 * 2);
+    if (typeof scheduleStr === 'number') return scheduleStr;
+    
+    let str = String(scheduleStr).trim();
+    let parsed = Date.parse(str);
     if (!isNaN(parsed)) return parsed;
 
     try {
-        let parts = scheduleStr.trim().split(' ');
-        let datePart = parts[0]; // e.g. 25-08-2026
-        let timePart = parts[1] || '00:00:00';
-        
-        let dParts = datePart.split('-');
-        if (dParts.length === 3) {
-            let year, month, day;
-            if (dParts[0].length === 4) {
-                year = dParts[0]; month = dParts[1]; day = dParts[2];
-            } else {
-                day = dParts[0]; month = dParts[1]; year = dParts[2];
-            }
-            let isoStr = `${year}-${month}-${day}T${timePart}`;
-            let t = Date.parse(isoStr);
-            if (!isNaN(t)) return t;
+        let parts = str.toLowerCase().split(' ');
+        let datePart = parts[0];
+        let timePart = parts[1] || parts[0] || '00:00:00';
+        let ampm = parts[2] || ''; 
+
+        if (!datePart.includes('-') && !datePart.includes('/')) {
+            timePart = datePart;
+            datePart = '';
         }
+
+        let tParts = timePart.split(':');
+        let hours = parseInt(tParts[0] || 0, 10);
+        let minutes = parseInt(tParts[1] || 0, 10);
+        let seconds = parseInt(tParts[2] || 0, 10);
+
+        if (ampm === 'pm' && hours < 12) hours += 12;
+        if (ampm === 'am' && hours === 12) hours = 0;
+
+        let targetDate = new Date();
+        if (datePart) {
+            let dParts = datePart.split('-');
+            if (dParts.length !== 3) dParts = datePart.split('/');
+            if (dParts.length === 3) {
+                let year, month, day;
+                if (dParts[0].length === 4) {
+                    year = dParts[0]; month = dParts[1]; day = dParts[2];
+                } else {
+                    day = dParts[0]; month = dParts[1]; year = dParts[2];
+                }
+                targetDate = new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10), hours, minutes, seconds);
+            }
+        } else {
+            targetDate.setHours(hours, minutes, seconds, 0);
+            if (targetDate.getTime() < new Date().getTime()) {
+                targetDate.setDate(targetDate.getDate() + 1);
+            }
+        }
+
+        let t = targetDate.getTime();
+        if (!isNaN(t)) return t;
     } catch(e) {}
 
     return new Date().getTime() + (3600 * 1000 * 2);
+}
+
+function getBannerByType(type, mode, title, subtitle) {
+    let combined = ((type || '') + ' ' + (mode || '') + ' ' + (title || '') + ' ' + (subtitle || '')).toLowerCase();
+    
+    if (combined.includes('4v4') || combined.includes('4*4') || combined.includes('clash squad')) {
+        return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80';
+    } else if (combined.includes('3v3') || combined.includes('3*3')) {
+        return 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80';
+    } else if (combined.includes('2v2') || combined.includes('2*2')) {
+        return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&auto=format&fit=crop&q=80';
+    } else if (combined.includes('1v1') || combined.includes('1*1') || combined.includes('lone wolf')) {
+        return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80';
+    } else if (combined.includes('squad')) {
+        return 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop&q=80';
+    } else if (combined.includes('duo')) {
+        return 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80';
+    } else {
+        return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80';
+    }
+}
+
+function getTournamentBanner(d) {
+    let raw = d.banner || d.bannerUrl || d.image || d.img || d.thumbnail || '';
+    if (raw && typeof raw === 'string' && raw.trim() !== '') {
+        if (raw.startsWith('http://') || raw.startsWith('https://')) {
+            return raw;
+        }
+        // GitHub raw link builder for user Abhishekstore
+        // Yahan 'tournaments' ko apne GitHub Repository ke naam se badal sakte hain agar alag ho
+        let githubUsername = 'Abhishekstore';
+        let repoName = d.repo || 'tournaments'; 
+        let branch = 'main';
+        return `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branch}/${raw}`;
+    }
+    return getBannerByType(d.type, d.mode, d.title, d.subtitle);
 }
 
 // ==============================
@@ -121,42 +184,16 @@ window.openViewEntriesModal = function(tournamentTitle, encodedParticipants, mat
 };
 
 // ==============================
-// 3. BANNER MANAGER FOR ALL MODES
-// ==============================
-function getBannerByType(type, mode, title, subtitle) {
-    let combined = ((type || '') + ' ' + (mode || '') + ' ' + (title || '') + ' ' + (subtitle || '')).toLowerCase();
-    let prefix = getBannerBasePath() + 'banners/';
-
-    if (combined.includes('4v4') || combined.includes('4*4')) {
-        return prefix + 'IMG_20260824_221300.jpg';
-    } else if (combined.includes('3v3') || combined.includes('3*3')) {
-        return prefix + 'IMG_20260824_221319.jpg';
-    } else if (combined.includes('2v2') || combined.includes('2*2')) {
-        return prefix + 'IMG_20260824_221338.jpg';
-    } else if (combined.includes('1v1') || combined.includes('1*1')) {
-        return prefix + 'IMG_20260824_221414.jpg';
-    } else if (combined.includes('squad')) {
-        return prefix + 'IMG_20260824_221457.jpg';
-    } else if (combined.includes('duo')) {
-        return prefix + 'IMG_20260824_221432.jpg';
-    } else if (combined.includes('solo')) {
-        return prefix + 'IMG_20260824_221547.jpg';
-    } else {
-        return prefix + 'IMG_20260824_221547.jpg';
-    }
-}
-
-// ==============================
-// 4. DETAILED MATCH VIEW (When clicking 'View Match')
+// 3. DETAILED MATCH VIEW
 // ==============================
 window.openMatchDetailsView = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
         if(!doc.exists) return;
         let d = doc.data();
-        let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
+        let bannerImg = getTournamentBanner(d);
         let matchTitle = d.title || d.name || 'SOLO BR • GUN ATTRIBUTES OFF';
         let matchIdNum = doc.id;
-        let matchTimeDisplay = d.time || d.schedule || d.matchTime || d.date || '25-08-2026 10:10:00 am';
+        let matchTimeDisplay = getTournamentTime(d);
 
         let existing = document.getElementById('match-details-full-modal');
         if(existing) existing.remove();
@@ -171,7 +208,7 @@ window.openMatchDetailsView = function(docId) {
 
             <!-- Banner -->
             <div style="width: 100%; height: 200px; background: #222; overflow: hidden;">
-                <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${getBannerBasePath()}banners/IMG_20260824_221547.jpg'">
+                <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
 
             <!-- Tabs -->
@@ -212,33 +249,9 @@ window.openMatchDetailsView = function(docId) {
                 
                 <div style="background: #1e1e1e; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.6; border: 1px solid #333;">
                     <p style="margin: 0 0 8px 0; font-weight: bold; color: #ffcc00;">Instructions Before Joining :</p>
-                    <p style="margin: 0 0 6px 0;">🛡️ <strong>FULL MAP — OFFICIAL MATCH RULES</strong><br>PLAYT24 / HORSE BAN 🐎</p>
+                    <p style="margin: 0 0 6px 0;">🛡️ <strong>FULL MAP — OFFICIAL MATCH RULES</strong></p>
                     <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🚫 <strong>TEAMING & UNREGISTERED PLAYERS</strong><br>❌ Team-Up STRICTLY NOT ALLOWED<br>❌ Unregistered Players NOT ALLOWED<br>🏆 BOOYAH PRIZE only if 48 slots are full<br>⚠️ If caught teaming / calling unregistered → ₹100 PENALTY<br>🔄 Repeat offense → PERMANENT BAN (NO WARNING)</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">📜 <strong>GENERAL RULES</strong><br>❌ Breaking any rule → ₹30 PENALTY<br>❌ Missing your match → NO REFUND</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">👤 <strong>CHARACTERS</strong><br>✔ All Characters ALLOWED<br>❌ RYDEN BANNED (If used → ₹20 PENALTY + KICK)</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🔫 <strong>GUN RULES</strong><br>✔ All Guns ALLOWED<br>❌ 2x Vector / M79 NOT ALLOWED<br>✔ Only 1 Vector allowed</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🚗 <strong>VEHICLES</strong><br>✔ Vehicles ALLOWED</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">⚙️ <strong>GUN ATTRIBUTES</strong><br>Will be ALLOWED / NOT ALLOWED as per match settings (announced before the match)</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🎮 <strong>ROOM JOINING RULE</strong><br>• Once you join the room → STAY IN YOUR SLOT<br>• If you move (solo match): ❌ KICK + NO REFUND</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">💬 <strong>CHAT BEHAVIOUR</strong><br>❌ Abusing in room chat → INSTANT KICK</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">⚔️ <strong>FAIR GAMEPLAY</strong><br>Strictly NOT ALLOWED: Bugs, Glitches, Team-Up</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🎥 <strong>SCREEN RECORDING — MUST</strong><br>• Recording MUST BE ON from the moment ID & Password is shared<br>• If you don't have recording when asked → ❌ NO PRIZE, ❌ NO REFUND</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">🛑 <strong>KICKED / ROOM FULL — REFUND POLICY</strong><br>Refund only if you provide VALID PROOF: Screen Recording from start / from room joining<br>⚠️ Without valid proof → NO REFUND</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0 0 6px 0;">📢 <strong>IDP (ID & PASS) RULE</strong><br>• IDP is always released ON THE APP FIRST<br>• If you wait only for notification and miss IDP → ❌ WE ARE NOT RESPONSIBLE, ❌ NO REFUND</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 8px 0;">
-                    <p style="margin: 0;">🚫 <strong>MISSED MATCH</strong><br>Fail to join on time → NO REFUND</p>
+                    <p style="margin: 0;">✔ All standard rules apply as per tournament configuration.</p>
                 </div>
             </div>
         </div>`;
@@ -247,7 +260,7 @@ window.openMatchDetailsView = function(docId) {
 };
 
 // ==============================
-// 5. DETAILED JOINED MATCH MODAL (With Live Accurate Countdown)
+// 4. DETAILED JOINED MATCH MODAL (Live Countdown)
 // ==============================
 window.openJoinedTournamentDetails = function(docId) {
     db.collection('tournaments').doc(docId).get().then(doc => {
@@ -258,7 +271,7 @@ window.openJoinedTournamentDetails = function(docId) {
         let existing = document.getElementById('joined-details-modal');
         if(existing) existing.remove();
 
-        let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
+        let bannerImg = getTournamentBanner(d);
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
 
@@ -278,9 +291,9 @@ window.openJoinedTournamentDetails = function(docId) {
             <p style="font-size: 12px; text-align: center; color: #ccc; margin-bottom: 8px;">*HOW TO JOIN CUSTOM ROOM ?*</p>
 
             <div style="width: 100%; height: 170px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; position: relative; background: url('${bannerImg}') center/cover no-repeat;">
-                <div style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
+                <div style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.4);"></div>
                 <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 10px;">
-                    <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9;">Room Id and Password will be display here before 5-10 min of match start</p>
+                    <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
                 </div>
             </div>
 
@@ -298,17 +311,16 @@ window.openJoinedTournamentDetails = function(docId) {
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">My Entries</button>
                 <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Watch Full</button>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-        // Start Live Accurate Countdown Timer
         if (window.activeCountdownInterval) clearInterval(window.activeCountdownInterval);
         
-        let rawSchedule = d.time || d.schedule || d.matchTime || d.date || '';
+        let rawSchedule = getTournamentTime(d);
         let targetTime = parseTournamentTime(rawSchedule);
 
         window.activeCountdownInterval = setInterval(() => {
@@ -343,7 +355,7 @@ window.openJoinedTournamentDetails = function(docId) {
 };
 
 // ==============================
-// 6. FILTER CONTESTS (Status Filtering)
+// 5. FILTER CONTESTS (Status Filtering)
 // ==============================
 window.filterContests = function(statusType) {
     let existing = document.getElementById("contest-modal");
@@ -398,13 +410,13 @@ window.filterContests = function(statusType) {
 
                 if (matchesTab) {
                     foundCount++;
-                    let bannerImg = getBannerByType(d.type, d.mode, d.title, d.subtitle);
-                    let displayTime = d.time || d.schedule || d.matchTime || d.date || 'N/A';
+                    let bannerImg = getTournamentBanner(d);
+                    let displayTime = getTournamentTime(d);
                     
                     html += `
                     <div onclick="openJoinedTournamentDetails('${docId}')" style="background: #1a1a1a; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer;">
                         <div style="width: 100%; height: 160px; overflow: hidden; background: #222;">
-                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${getBannerBasePath()}banners/IMG_20260824_221547.jpg'">
+                            <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div style="padding: 12px;">
                             <h3 style="color: #ffcc00; margin: 0 0 5px 0; font-size: 16px;">${d.title || d.name || 'Tournament'}</h3>
