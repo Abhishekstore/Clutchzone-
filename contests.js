@@ -321,8 +321,21 @@ window.openJoinedTournamentDetails = function(docId) {
         let bannerImg = getTournamentBanner(d);
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
-        let roomBoxContent = 'Room Id and Password will be display here before 5-10 min of match start';
         
+            let rId = (d && (d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.id || d.code)) || '';
+    let rPass = (d && (d.roomPassword || d.room_password || d.roompassword || d.password || d.pass || d.roomPass)) || '';
+
+    let roomBoxContent = '';
+    if (rId || rPass) {
+        roomBoxContent = `<div style="background: rgba(0,0,0,0.85); border: 1px dashed #00e676; padding: 10px; border-radius: 8px; text-align: center; width: 100%;">
+            <p style="color: #00e676; font-size: 13px; margin: 0 0 3px 0; font-weight: bold;">🎯 ROOM DETAILS</p>
+            <p style="color: #fff; font-size: 12px; margin: 0 0 2px 0;">ID: <strong style="color: #ffcc00; user-select: all;">${rId}</strong></p>
+            <p style="color: #fff; font-size: 12px; margin: 0;">Pass: <strong style="color: #ffcc00; user-select: all;">${rPass}</strong></p>
+        </div>`;
+    } else {
+        roomBoxContent = `Room Id and Password will be display here before 5-10 min of match start`;
+    }
+
 
         let modalHTML = `
         <div id="joined-details-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; overflow-y: auto; padding: 20px; font-family: sans-serif;">
