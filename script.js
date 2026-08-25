@@ -1191,6 +1191,9 @@ window.filterContests = function(statusType) {
         snapshot.forEach(doc => {
             let d = doc.data();
             let docId = doc.id;
+            
+window.matchCache = window.matchCache || {};
+window.matchCache[docId] = d;
 
             let matchesStatus = d.status && d.status.toLowerCase() === statusType.toLowerCase();
             let isJoined = false;
