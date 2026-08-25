@@ -267,6 +267,53 @@ window.openJoinedTournamentDetails = function(docId) {
         if(!doc.exists) return;
         let d = doc.data();
         let docIdStr = doc.id;
+        let defaultInstructions = `
+            <div style="color: #ddd; font-size: 13px; line-height: 1.6; text-align: left; padding: 5px;">
+                <p style="color: #ffcc00; font-weight: bold; margin-bottom: 8px; font-size: 14px;">🛡️ FULL MAP — OFFICIAL MATCH RULES</p>
+                
+                <p style="color: #ff5555; font-weight: bold; margin: 12px 0 4px 0;">❌ TEAMING & UNREGISTERED PLAYERS</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>Team-Up STRICTLY NOT ALLOWED</li>
+                    <li>Unregistered Players NOT ALLOWED</li>
+                    <li>BOOYAH PRIZE only if 48 slots are full</li>
+                    <li>If caught teaming / calling unregistered → ₹100 PENALTY</li>
+                    <li>Repeat offense → PERMANENT BAN (NO WARNING)</li>
+                </ul>
+
+                <p style="color: #ff5555; font-weight: bold; margin: 12px 0 4px 0;">📜 GENERAL RULES</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>Breaking any rule → ₹30 PENALTY</li>
+                    <li>Missing your match → NO REFUND</li>
+                </ul>
+
+                <p style="color: #ffcc00; font-weight: bold; margin: 12px 0 4px 0;">👤 CHARACTERS</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>✔ All Characters ALLOWED</li>
+                    <li>❌ RYDEN BANNED (If used → ₹20 PENALTY + KICK)</li>
+                </ul>
+
+                <p style="color: #ffcc00; font-weight: bold; margin: 12px 0 4px 0;">🔫 GUN RULES & VEHICLES</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>✔ All Guns ALLOWED | ❌ 2x Vector / M79 NOT ALLOWED</li>
+                    <li>✔ Only 1 Vector allowed</li>
+                    <li>✔ Vehicles ALLOWED</li>
+                </ul>
+
+                <p style="color: #ffcc00; font-weight: bold; margin: 12px 0 4px 0;">🎮 ROOM JOINING & CHAT</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>Once you join room → STAY IN YOUR SLOT (Moving = KICK + NO REFUND)</li>
+                    <li>Abusing in room chat → INSTANT KICK</li>
+                </ul>
+
+                <p style="color: #ffcc00; font-weight: bold; margin: 12px 0 4px 0;">📹 SCREEN RECORDING & REFUND POLICY</p>
+                <ul style="margin: 0; padding-left: 18px; color: #ccc;">
+                    <li>Recording MUST BE ON from ID & Password share time</li>
+                    <li>Refund only with valid screen recording proof</li>
+                    <li>IDP released on app first. Missing ID = No responsibility</li>
+                </ul>
+            </div>
+        `;
+        let finalInstructions = (d.instructions && d.instructions.length > 20) ? d.instructions : defaultInstructions;
 
         let existing = document.getElementById('joined-details-modal');
         if(existing) existing.remove();
@@ -315,6 +362,11 @@ window.openJoinedTournamentDetails = function(docId) {
                 <button onclick="openViewEntriesModal('${safeTitle}', '${encodedParticipants}', '${docIdStr}')" style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">My Entries</button>
                 <button style="background: #00bcd4; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Watch Full</button>
             </div>
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left;">
+            <h3 style="color: #ffcc00; font-size: 15px; margin-top: 0; margin-bottom: 10px;">Instructions Before Joining :</h3>
+            ${finalInstructions}
+        </div>
+        
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
@@ -354,9 +406,6 @@ window.openJoinedTournamentDetails = function(docId) {
     });
 };
 
-// ==============================
-// 5. FILTER CONTESTS (Status Filtering)
-// ==============================
 // ==============================
 // 5. FILTER CONTESTS (Status Filtering with Auto-Time Expiry)
 // ==============================
