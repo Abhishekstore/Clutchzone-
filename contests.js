@@ -328,21 +328,8 @@ window.openJoinedTournamentDetails = function(docId) {
 
     
     let roomBoxContent = '';
-            let roomBoxContent = '';
-    if (rId || rPass) {
-        roomBoxContent = `
-            <div style="background: rgba(0,0,0,0.85); border: 1px dashed #00e676; padding: 10px; border-radius: 8px; text-align: center; width: 100%;">
-                <p style="color: #00e676; font-size: 14px; margin: 0 0 5px 0; font-weight: bold;">🎯 ROOM DETAILS AVAILABLE</p>
-                <p style="color: #fff; font-size: 13px; margin: 0 0 3px 0;">ID: <strong style="color: #ffcc00; user-select: all;">${rId}</strong></p>
-                <p style="color: #fff; font-size: 13px; margin: 0;">Password: <strong style="color: #ffcc00; user-select: all;">${rPass}</strong></p>
-            </div>
-        `;
-    } else {
-        roomBoxContent = `
-            <p style="color: #fff; font-size: 13px; margin: 0; opacity: 0.9; font-weight: bold;">Room Id and Password will be display here before 5-10 min of match start</p>
-        `;
-    }
-
+            
+    let roomBoxContent = 'Room Id and Password will be display here before 5-10 min of match start';
 
 
         let modalHTML = `
