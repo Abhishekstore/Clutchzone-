@@ -66,17 +66,19 @@
         </div>
 
         <div class="admin-container">
-            <h2>🏆 Declare Results</h2>
-            <div class="form-group"><label>Match ID</label><input type="text" id="res-match-id" placeholder="Match ID"></div>
-            <div class="form-group"><label>Player FF UID</label><input type="text" id="res-player-uid" placeholder="UID"></div>
-            <div class="row">
-                <div class="form-group"><label>Kills</label><input type="number" id="res-kills" placeholder="0"></div>
-                <div class="form-group"><label>Earnings (₹)</label><input type="number" id="res-prize" placeholder="0"></div>
-            </div>
-            <button class="btn-submit" onclick="submitResult()" style="background: #22c55e;">✅ Save Result</button>
-            <button class="btn-submit" onclick="markMatchComplete()" style="background: #475569; margin-top: 10px;">🏁 Mark Match Completed</button>
-        </div>
+    <h2>🏆 Declare Results & Wallets</h2>
+    <div class="form-group">
+        <label>Match ID</label>
+        <input type="text" id="res-match-id" placeholder="Enter Match ID">
     </div>
+    <button class="btn-submit" onclick="loadMatchPlayersForResults()" style="background: #00bcd4; color: #fff;">🔍 Load Joined Players</button>
+    
+    <!-- Yahan saare joined players ki list automatic aayegi -->
+    <div id="results-players-container" style="margin-top: 15px; max-height: 300px; overflow-y: auto;"></div>
+
+    <button class="btn-submit" onclick="saveAllMatchResults()" style="background: #2ecc71; margin-top: 15px;">✅ Save Results & Update Wallets</button>
+</div>
+
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
