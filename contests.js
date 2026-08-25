@@ -322,7 +322,8 @@ window.openJoinedTournamentDetails = function(docId) {
         let encodedParticipants = btoa(JSON.stringify(d.participants || []));
         let safeTitle = encodeURIComponent(d.title || d.name || 'Tournament');
         
-                    let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || d.matchId || d.id || d.code || '';
+                    let rId = d.roomId || d.room_id || d.roomID || d.roomid || d.roomCode || d.room_code || '';
+
     let rPass = d.roomPassword || d.room_password || d.roompassword || d.password || d.pass || d.roomPass || '';
 
     let roomBoxContent = '';
