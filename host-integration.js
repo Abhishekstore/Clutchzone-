@@ -114,3 +114,129 @@ window.addEventListener("DOMContentLoaded", async () => {
         console.error("Error loading next match ID in host panel: ", err);
     }
 });
+// --- 1. SUB-MODE DROPDOWN FIX FOR HOST PANEL ---
+window.updateSubMode = function() {
+    const category = document.getElementById('tournament-category')?.value;
+    const submodeSelect = document.getElementById('tournament-submode');
+    if (!submodeSelect) return;
+    
+    submodeSelect.innerHTML = '';
+    
+    if (category === 'Full Map') {
+        ['Solo (48 Players)', 'Duo (50 Players)', 'Squad (100 Players)'].forEach(mode => {
+            let opt = document.createElement('option');
+            opt.value = mode;
+            opt.textContent = mode;
+            submodeSelect.appendChild(opt);
+        });
+    } else if (category === 'Clash Squad') {
+        ['1v1', '2v2', '4v4'].forEach(mode => {
+            let opt = document.createElement('option');
+            opt.value = mode;
+            opt.textContent = mode;
+            submodeSelect.appendChild(opt);
+        });
+    }
+};
+
+// Page load hote hi default sub-mode set karne ke liye
+window.addEventListener("DOMContentLoaded", () => {
+    updateSubMode();
+});
+
+
+// --- 2. LOAD JOINED PLAYERS FOR RESULTS IN HOST PANEL ---
+window.loadMatchPlayersForResults = async function() {
+    const matchId = document.getElementById('res-match-id')?.value.trim();
+    const container = document.getElementById('results-players-container');
+    
+    if (!matchId) {
+        alert("Please enter Match ID first!");
+        return;
+    }
+
+    container.innerHTML = "Loading players...";
+
+    try {
+        const db = getDb();
+        const doc = await db.collection('tournaments').doc(matchId).get();
+        
+        if (!doc.exists) {
+            container.innerHTML = "<p style='color:red;'>Match not found!</p>";
+            return;
+        }
+
+        const data = doc.data();
+        const participants = data.participants || [];
+
+        if (participants.length === 0) {
+            container.innerHTML = "<p style='color:orange;'>No players joined this match yet.</p>";
+            return;
+        }
+
+        let html = `<table style="width:100%; color:#fff; font-size:13px; text-align:left;" border="1" cellpadding="5">
+            <tr><th>Player Name</th><th>UID</th><th>Kills</th><th>Prize (₹)</th></tr>`;
+
+        participants.forEach((p, index) => {
+            html += `<tr>
+                <td>${p.name || 'Player'}</td>
+                <td>${p.uid}</td>
+                <td><input type="number" id="kill-${index}" value="0" style="width:50px; background:#111; color:#fff; border:1px solid #444;"></td>
+                <td><input type="number" id="prize-${index}" value="0" style="width:60px; background:#111; color:#fff; border:1px solid #444;"></td>
+            </tr>`;
+        });
+
+        html += `</table>`;
+        container.innerHTML = html;
+        window.currentMatchParticipants = participants;
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p style='color:red;'>Error loading players: " + err.message + "</p>";
+    }
+};
+
+
+// --- 3. SAVE RESULTS & UPDATE WALLETS ---
+window.saveAllMatchResults = async function() {
+    const matchId = document.getElementById('res-match-id')?.value.trim();
+    const participants = window.currentMatchParticipants;
+
+    if (!matchId || !participants) {
+        alert("Please load players first!");
+        return;
+    }
+
+    try {
+        const database = getDb();
+        
+        for (let i = 0; i < participants.length; i++) {
+            const kills = Number(document.getElementById(`kill-${i}`)?.value) || 0;
+            const prize = Number(document.getElementById(`prize-${i}`)?.value) || 0;
+            
+            participants[i].kills = kills;
+            participants[i].prize = prize;
+
+            if (prize > 0 && participants[i].userEmail) {
+                const userRef = database.collection('users').where('email', '==', participants[i].userEmail);
+                const userSnap = await userRef.get();
+                if (!userSnap.empty) {
+                    const userDoc = userSnap.docs[0];
+                    const currentWallet = Number(userDoc.data().wallet) || 0;
+                    await userDoc.ref.update({ wallet: currentWallet + prize });
+                }
+            }
+        }
+
+        await database.collection('tournaments').doc(matchId).update({
+            participants: participants,
+            status: 'completed'
+        });
+
+        alert("🎉 Results saved successfully & Wallets updated!");
+        location.reload();
+
+    } catch (err) {
+        alert("Error saving results: " + err.message);
+    }
+};
