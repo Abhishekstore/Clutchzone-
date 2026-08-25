@@ -767,3 +767,29 @@ window.saveMatchKills = function(docId, targetUsername) {
         alert("Error: " + error.message);
     });
 };
+// Page load hone par automatic agla Match ID input box me dikhana
+window.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const db = getDb();
+        if (!db) return;
+
+        const counterRef = db.collection('settings').doc('matchCounter');
+        const counterDoc = await counterRef.get();
+        
+        let nextId = 1;
+        if (counterDoc.exists) {
+            nextId = (counterDoc.data().lastId || 0) + 1;
+        }
+
+        // Aapke input box ki ID yahan 'tournament-match-id' hai
+        const matchInput = document.getElementById('tournament-match-id');
+        if (matchInput) {
+            matchInput.value = nextId;
+            matchInput.readOnly = true; // Isse box lock rahega, aapko sirf number dikhega ki agla match kaun sa hai
+            matchInput.style.background = "#222"; // Thoda alag dikhne ke liye background color
+            matchInput.style.color = "#ffcc00"; // Golden color ka number dikhega
+        }
+    } catch (err) {
+        console.error("Error loading next match ID: ", err);
+    }
+});
