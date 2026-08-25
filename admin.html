@@ -360,22 +360,28 @@
 </script>
 
 <script src="admin.js?v=2"></script>
-    <script>
-    // Page load hote hi automatic 1, 2, 3... sequence set karne ke liye
+<script>
+    // admin.js ke load hone ke baad thoda delay dekar sahi next ID set karega
     document.addEventListener("DOMContentLoaded", function() {
-        if (typeof db !== 'undefined') {
-            db.collection('tournaments').get().then(snapshot => {
-                const nextId = snapshot.size + 1;
-                const matchIdInput = document.getElementById('tournament-match-id');
-                if (matchIdInput) {
-                    matchIdInput.value = nextId;
-                }
-            }).catch(err => {
-                console.log("Error fetching tournaments count:", err);
-            });
-        }
+        setTimeout(function() {
+            if (typeof db !== 'undefined') {
+                db.collection('tournaments').get().then(snapshot => {
+                    let maxId = 0;
+                    snapshot.forEach(doc => {
+                        const idNum = parseInt(doc.id);
+                        if (!isNaN(idNum) && idNum > maxId) {
+                            maxId = idNum;
+                        }
+                    });
+                    const nextId = maxId + 1;
+                    const matchIdInput = document.getElementById('tournament-match-id');
+                    if (matchIdInput) {
+                        matchIdInput.value = nextId;
+                    }
+                }).catch(err => {
+                    console.log("Error:", err);
+                });
+            }
+        }, 800); // 0.8 second ka delay taaki koi doosri file isko 1 par wapas na kare
     });
 </script>
-
-</body>
-</html>
