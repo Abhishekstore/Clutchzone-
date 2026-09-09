@@ -1284,11 +1284,24 @@ window.handleMatchClick = function(docId, status) {
         }
     });
 };
+
 window.logout = function() {
-    // LocalStorage se user session saaf kar do
+    // LocalStorage se saari login details hata do
     localStorage.removeItem('logged_in_username');
     localStorage.removeItem('loggedUserEmail');
     
     alert('Successfully logged out!');
-    location.reload(); // Page ko reload karke login/home screen par le aayega
+
+    // Option 1: Agar aapka login alag page par hai (jaise login.html), toh yeh line uncomment karein:
+    // window.location.href = 'login.html';
+
+    // Option 2: Agar app ke andar hi Login modal/screen hai, toh use yahan open karwa sakte hain:
+    const loginModal = document.getElementById('login-modal'); // Yahan apne login modal ki ID daal sakte hain
+    if (loginModal) {
+        loginModal.style.display = 'block';
+    } else {
+        // Agar koi specific login page ya modal ki id nahi pata, toh page reload karke login check trigger kar sakte hain
+        location.reload();
+    }
 };
+
