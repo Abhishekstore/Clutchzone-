@@ -1284,3 +1284,11 @@ window.handleMatchClick = function(docId, status) {
         }
     });
 };
+window.logout = function() {
+    // LocalStorage se user session saaf kar do
+    localStorage.removeItem('logged_in_username');
+    localStorage.removeItem('loggedUserEmail');
+    
+    alert('Successfully logged out!');
+    location.reload(); // Page ko reload karke login/home screen par le aayega
+};
